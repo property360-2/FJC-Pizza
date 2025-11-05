@@ -1,0 +1,265 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Kiosk - Self Order{% endblock %}
+
+{% block content %}
+<div class="container" x-data="kioskApp()">
+    <div class="text-center my-4">
+        <h1><i class="bi bi-shop"></i> FJC Pizza - Self Order Kiosk</h1>
+        <p class="text-muted">Select your items and checkout</p>
+    </div>
+
+    <div class="row">
+        <!-- Products -->
+        <div class="col-lg-8 mx-auto">
+            <div class="row g-3" x-show="!loading">
+                <template x-for="product in products" :key="product.id">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 cursor-pointer"
+                             @click="addToCart(product)"
+                             :class="{'opacity-50': product.is_out_of_stock}">
+                            <div class="card-body text-center">
+                                <div x-show="product.image_url">
+                                    <img :src="product.image_url"
+                                         :alt="product.name"
+                                         class="img-fluid mb-3"
+                                         style="max-height: 150px; object-fit: cover;">
+                                </div>
+                                <h5 x-text="product.name"></h5>
+                                <p class="text-success fw-bold fs-4">$<span x-text="product.price"></span></p>
+                                <span x-show="product.is_low_stock && !product.is_out_of_stock"
+                                      class="badge bg-warning">Limited Stock</span>
+                                <span x-show="product.is_out_of_stock"
+                                      class="badge bg-danger">Out of Stock</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="fixed-bottom bg-white border-top p-3" x-show="cart.length > 0">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5>Items: <span x-text="cart.length"></span></h5>
+                    <h4 class="text-success">Total: $<span x-text="cartTotal.toFixed(2)"></span></h4>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-outline-danger me-2" @click="clearCart()">Clear</button>
+                    <button class="btn btn-primary btn-lg" @click="showCartModal = true">
+                        <i class="bi bi-cart-check"></i> View Cart & Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Details Modal -->
+    <div class="modal" :class="{'show d-block': showCartModal}" x-show="showCartModal" @click.self="showCartModal = false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Your Order</h5>
+                    <button type="button" class="btn-close" @click="showCartModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group mb-3">
+                        <template x-for="(item, index) in cart" :key="index">
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong x-text="item.name"></strong>
+                                        <div class="btn-group btn-group-sm ms-2">
+                                            <button class="btn btn-outline-secondary" @click="decreaseQty(index)">-</button>
+                                            <span class="btn btn-outline-secondary" x-text="item.qty"></span>
+                                            <button class="btn btn-outline-secondary" @click="increaseQty(index)">+</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <strong class="text-success">$<span x-text="(item.price * item.qty).toFixed(2)"></span></strong>
+                                        <button class="btn btn-sm btn-outline-danger ms-2" @click="removeFromCart(index)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Online payment only. Scan QR code after checkout to track your order.
+                    </div>
+                </div>
+                <div class="modal-footer d-block">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4>Total:</h4>
+                        <h3 class="text-success">$<span x-text="cartTotal.toFixed(2)"></span></h3>
+                    </div>
+                    <button class="btn btn-success btn-lg w-100"
+                            @click="checkout()"
+                            :disabled="processing">
+                        <span x-show="!processing">
+                            <i class="bi bi-credit-card"></i> Checkout & Pay
+                        </span>
+                        <span x-show="processing">Processing...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" :class="{'show d-block': showSuccessModal}" x-show="showSuccessModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Order Successful!</h5>
+                </div>
+                <div class="modal-body text-center py-5">
+                    <i class="bi bi-check-circle text-success" style="font-size: 5rem;"></i>
+                    <h3 class="mt-3">Order <span x-text="orderNumber"></span></h3>
+                    <p class="text-muted">Your order has been placed successfully</p>
+                    <div class="alert alert-info mt-4">
+                        <p><strong>Track your order:</strong></p>
+                        <p class="mb-0"><small x-text="`${window.location.origin}/kiosk/order/${orderNumber}/`"></small></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary w-100" @click="resetApp()">Place New Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function kioskApp() {
+    return {
+        products: [],
+        cart: [],
+        loading: true,
+        processing: false,
+        showCartModal: false,
+        showSuccessModal: false,
+        orderNumber: '',
+
+        async init() {
+            await this.loadProducts();
+        },
+
+        async loadProducts() {
+            try {
+                const response = await fetch('/api/kiosk/products/');
+                const data = await response.json();
+                if (data.success) {
+                    this.products = data.products;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        addToCart(product) {
+            if (product.is_out_of_stock) return;
+
+            const existing = this.cart.find(item => item.id === product.id);
+            if (existing) {
+                if (existing.qty < product.stock) existing.qty++;
+            } else {
+                this.cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: parseFloat(product.price),
+                    qty: 1,
+                    max_stock: product.stock
+                });
+            }
+        },
+
+        removeFromCart(index) {
+            this.cart.splice(index, 1);
+        },
+
+        increaseQty(index) {
+            if (this.cart[index].qty < this.cart[index].max_stock) {
+                this.cart[index].qty++;
+            }
+        },
+
+        decreaseQty(index) {
+            if (this.cart[index].qty > 1) {
+                this.cart[index].qty--;
+            } else {
+                this.removeFromCart(index);
+            }
+        },
+
+        clearCart() {
+            if (confirm('Clear cart?')) {
+                this.cart = [];
+            }
+        },
+
+        get cartTotal() {
+            return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        },
+
+        async checkout() {
+            this.processing = true;
+            try {
+                const response = await fetch('/api/kiosk/checkout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        items: this.cart.map(item => ({
+                            product_id: item.id,
+                            qty: item.qty
+                        })),
+                        payment_method: 'ONLINE_DEMO'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    this.orderNumber = data.order_no;
+                    this.showCartModal = false;
+                    this.showSuccessModal = true;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to process order');
+            } finally {
+                this.processing = false;
+            }
+        },
+
+        resetApp() {
+            this.cart = [];
+            this.showSuccessModal = false;
+            this.loadProducts();
+        }
+    }
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<style>
+.cursor-pointer { cursor: pointer; }
+.modal.show { background: rgba(0,0,0,0.5); }
+</style>
+{% endblock %}
