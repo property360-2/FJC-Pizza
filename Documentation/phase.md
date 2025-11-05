@@ -2,6 +2,7 @@
 
 **Project:** Sales & Inventory Management System
 **Stack:** Django + MySQL + CDN Frontend (Atomic Design Pattern)
+**note:** every phase is both backend and frontend
 
 ---
 
