@@ -1,0 +1,64 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - Sales & Inventory Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-graph-up"></i> Analytics Dashboard</h2>
+                <div>
+                    <span class="badge bg-danger">{{ user.get_role_display }}</span>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Coming Soon:</strong> Analytics dashboard is under development.
+                This will include sales reports, inventory summaries, and performance metrics.
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-currency-dollar display-4 text-success"></i>
+                            <h6 class="text-muted mt-2">Total Sales</h6>
+                            <h3 class="mb-0">₱0.00</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-receipt display-4 text-primary"></i>
+                            <h6 class="text-muted mt-2">Orders</h6>
+                            <h3 class="mb-0">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-box display-4 text-warning"></i>
+                            <h6 class="text-muted mt-2">Products</h6>
+                            <h3 class="mb-0">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <i class="bi bi-exclamation-triangle display-4 text-danger"></i>
+                            <h6 class="text-muted mt-2">Low Stock</h6>
+                            <h3 class="mb-0">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
