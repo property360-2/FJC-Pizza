@@ -1,0 +1,46 @@
+{# Product Grid Organism - POS
+   Complete product grid with search and loading states
+
+   Usage with Alpine.js:
+   <div x-data="posApp()">
+       {% include "components/organisms/product-grid-pos.html" %}
+   </div>
+
+   Expected Alpine.js data:
+   - filteredProducts: Array of filtered product objects
+   - loading: Boolean loading state
+   - search: Search query string
+   - searchProducts(): Search function
+   - addToCart(product): Function to add product to cart
+#}
+{% load static %}
+
+<!-- Search Bar -->
+<div class="mb-3">
+    <input type="text"
+           class="form-control form-control-lg"
+           placeholder="🔍 Search products..."
+           x-model="search"
+           @input="searchProducts()">
+</div>
+
+<!-- Product Grid -->
+<div class="row g-3" x-show="!loading && filteredProducts.length > 0">
+    <template x-for="product in filteredProducts" :key="product.id">
+        <div class="col-md-4 col-lg-3">
+            {% include "components/molecules/product-card-pos.html" %}
+        </div>
+    </template>
+</div>
+
+<!-- Loading State -->
+<div x-show="loading" class="text-center py-5">
+    {% include "components/atoms/spinner.html" with color="primary" size="md" %}
+</div>
+
+<!-- Empty State -->
+<div x-show="!loading && filteredProducts.length === 0" class="text-center py-5">
+    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+    <h5 class="mt-3 text-muted">No products found</h5>
+    <p class="text-muted">Try adjusting your search</p>
+</div>

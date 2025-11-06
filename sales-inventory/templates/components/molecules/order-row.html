@@ -1,0 +1,74 @@
+{# Order Row Molecule
+   Usage with Alpine.js or Django template loop:
+   <template x-for="order in orders" :key="order.id">
+       {% include "components/molecules/order-row.html" %}
+   </template>
+
+   Or in Django template:
+   {% for order in orders %}
+       {% include "components/molecules/order-row.html" with order=order %}
+   {% endfor %}
+
+   Expected data structure (Alpine.js):
+   - order.order_number: Order number
+   - order.created_at: Order creation timestamp
+   - order.total_amount: Total amount
+   - order.status: Order status (PENDING, IN_PROGRESS, FINISHED)
+   - order.payment_method: Payment method
+   - order.payment_status: Payment status
+
+   Or Django context:
+   - order: Order object with above attributes
+#}
+{% load static %}
+
+<tr {% if not order %}x-data="order"{% endif %}>
+    <td>
+        <strong {% if not order %}x-text="order.order_number"{% endif %}>{% if order %}{{ order.order_number }}{% endif %}</strong>
+    </td>
+    <td {% if not order %}x-text="new Date(order.created_at).toLocaleString()"{% endif %}>
+        {% if order %}{{ order.created_at|date:"M d, Y H:i" }}{% endif %}
+    </td>
+    <td class="text-success fw-bold">
+        $<span {% if not order %}x-text="order.total_amount.toFixed(2)"{% endif %}>{% if order %}{{ order.total_amount }}{% endif %}</span>
+    </td>
+    <td>
+        <span class="badge"
+              {% if not order %}
+              :class="{
+                  'bg-warning': order.status === 'PENDING',
+                  'bg-info': order.status === 'IN_PROGRESS',
+                  'bg-success': order.status === 'FINISHED'
+              }"
+              x-text="order.status"
+              {% else %}
+              class="{% if order.status == 'PENDING' %}bg-warning{% elif order.status == 'IN_PROGRESS' %}bg-info{% elif order.status == 'FINISHED' %}bg-success{% endif %}"
+              {% endif %}>
+            {% if order %}{{ order.get_status_display }}{% endif %}
+        </span>
+    </td>
+    <td>
+        <span {% if not order %}x-text="order.payment_method"{% endif %}>{% if order %}{{ order.get_payment_method_display }}{% endif %}</span>
+    </td>
+    <td>
+        <span class="badge"
+              {% if not order %}
+              :class="{
+                  'bg-warning': order.payment_status === 'PENDING',
+                  'bg-success': order.payment_status === 'SUCCESS',
+                  'bg-danger': order.payment_status === 'FAILED'
+              }"
+              x-text="order.payment_status"
+              {% else %}
+              class="{% if order.payment_status == 'PENDING' %}bg-warning{% elif order.payment_status == 'SUCCESS' %}bg-success{% elif order.payment_status == 'FAILED' %}bg-danger{% endif %}"
+              {% endif %}>
+            {% if order %}{{ order.get_payment_status_display }}{% endif %}
+        </span>
+    </td>
+    <td>
+        <a {% if not order %}:href="`/orders/${order.id}/`"{% else %}href="{% url 'orders:order_detail' order.id %}"{% endif %}
+           class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye"></i> View
+        </a>
+    </td>
+</tr>

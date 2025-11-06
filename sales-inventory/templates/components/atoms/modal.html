@@ -1,0 +1,63 @@
+{# Modal Atom Component (Base Structure)
+   Usage with Alpine.js:
+   {% include "components/atoms/modal.html" with id="myModal" title="Modal Title" show_var="showModal" size="lg" %}
+       <div slot="body">Modal body content here</div>
+       <div slot="footer">Modal footer content here</div>
+   {% endinclude %}
+
+   Or for simpler usage, pass content directly:
+   {% include "components/atoms/modal.html" with id="myModal" title="Modal Title" show_var="showModal" body_content="Simple text" %}
+
+   Parameters:
+   - id: Modal ID (required for non-Alpine modals)
+   - title: Modal title (required)
+   - show_var: Alpine.js variable name to control visibility (e.g., "showModal")
+   - size: sm|md|lg|xl (default: md)
+   - centered: true|false - vertically center modal (optional)
+   - scrollable: true|false - make modal body scrollable (optional)
+   - static_backdrop: true|false - prevent closing on backdrop click (optional)
+   - body_content: Simple text content for body (optional, use slots for complex content)
+   - footer_content: Simple text content for footer (optional, use slots for complex content)
+   - attrs: Additional attributes (optional)
+#}
+{% load static %}
+
+<div class="modal{% if show_var %} {% raw %}:class="{'show d-block': {% endraw %}{{ show_var }}{% raw %}}{% endraw %}{% endif %}"
+     {% if show_var %}x-show="{{ show_var }}"
+     @click.self="{{ show_var }} = false"{% else %}
+     id="{{ id }}"
+     tabindex="-1"{% endif %}
+     {{ attrs|safe }}>
+    <div class="modal-dialog{% if size == 'sm' %} modal-sm{% elif size == 'lg' %} modal-lg{% elif size == 'xl' %} modal-xl{% endif %}{% if centered %} modal-dialog-centered{% endif %}{% if scrollable %} modal-dialog-scrollable{% endif %}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ title }}</h5>
+                <button type="button"
+                        class="btn-close"
+                        {% if show_var %}@click="{{ show_var }} = false"{% else %}data-bs-dismiss="modal"{% endif %}
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if body_content %}
+                    {{ body_content|safe }}
+                {% else %}
+                    {% block modal_body %}{% endblock %}
+                {% endif %}
+            </div>
+            {% if footer_content or block.modal_footer %}
+            <div class="modal-footer">
+                {% if footer_content %}
+                    {{ footer_content|safe }}
+                {% else %}
+                    {% block modal_footer %}{% endblock %}
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if show_var %}
+<div class="modal-backdrop fade{% raw %} :class="{'show': {% endraw %}{{ show_var }}{% raw %}}{% endraw %}"
+     x-show="{{ show_var }}"
+     @click="{{ show_var }} = false"></div>
+{% endif %}

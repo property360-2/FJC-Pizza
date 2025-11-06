@@ -1,0 +1,45 @@
+{# Product Card Molecule - Kiosk Version
+   Usage with Alpine.js:
+   <template x-for="product in products" :key="product.id">
+       {% include "components/molecules/product-card-kiosk.html" %}
+   </template>
+
+   Expected Alpine.js data structure:
+   - product.id: Product ID
+   - product.name: Product name
+   - product.price: Product price
+   - product.image_url: Product image URL
+   - product.is_low_stock: Boolean
+   - product.is_out_of_stock: Boolean
+
+   Methods expected:
+   - addToCart(product): Function to add product to cart
+#}
+{% load static %}
+
+<div class="card h-100 cursor-pointer"
+     @click="addToCart(product)"
+     :class="{'opacity-50': product.is_out_of_stock, 'border-warning': product.is_low_stock && !product.is_out_of_stock}">
+    <div class="card-body text-center">
+        <div x-show="product.image_url" class="mb-3">
+            <img :src="product.image_url"
+                 :alt="product.name"
+                 class="img-fluid rounded"
+                 style="max-height: 150px; object-fit: cover;">
+        </div>
+        <h5 class="card-title" x-text="product.name"></h5>
+        <p class="text-success fw-bold fs-4 mb-2">
+            $<span x-text="product.price.toFixed(2)"></span>
+        </p>
+        <div>
+            <span x-show="product.is_low_stock && !product.is_out_of_stock"
+                  class="badge bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle"></i> Limited Stock
+            </span>
+            <span x-show="product.is_out_of_stock"
+                  class="badge bg-danger">
+                <i class="bi bi-x-circle"></i> Out of Stock
+            </span>
+        </div>
+    </div>
+</div>
