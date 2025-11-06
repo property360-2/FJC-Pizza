@@ -1,0 +1,54 @@
+{# Cart Item Molecule
+   Usage with Alpine.js:
+   <template x-for="(item, index) in cart" :key="index">
+       {% include "components/molecules/cart-item.html" %}
+   </template>
+
+   Expected Alpine.js data structure:
+   - item.name: Product name
+   - item.price: Product price
+   - item.qty: Quantity
+   - index: Array index
+
+   Methods expected:
+   - increaseQty(index): Increase item quantity
+   - decreaseQty(index): Decrease item quantity
+   - removeFromCart(index): Remove item from cart
+#}
+{% load static %}
+
+<div class="list-group-item">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <div class="flex-grow-1">
+            <strong x-text="item.name" class="d-block mb-1"></strong>
+            <small class="text-muted">
+                $<span x-text="item.price.toFixed(2)"></span> × <span x-text="item.qty"></span>
+            </small>
+        </div>
+        <div class="text-end">
+            <div class="text-success fw-bold mb-1">
+                $<span x-text="(item.price * item.qty).toFixed(2)"></span>
+            </div>
+            <button type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    @click="removeFromCart(index)"
+                    title="Remove item">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </div>
+    <div class="btn-group btn-group-sm w-100" role="group">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                @click="decreaseQty(index)"
+                :disabled="item.qty <= 1">
+            <i class="bi bi-dash"></i>
+        </button>
+        <span class="btn btn-outline-secondary" x-text="item.qty"></span>
+        <button type="button"
+                class="btn btn-outline-secondary"
+                @click="increaseQty(index)">
+            <i class="bi bi-plus"></i>
+        </button>
+    </div>
+</div>

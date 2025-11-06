@@ -12,3 +12,12 @@ def dashboard_view(request):
     Analytics dashboard with KPIs and reports.
     """
     return render(request, 'analytics/dashboard.html')
+
+
+@role_required(['ADMIN'])
+def component_preview_view(request):
+    """
+    GET /dashboard/components/
+    Component library preview and documentation.
+    """
+    return render(request, 'analytics/component_preview.html')

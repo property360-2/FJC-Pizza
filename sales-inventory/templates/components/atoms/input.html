@@ -1,0 +1,42 @@
+{# Input Atom Component
+   Usage: {% include "components/atoms/input.html" with type="text" name="username" placeholder="Enter username" label="Username" %}
+
+   Parameters:
+   - type: text|email|password|number|search|tel|url|date|time (default: text)
+   - name: Input name attribute (required)
+   - id: Input id (default: same as name)
+   - value: Input value (optional)
+   - placeholder: Placeholder text (optional)
+   - label: Label text (optional, shows above input)
+   - required: true|false (optional)
+   - disabled: true|false (optional)
+   - readonly: true|false (optional)
+   - size: sm|md|lg (default: md)
+   - attrs: Additional HTML attributes like Alpine.js directives (optional)
+   - helptext: Help text shown below input (optional)
+#}
+{% load static %}
+
+{% if label %}
+<div class="mb-3">
+    <label for="{{ id|default:name }}" class="form-label">{{ label }}{% if required %} <span class="text-danger">*</span>{% endif %}</label>
+{% endif %}
+
+    <input type="{{ type|default:'text' }}"
+           class="form-control{% if size == 'sm' %} form-control-sm{% elif size == 'lg' %} form-control-lg{% endif %}"
+           name="{{ name }}"
+           id="{{ id|default:name }}"
+           {% if value %}value="{{ value }}"{% endif %}
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           {% if required %}required{% endif %}
+           {% if disabled %}disabled{% endif %}
+           {% if readonly %}readonly{% endif %}
+           {{ attrs|safe }}>
+
+    {% if helptext %}
+    <div class="form-text">{{ helptext }}</div>
+    {% endif %}
+
+{% if label %}
+</div>
+{% endif %}
