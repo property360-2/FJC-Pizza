@@ -28,6 +28,12 @@ urlpatterns = [
     # Authentication
     path("auth/", include("accounts.urls")),
 
+    # API endpoints
+    path("api/", include("sales_inventory.api_urls")),
+
+    # Product Management
+    path("admin/products/", include("products.urls")),
+
     # Dashboard (Analytics)
     path("dashboard/", include("analytics.urls")),
 

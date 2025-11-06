@@ -1,5 +1,5 @@
 Django>=4.2,<5
-mysqlclient>=2.2
+# mysqlclient>=2.2  # Commented out - only needed for MySQL production setup
 django-environ>=0.11
 Pillow>=10.0
 # Windows only (timezones)

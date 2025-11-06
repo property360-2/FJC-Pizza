@@ -1,9 +1,11 @@
+"""
+URL configuration for analytics app.
+"""
 from django.urls import path
-from django.views.generic import TemplateView
+from . import views
 
 app_name = 'dashboard'
 
-# Placeholder views for dashboard
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='analytics/dashboard.html'), name='index'),
+    path('', views.dashboard_view, name='index'),
 ]
