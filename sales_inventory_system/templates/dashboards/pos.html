@@ -11,7 +11,7 @@
             <p class="mt-1 text-sm text-gray-500">Manage and process customer orders</p>
         </div>
         <div>
-            <a href="{% url 'orders:order_list' %}" class="bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition">
+            <a href="{% url 'orders:list' %}" class="bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition">
                 View All Orders
             </a>
         </div>
@@ -113,7 +113,7 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-fjc-blue-600 font-bold">₱{{ order.total_amount }}</p>
-                        <a href="{% url 'orders:order_detail' order.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 text-xs font-medium">
+                        <a href="{% url 'orders:detail' order.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 text-xs font-medium">
                             Mark Ready →
                         </a>
                     </div>
