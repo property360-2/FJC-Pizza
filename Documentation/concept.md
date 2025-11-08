@@ -29,17 +29,14 @@ It’s designed to be fast, maintainable, and scalable using:
 
 ---
 
-## 🏗️ Architecture Overview
-
-| Layer              | Technology                                         | Description                                |
-| ------------------ | -------------------------------------------------- | ------------------------------------------ |
-| **Backend**        | Django + MySQL                                     | Core logic, API, ORM, signals, admin panel |
-| **Frontend**       | HTML + JS + CDN (Bootstrap/Tailwind + Alpine/HTMX) | Lightweight, component-driven UI           |
-| **Design Pattern** | Atomic Design (Atoms → Molecules → Organisms)      | Modular and reusable UI architecture       |
-| **Data Storage**   | MySQL                                              | Structured relational data                 |
-| **Sessions**       | Django Sessions                                    | For authenticated users and kiosk guests   |
-| **Payments**       | Simulated Demo (Cash/Online)                       | Mock implementation for testing flow       |
-| **Deployment**     | CDN + Django App (Render/Hostinger/PythonAnywhere) | Fast, server-rendered experience           |
+| Layer         | Tech                                  | Why                                            |
+| ------------- | ------------------------------------- | ---------------------------------------------- |
+| Backend       | **Django 5 + SQLite/MySQL**           | Battle-tested, simple migrations, ORM built-in |
+| Frontend      | **Django Templates + Tailwind (CDN)** | Server-rendered pages, no build step           |
+| Interactivity | **HTMX + Alpine.js**                  | Light JS for modals, status refresh, etc.      |
+| Design System | **Atomic Folder Layout**              | Organized templates for reuse                  |
+| Auth          | **Django Auth + Groups**              | Built-in user/role management                  |
+| Logging       | **Signals + Custom Audit Model**      | Tracks all changes transparently               |
 
 ---
 
