@@ -132,18 +132,18 @@
 
         <!-- Pagination -->
         {% if page_obj.paginator.num_pages > 1 %}
-        <div class="mt-8 flex items-center justify-between" id="pagination-container">
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3" id="pagination-container">
             <p class="text-sm text-gray-600">
                 Page <span class="font-semibold">{{ page_obj.number }}</span> of <span class="font-semibold">{{ page_obj.paginator.num_pages }}</span>
             </p>
-            <div class="flex gap-2">
+            <div class="flex gap-2 w-full sm:w-auto">
                 <button id="prev-page-btn" data-page="{% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% endif %}"
-                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_previous %}opacity-50 cursor-not-allowed{% endif %}"
+                        class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_previous %}opacity-50 cursor-not-allowed{% endif %}"
                         {% if not page_obj.has_previous %}disabled{% endif %}>
                     Previous
                 </button>
                 <button id="next-page-btn" data-page="{% if page_obj.has_next %}{{ page_obj.next_page_number }}{% endif %}"
-                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_next %}opacity-50 cursor-not-allowed{% endif %}"
+                        class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_next %}opacity-50 cursor-not-allowed{% endif %}"
                         {% if not page_obj.has_next %}disabled{% endif %}>
                     Next
                 </button>
@@ -294,18 +294,18 @@ function renderProducts(products, pagination) {
     // Add pagination
     if (pagination.total_pages > 1) {
         html += `
-            <div class="mt-8 flex items-center justify-between">
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-sm text-gray-600">
                     Page <span class="font-semibold">${pagination.current_page}</span> of <span class="font-semibold">${pagination.total_pages}</span>
                 </p>
-                <div class="flex gap-2">
+                <div class="flex gap-2 w-full sm:w-auto">
                     <button id="prev-page-btn" data-page="${pagination.previous_page || ''}"
-                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_previous ? 'opacity-50 cursor-not-allowed' : ''}"
+                            class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_previous ? 'opacity-50 cursor-not-allowed' : ''}"
                             ${!pagination.has_previous ? 'disabled' : ''}>
                         Previous
                     </button>
                     <button id="next-page-btn" data-page="${pagination.next_page || ''}"
-                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_next ? 'opacity-50 cursor-not-allowed' : ''}"
+                            class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_next ? 'opacity-50 cursor-not-allowed' : ''}"
                             ${!pagination.has_next ? 'disabled' : ''}>
                         Next
                     </button>
