@@ -1,62 +1,310 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.db import transaction
+from decimal import Decimal
+from products.models import Product
+from .models import Order, OrderItem, Payment
+
+
+def get_cart(request):
+    """Get cart from session or initialize empty cart"""
+    cart = request.session.get('cart', {})
+    return cart
+
+
+def save_cart(request, cart):
+    """Save cart to session"""
+    request.session['cart'] = cart
+    request.session.modified = True
+
+
+def calculate_cart_total(cart, products_dict):
+    """Calculate total price of items in cart"""
+    total = Decimal('0.00')
+    for product_id, quantity in cart.items():
+        product = products_dict.get(int(product_id))
+        if product:
+            total += product.price * quantity
+    return total
 
 
 def kiosk_home(request):
-    """Display kiosk home page."""
-    return render(request, 'orders/kiosk/home.html', {
-        'message': 'Kiosk home page - stub'
-    })
+    """Display kiosk home page with available products"""
+    products = Product.objects.filter(is_archived=False, stock__gt=0).order_by('category', 'name')
+    cart = get_cart(request)
+    cart_count = sum(cart.values())
+
+    context = {
+        'products': products,
+        'cart_count': cart_count,
+    }
+    return render(request, 'kiosk/home.html', context)
 
 
 def cart_view(request):
-    """Display shopping cart."""
-    return render(request, 'orders/kiosk/cart.html', {
-        'cart': [],
-        'total': 0,
-        'message': 'Shopping cart view - stub'
-    })
+    """Display shopping cart with items and totals"""
+    cart = get_cart(request)
+
+    # Get all products in cart
+    product_ids = [int(pid) for pid in cart.keys()]
+    products = Product.objects.filter(id__in=product_ids)
+    products_dict = {p.id: p for p in products}
+
+    # Build cart items with product details
+    cart_items = []
+    for product_id, quantity in cart.items():
+        product = products_dict.get(int(product_id))
+        if product:
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'subtotal': product.price * quantity
+            })
+
+    total = calculate_cart_total(cart, products_dict)
+
+    context = {
+        'cart_items': cart_items,
+        'total': total,
+        'cart_count': sum(cart.values()),
+    }
+    return render(request, 'kiosk/cart.html', context)
 
 
 def checkout(request):
-    """Handle checkout process."""
+    """Handle checkout process and order creation"""
+    cart = get_cart(request)
+
+    if not cart:
+        messages.warning(request, 'Your cart is empty!')
+        return redirect('kiosk:home')
+
+    # Get all products in cart
+    product_ids = [int(pid) for pid in cart.keys()]
+    products = Product.objects.filter(id__in=product_ids)
+    products_dict = {p.id: p for p in products}
+
+    # Build cart items for display
+    cart_items = []
+    for product_id, quantity in cart.items():
+        product = products_dict.get(int(product_id))
+        if product:
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'subtotal': product.price * quantity
+            })
+
+    total = calculate_cart_total(cart, products_dict)
+
     if request.method == 'POST':
-        return JsonResponse({
-            'success': True,
-            'message': 'Checkout processed - stub',
-            'order_number': 'ORD-STUB-001'
-        })
-    return render(request, 'orders/kiosk/checkout.html', {
-        'message': 'Checkout page - stub'
-    })
+        customer_name = request.POST.get('customer_name', 'Guest')
+        table_number = request.POST.get('table_number', '')
+        payment_method = request.POST.get('payment_method', 'CASH')
+        notes = request.POST.get('notes', '')
+
+        try:
+            with transaction.atomic():
+                # Create order
+                order = Order.objects.create(
+                    customer_name=customer_name,
+                    table_number=table_number,
+                    notes=notes,
+                    status='PENDING'
+                )
+
+                # Create order items
+                for product_id, quantity in cart.items():
+                    product = products_dict.get(int(product_id))
+                    if product:
+                        # Check stock availability
+                        if product.stock < quantity:
+                            raise ValueError(f'Insufficient stock for {product.name}')
+
+                        OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=quantity
+                        )
+
+                # Calculate total
+                order.calculate_total()
+
+                # Create payment record
+                payment = Payment.objects.create(
+                    order=order,
+                    method=payment_method,
+                    amount=order.total_amount,
+                    status='PENDING' if payment_method == 'CASH' else 'SUCCESS'
+                )
+
+                # If online payment demo, auto-approve and deduct stock
+                if payment_method == 'ONLINE':
+                    payment.status = 'SUCCESS'
+                    payment.save()
+
+                    # Update order status
+                    order.status = 'IN_PROGRESS'
+                    order.save()
+
+                    # Deduct stock
+                    for item in order.items.all():
+                        product = item.product
+                        product.stock -= item.quantity
+                        product.save()
+
+                # Clear cart
+                request.session['cart'] = {}
+                request.session.modified = True
+
+                messages.success(request, f'Order {order.order_number} placed successfully!')
+                return redirect('kiosk:order_status', order_number=order.order_number)
+
+        except ValueError as e:
+            messages.error(request, str(e))
+        except Exception as e:
+            messages.error(request, 'An error occurred while processing your order.')
+
+    context = {
+        'cart_items': cart_items,
+        'total': total,
+        'cart_count': sum(cart.values()),
+    }
+    return render(request, 'kiosk/checkout.html', context)
 
 
 def order_status(request, order_number):
-    """Display order status for a given order number."""
-    return render(request, 'orders/kiosk/order_status.html', {
-        'order_number': order_number,
-        'status': 'pending',
-        'message': f'Order status for {order_number} - stub'
-    })
+    """Display order status for tracking"""
+    try:
+        order = Order.objects.get(order_number=order_number)
+
+        context = {
+            'order': order,
+            'items': order.items.all(),
+        }
+        return render(request, 'kiosk/order_status.html', context)
+    except Order.DoesNotExist:
+        messages.error(request, 'Order not found!')
+        return redirect('kiosk:home')
 
 
 def add_to_cart(request, product_id):
-    """Add product to cart."""
+    """Add product to cart"""
     if request.method == 'POST':
-        return JsonResponse({
-            'success': True,
-            'message': f'Product {product_id} added to cart - stub',
-            'product_id': product_id
-        })
-    return HttpResponse(f'Add product {product_id} to cart - stub')
+        try:
+            product = get_object_or_404(Product, id=product_id, is_archived=False)
+
+            if product.stock <= 0:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Product is out of stock'
+                })
+
+            cart = get_cart(request)
+
+            # Get requested quantity
+            quantity = int(request.POST.get('quantity', 1))
+
+            # Check if adding to existing quantity
+            current_quantity = cart.get(str(product_id), 0)
+            new_quantity = current_quantity + quantity
+
+            # Check stock availability
+            if new_quantity > product.stock:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {product.stock} items available in stock'
+                })
+
+            cart[str(product_id)] = new_quantity
+            save_cart(request, cart)
+
+            cart_count = sum(cart.values())
+
+            return JsonResponse({
+                'success': True,
+                'message': f'{product.name} added to cart',
+                'cart_count': cart_count
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': 'Error adding product to cart'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
 def remove_from_cart(request, product_id):
-    """Remove product from cart."""
+    """Remove product from cart"""
     if request.method == 'POST':
-        return JsonResponse({
-            'success': True,
-            'message': f'Product {product_id} removed from cart - stub',
-            'product_id': product_id
-        })
-    return HttpResponse(f'Remove product {product_id} from cart - stub')
+        try:
+            cart = get_cart(request)
+
+            if str(product_id) in cart:
+                del cart[str(product_id)]
+                save_cart(request, cart)
+
+                cart_count = sum(cart.values())
+
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Product removed from cart',
+                    'cart_count': cart_count
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Product not in cart'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': 'Error removing product from cart'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+def update_cart_quantity(request, product_id):
+    """Update quantity of product in cart"""
+    if request.method == 'POST':
+        try:
+            product = get_object_or_404(Product, id=product_id)
+            quantity = int(request.POST.get('quantity', 1))
+
+            if quantity < 1:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Quantity must be at least 1'
+                })
+
+            if quantity > product.stock:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Only {product.stock} items available'
+                })
+
+            cart = get_cart(request)
+            cart[str(product_id)] = quantity
+            save_cart(request, cart)
+
+            # Recalculate totals
+            products_dict = {product.id: product}
+            total = calculate_cart_total(cart, products_dict)
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Cart updated',
+                'cart_count': sum(cart.values()),
+                'subtotal': float(product.price * quantity),
+                'total': float(total)
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': 'Error updating cart'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
