@@ -121,7 +121,7 @@
                         <a href="{% url 'products:edit' product.id %}" class="flex-1 bg-fjc-blue-600 text-white px-3 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium text-sm text-center">
                             Edit
                         </a>
-                        <button onclick="if(confirm('Archive this product?')) window.location.href='{% url 'products:archive' product.id %}'" class="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 font-medium text-sm">
+                        <button onclick="ConfirmModal.show({ title: 'Archive Product', message: 'Are you sure you want to archive {{ product.name|escapejs }}? This will remove it from active listings.', confirmText: 'Archive', type: 'danger', onConfirm: () => window.location.href='{% url 'products:archive' product.id %}' })" class="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 font-medium text-sm">
                             Archive
                         </button>
                     </div>
@@ -279,7 +279,7 @@ function renderProducts(products, pagination) {
                         <a href="/products/${product.id}/edit/" class="flex-1 bg-fjc-blue-600 text-white px-3 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium text-sm text-center">
                             Edit
                         </a>
-                        <button onclick="if(confirm('Archive this product?')) window.location.href='/products/${product.id}/archive/'"
+                        <button onclick="ConfirmModal.show({ title: 'Archive Product', message: 'Are you sure you want to archive ${product.name}? This will remove it from active listings.', confirmText: 'Archive', type: 'danger', onConfirm: () => window.location.href='/products/${product.id}/archive/' })"
                                 class="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 font-medium text-sm">
                             Archive
                         </button>

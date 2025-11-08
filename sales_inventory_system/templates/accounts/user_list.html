@@ -108,14 +108,14 @@
                             <a href="{% url 'accounts:user_edit' user.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-900 font-semibold">
                                 ✏️ Edit
                             </a>
-                            <form method="POST" action="{% url 'accounts:user_archive' user.pk %}" class="inline">
+                            <form method="POST" action="{% url 'accounts:user_archive' user.pk %}" class="inline" id="archive-form-{{ user.pk }}">
                                 {% csrf_token %}
                                 {% if user.is_archived %}
                                 <button type="submit" class="text-green-600 hover:text-green-900 font-semibold">
                                     ♻️ Restore
                                 </button>
                                 {% else %}
-                                <button type="submit" onclick="return confirm('Archive this user?')" class="text-red-600 hover:text-red-900 font-semibold">
+                                <button type="button" onclick="ConfirmModal.show({ title: 'Archive User', message: 'Are you sure you want to archive {{ user.username|escapejs }}? They will no longer be able to log in.', confirmText: 'Archive', type: 'danger', onConfirm: () => document.getElementById('archive-form-{{ user.pk }}').submit() })" class="text-red-600 hover:text-red-900 font-semibold">
                                     📦 Archive
                                 </button>
                                 {% endif %}
@@ -197,14 +197,14 @@
                     <a href="{% url 'accounts:user_edit' user.pk %}" class="flex-1 text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
                         ✏️ Edit
                     </a>
-                    <form method="POST" action="{% url 'accounts:user_archive' user.pk %}" class="flex-1">
+                    <form method="POST" action="{% url 'accounts:user_archive' user.pk %}" class="flex-1" id="archive-form-mobile-{{ user.pk }}">
                         {% csrf_token %}
                         {% if user.is_archived %}
                         <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
                             ♻️ Restore
                         </button>
                         {% else %}
-                        <button type="submit" onclick="return confirm('Archive this user?')" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
+                        <button type="button" onclick="ConfirmModal.show({ title: 'Archive User', message: 'Are you sure you want to archive {{ user.username|escapejs }}? They will no longer be able to log in.', confirmText: 'Archive', type: 'danger', onConfirm: () => document.getElementById('archive-form-mobile-{{ user.pk }}').submit() })" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
                             📦 Archive
                         </button>
                         {% endif %}
