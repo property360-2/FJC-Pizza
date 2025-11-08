@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - FJC Pizza{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-fjc-blue-50 to-white min-h-screen">
+    <!-- Checkout Header -->
+    <div class="bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-600 text-white p-6">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl font-bold">Checkout</h1>
+            <p class="text-lg opacity-90 mt-2">Complete your order</p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Checkout Form -->
+            <div class="lg:col-span-2">
+                <!-- Delivery Information -->
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-2xl font-bold text-gray-900">Delivery Information</h2>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" placeholder="John" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" placeholder="Doe" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" placeholder="(+63) 917-123-4567" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" placeholder="john@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Address</label>
+                            <input type="text" placeholder="123 Main Street, City" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
+                                <input type="text" placeholder="Your barangay" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                                <input type="text" placeholder="1000" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Method -->
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-2xl font-bold text-gray-900">Delivery Method</h2>
+                    </div>
+
+                    <div class="p-6 space-y-3">
+                        <label class="flex items-center p-3 border-2 border-fjc-blue-500 rounded-lg cursor-pointer">
+                            <input type="radio" name="delivery" checked class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">Home Delivery (₱50.00)</span>
+                        </label>
+                        <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-fjc-blue-300">
+                            <input type="radio" name="delivery" class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">Pickup at Store (FREE)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-2xl font-bold text-gray-900">Payment Method</h2>
+                    </div>
+
+                    <div class="p-6 space-y-3">
+                        <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-fjc-blue-300">
+                            <input type="radio" name="payment" class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">Cash on Delivery</span>
+                        </label>
+                        <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-fjc-blue-300">
+                            <input type="radio" name="payment" class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">Credit/Debit Card</span>
+                        </label>
+                        <label class="flex items-center p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-fjc-blue-300">
+                            <input type="radio" name="payment" class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">E-Wallet (GCash/PayMaya)</span>
+                        </label>
+                        <label class="flex items-center p-3 border-2 fjc-blue-500 rounded-lg cursor-pointer hover:border-fjc-blue-300">
+                            <input type="radio" name="payment" checked class="w-4 h-4 text-fjc-blue-600">
+                            <span class="ml-3 font-medium text-gray-900">Online Banking</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="bg-blue-50 border-l-4 border-fjc-blue-500 p-6 rounded-lg">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="w-4 h-4 text-fjc-blue-600">
+                        <span class="ml-3 text-sm text-gray-700">I agree to the <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium">Terms & Conditions</a> and <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium">Privacy Policy</a></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden sticky top-8">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50">
+                        <h2 class="text-xl font-bold text-gray-900">Order Summary</h2>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Order Items -->
+                        <div class="space-y-3 mb-4 pb-4 border-b border-gray-200">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">2x Large Margherita</span>
+                                <span class="font-medium text-gray-900">₱560.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">1x Pepperoni Bliss</span>
+                                <span class="font-medium text-gray-900">₱320.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">1x Beverage Combo</span>
+                                <span class="font-medium text-gray-900">₱120.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Calculations -->
+                        <div class="space-y-2 mb-4 pb-4 border-b border-gray-200">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-700">Subtotal</span>
+                                <span class="font-medium text-gray-900">₱1,000.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-700">Delivery</span>
+                                <span class="font-medium text-gray-900">₱50.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-700">Tax (12%)</span>
+                                <span class="font-medium text-gray-900">₱126.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50 p-4 rounded-lg mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold text-gray-900">Total Amount</span>
+                                <span class="text-3xl font-bold text-fjc-blue-600">₱1,176.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button class="w-full bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-600 hover:from-fjc-yellow-600 hover:to-fjc-blue-700 text-white font-bold py-3 rounded-lg transition mb-3">
+                            Complete Order
+                        </button>
+
+                        <a href="{% url 'kiosk_cart' %}" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 rounded-lg transition text-center block">
+                            Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

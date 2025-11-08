@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - FJC Pizza{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-fjc-blue-50 to-white min-h-screen">
+    <!-- Cart Header -->
+    <div class="bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-600 text-white p-6">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl font-bold">Your Cart</h1>
+            <p class="text-lg opacity-90 mt-2">Review and customize your order</p>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-2xl font-bold text-gray-900">Order Items</h2>
+                    </div>
+
+                    <div class="divide-y divide-gray-200">
+                        <!-- Item 1 -->
+                        <div class="p-6 hover:bg-gray-50 transition">
+                            <div class="flex gap-4">
+                                <div class="w-24 h-24 bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span class="text-4xl">🍕</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Large Margherita Pizza</h3>
+                                            <p class="text-sm text-gray-600 mt-1">Classic cheese pizza with fresh basil</p>
+                                        </div>
+                                        <button class="text-red-600 hover:text-red-700 font-medium">✕</button>
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-3">
+                                        <div class="flex items-center border border-gray-300 rounded-lg">
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">−</button>
+                                            <input type="number" value="1" min="1" class="w-12 text-center border-l border-r border-gray-300 py-1" />
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                                        </div>
+                                        <span class="text-lg font-bold text-fjc-blue-600">₱280.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="p-6 hover:bg-gray-50 transition">
+                            <div class="flex gap-4">
+                                <div class="w-24 h-24 bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span class="text-4xl">🍕</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Pepperoni Bliss</h3>
+                                            <p class="text-sm text-gray-600 mt-1">Loaded with pepperoni and cheese</p>
+                                        </div>
+                                        <button class="text-red-600 hover:text-red-700 font-medium">✕</button>
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-3">
+                                        <div class="flex items-center border border-gray-300 rounded-lg">
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">−</button>
+                                            <input type="number" value="2" min="1" class="w-12 text-center border-l border-r border-gray-300 py-1" />
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                                        </div>
+                                        <span class="text-lg font-bold text-fjc-blue-600">₱640.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item 3 -->
+                        <div class="p-6 hover:bg-gray-50 transition">
+                            <div class="flex gap-4">
+                                <div class="w-24 h-24 bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <span class="text-4xl">🥤</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Cold Beverage Combo</h3>
+                                            <p class="text-sm text-gray-600 mt-1">2 large drinks of your choice</p>
+                                        </div>
+                                        <button class="text-red-600 hover:text-red-700 font-medium">✕</button>
+                                    </div>
+                                    <div class="flex items-center gap-4 mt-3">
+                                        <div class="flex items-center border border-gray-300 rounded-lg">
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">−</button>
+                                            <input type="number" value="1" min="1" class="w-12 text-center border-l border-r border-gray-300 py-1" />
+                                            <button class="px-3 py-1 text-gray-600 hover:bg-gray-100">+</button>
+                                        </div>
+                                        <span class="text-lg font-bold text-fjc-blue-600">₱120.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Continue Shopping Button -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-semibold">← Continue Shopping</a>
+                    </div>
+                </div>
+
+                <!-- Special Instructions -->
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mt-6">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h2 class="text-lg font-bold text-gray-900">Special Instructions</h2>
+                    </div>
+                    <div class="p-6">
+                        <textarea placeholder="Add any special requests or instructions for your order..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden sticky top-8">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50">
+                        <h2 class="text-xl font-bold text-gray-900">Order Summary</h2>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                        <!-- Subtotal -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                            <span class="text-gray-700">Subtotal</span>
+                            <span class="font-semibold text-gray-900">₱1,040.00</span>
+                        </div>
+
+                        <!-- Delivery -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                            <span class="text-gray-700">Delivery Fee</span>
+                            <span class="font-semibold text-gray-900">₱50.00</span>
+                        </div>
+
+                        <!-- Tax -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                            <span class="text-gray-700">Tax (12%)</span>
+                            <span class="font-semibold text-gray-900">₱124.80</span>
+                        </div>
+
+                        <!-- Discount -->
+                        <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+                            <span class="text-gray-700">Discount</span>
+                            <span class="font-semibold text-green-600">-₱0.00</span>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold text-gray-900">Total</span>
+                                <span class="text-3xl font-bold text-fjc-blue-600">₱1,214.80</span>
+                            </div>
+                        </div>
+
+                        <!-- Promo Code -->
+                        <div class="space-y-2">
+                            <input type="text" placeholder="Enter promo code" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500" />
+                            <button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 rounded-lg transition">Apply Code</button>
+                        </div>
+
+                        <!-- Checkout Button -->
+                        <a href="{% url 'kiosk_checkout' %}" class="w-full bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-600 hover:from-fjc-yellow-600 hover:to-fjc-blue-700 text-white font-bold py-3 rounded-lg text-center transition block mt-6">
+                            Proceed to Checkout
+                        </a>
+
+                        <!-- Continue Shopping -->
+                        <button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 rounded-lg transition">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

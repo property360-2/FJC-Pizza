@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Orders - FJC Pizza{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Orders</h1>
+            <p class="mt-1 text-sm text-gray-500">View and manage all orders</p>
+        </div>
+        <div>
+            {% include 'components/atoms/button.html' with type='primary' text='New Order' href='#' %}
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+        <div class="flex flex-wrap gap-2 items-center">
+            <span class="text-sm font-medium text-gray-700">Filter by Status:</span>
+            {% include 'components/atoms/button.html' with type='secondary' text='All' class='text-xs px-3 py-1' %}
+            {% include 'components/atoms/button.html' with type='outline' text='Pending' class='text-xs px-3 py-1' %}
+            {% include 'components/atoms/button.html' with type='outline' text='In Progress' class='text-xs px-3 py-1' %}
+            {% include 'components/atoms/button.html' with type='outline' text='Completed' class='text-xs px-3 py-1' %}
+            {% include 'components/atoms/button.html' with type='outline' text='Cancelled' class='text-xs px-3 py-1' %}
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Customer</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Items</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <!-- Sample order 1 -->
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-gray-900">#001</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">John Doe</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">2x Large Pizza, 1x Drinks</td>
+                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱450.00</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">Nov 08, 2025</td>
+                        <td class="px-6 py-4">
+                            {% include 'components/atoms/badge.html' with type='in-progress' text='In Progress' %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
+                        </td>
+                    </tr>
+
+                    <!-- Sample order 2 -->
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-gray-900">#002</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">Jane Smith</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">3x Medium Pizza, 2x Sides</td>
+                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱620.00</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">Nov 08, 2025</td>
+                        <td class="px-6 py-4">
+                            {% include 'components/atoms/badge.html' with type='warning' text='Pending' %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
+                        </td>
+                    </tr>
+
+                    <!-- Sample order 3 -->
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-gray-900">#003</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">Mike Johnson</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">1x Large Pizza</td>
+                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱320.00</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">Nov 07, 2025</td>
+                        <td class="px-6 py-4">
+                            {% include 'components/atoms/badge.html' with type='success' text='Completed' %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
+                        </td>
+                    </tr>
+
+                    <!-- Sample order 4 -->
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <span class="font-semibold text-gray-900">#004</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">Sarah Wilson</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">2x Small Pizza, 1x Dessert</td>
+                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱380.00</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">Nov 07, 2025</td>
+                        <td class="px-6 py-4">
+                            {% include 'components/atoms/badge.html' with type='danger' text='Cancelled' %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+            <p class="text-sm text-gray-600">Showing <span class="font-semibold">1</span> to <span class="font-semibold">4</span> of <span class="font-semibold">24</span> orders</p>
+            <div class="flex gap-2">
+                {% include 'components/atoms/button.html' with type='secondary' text='Previous' class='px-3 py-2 text-sm' %}
+                {% include 'components/atoms/button.html' with type='secondary' text='Next' class='px-3 py-2 text-sm' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

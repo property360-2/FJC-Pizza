@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FJC Pizza</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fjc-yellow': {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        },
+                        'fjc-blue': {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="h-full bg-gradient-to-br from-fjc-blue-50 via-white to-fjc-yellow-50">
+    <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Logo & Brand -->
+            <div class="text-center">
+                <div class="flex justify-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-fjc-yellow-500 to-fjc-blue-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                        <span class="text-white font-bold text-3xl">FJC</span>
+                    </div>
+                </div>
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">FJC Pizza</h2>
+                <p class="mt-2 text-sm text-gray-600">Sales & Inventory Management System</p>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="space-y-2">
+                {% for message in messages %}
+                <div class="{% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border rounded-lg px-4 py-3" role="alert">
+                    <p class="text-sm font-medium">{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Login Form -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <form method="POST" class="space-y-6" action="{% url 'accounts:login' %}">
+                    {% csrf_token %}
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            autocomplete="username"
+                            required
+                            class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            placeholder="Enter your username"
+                        />
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            required
+                            class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            placeholder="Enter your password"
+                        />
+                    </div>
+
+                    <div>
+                        <button
+                            type="submit"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-fjc-blue-600 to-fjc-blue-700 hover:from-fjc-blue-700 hover:to-fjc-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fjc-blue-500 transition-all duration-200"
+                        >
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Demo Credentials -->
+                <div class="mt-6 border-t border-gray-200 pt-6">
+                    <p class="text-xs text-gray-500 text-center mb-3">Demo Credentials</p>
+                    <div class="bg-gray-50 rounded-lg p-3 space-y-1">
+                        <p class="text-xs text-gray-600">
+                            <span class="font-medium">Admin:</span> username: <code class="bg-white px-1 py-0.5 rounded">admin</code> / password: <code class="bg-white px-1 py-0.5 rounded">admin123</code>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kiosk Access -->
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Customer? <a href="{% url 'kiosk:home' %}" class="font-medium text-fjc-blue-600 hover:text-fjc-blue-500">
+                        Open Kiosk Mode
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
