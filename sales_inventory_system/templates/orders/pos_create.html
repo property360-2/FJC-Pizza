@@ -23,9 +23,27 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Product Selection -->
             <div class="lg:col-span-2 space-y-6">
+                <!-- Category Filter Buttons -->
+                <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="filterCategory('all')"
+                                class="category-btn active px-4 py-2 rounded-lg font-medium transition bg-fjc-blue-600 text-white"
+                                data-category="all">
+                            All Products
+                        </button>
+                        {% for category in products_by_category.keys %}
+                        <button type="button" onclick="filterCategory('{{ category|slugify }}')"
+                                class="category-btn px-4 py-2 rounded-lg font-medium transition bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                data-category="{{ category|slugify }}">
+                            {{ category }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <!-- Products by Category -->
                 {% for category, products_list in products_by_category.items %}
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                <div class="category-section bg-white rounded-lg shadow-md border border-gray-200 p-6" data-category="{{ category|slugify }}" id="category-{{ category|slugify }}">
                     <h2 class="text-xl font-bold text-gray-900 mb-4">{{ category }}</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {% for product in products_list %}
@@ -221,6 +239,42 @@ function clearCart() {
         input.value = 0;
     });
     updateCart();
+}
+
+// Category filter functionality
+function filterCategory(categorySlug) {
+    // Get all category sections and buttons
+    const sections = document.querySelectorAll('.category-section');
+    const buttons = document.querySelectorAll('.category-btn');
+
+    // Update button active states
+    buttons.forEach(btn => {
+        const btnCategory = btn.dataset.category;
+        if (btnCategory === categorySlug) {
+            btn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            btn.classList.add('bg-fjc-blue-600', 'text-white', 'active');
+        } else {
+            btn.classList.remove('bg-fjc-blue-600', 'text-white', 'active');
+            btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+        }
+    });
+
+    // Show/hide sections based on selected category
+    if (categorySlug === 'all') {
+        // Show all sections
+        sections.forEach(section => {
+            section.classList.remove('hidden');
+        });
+    } else {
+        // Show only selected category
+        sections.forEach(section => {
+            if (section.dataset.category === categorySlug) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+    }
 }
 
 // Initialize cart on page load
