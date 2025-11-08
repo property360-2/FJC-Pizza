@@ -67,13 +67,25 @@ def admin_dashboard(request):
 def cashier_pos(request):
     """Cashier POS interface"""
 
-    # Get pending and in-progress orders
-    pending_orders = Order.objects.filter(status='PENDING').select_related('payment')
-    in_progress_orders = Order.objects.filter(status='IN_PROGRESS')
+    # Get orders by status with prefetch for efficiency
+    pending_orders = Order.objects.filter(status='PENDING').select_related('payment').prefetch_related('items__product').order_by('-created_at')
+    in_progress_orders = Order.objects.filter(status='IN_PROGRESS').prefetch_related('items__product').order_by('-created_at')
+    finished_orders = Order.objects.filter(status='FINISHED').prefetch_related('items__product').order_by('-created_at')[:10]  # Last 10 finished
+
+    # Today's statistics
+    today = timezone.now().date()
+    today_orders_count = Order.objects.filter(created_at__date=today).count()
+    today_completed = Order.objects.filter(status='FINISHED', created_at__date=today).count()
+    today_revenue = Payment.objects.filter(status='SUCCESS', created_at__date=today).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
 
     context = {
         'pending_orders': pending_orders,
         'in_progress_orders': in_progress_orders,
+        'finished_orders': finished_orders,
+        'today_orders_count': today_orders_count,
+        'today_completed': today_completed,
+        'today_revenue': today_revenue,
+        'pending_count': pending_orders.count(),
     }
 
     return render(request, 'dashboards/pos.html', context)

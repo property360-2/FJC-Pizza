@@ -1,215 +1,263 @@
-{% extends 'base.html' %}
-
-{% block title %}Order Status - FJC Pizza{% endblock %}
-
-{% block content %}
-<div class="bg-gradient-to-b from-fjc-blue-50 to-white min-h-screen">
-    <!-- Status Header -->
-    <div class="bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-600 text-white p-6">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-4xl font-bold">Order Status</h1>
-            <p class="text-lg opacity-90 mt-2">Track your order in real-time</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - FJC Pizza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fjc-yellow': { 500: '#f59e0b', 600: '#d97706' },
+                        'fjc-blue': { 500: '#3b82f6', 600: '#2563eb' },
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="h-full bg-gray-50">
+    <div class="bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-500 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold">Order Confirmation</h1>
+                <p class="mt-2 text-lg opacity-90">Thank you for your order!</p>
+            </div>
         </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <!-- Order Number Input -->
-        <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-xl font-bold text-gray-900">Track Your Order</h2>
-            </div>
-            <div class="p-6">
-                <div class="flex gap-3">
-                    <input type="text" placeholder="Enter your Order ID (e.g., #001)" value="#001" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
-                    <button class="bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-bold px-6 py-3 rounded-lg transition">
-                        Track Order
-                    </button>
-                </div>
-            </div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Success Message -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 mb-6 text-center fade-in">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-2xl font-bold text-green-800 mb-2">Order Placed Successfully!</h2>
+            <p class="text-lg text-green-700 font-semibold">Order Number: <span class="text-2xl">{{ order.order_number }}</span></p>
         </div>
 
         <!-- Order Details -->
-        <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900">Order #001</h2>
-                        <p class="text-sm text-gray-600 mt-1">Placed on Nov 08, 2025 at 2:30 PM</p>
-                    </div>
-                    <div>
-                        {% include 'components/atoms/badge.html' with type='in-progress' text='In Progress' %}
-                    </div>
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6 fade-in">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">📋 Order Details</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <p class="text-sm text-gray-600 font-medium mb-1">Customer Name</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ order.customer_name }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600 font-medium mb-1">Table Number</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ order.table_number }}</p>
                 </div>
             </div>
 
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Order Items -->
-                    <div>
-                        <h3 class="font-bold text-gray-900 mb-4">Your Order</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium text-gray-900">Large Margherita Pizza</p>
-                                    <p class="text-sm text-gray-600">Qty: 2</p>
-                                </div>
-                                <span class="font-semibold text-gray-900">₱560.00</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium text-gray-900">Pepperoni Bliss</p>
-                                    <p class="text-sm text-gray-600">Qty: 1</p>
-                                </div>
-                                <span class="font-semibold text-gray-900">₱320.00</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p class="font-medium text-gray-900">Beverage Combo</p>
-                                    <p class="text-sm text-gray-600">Qty: 1</p>
-                                </div>
-                                <span class="font-semibold text-gray-900">₱120.00</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <div class="flex justify-between items-center text-lg">
-                                <span class="font-bold text-gray-900">Total:</span>
-                                <span class="text-2xl font-bold text-fjc-blue-600">₱1,176.00</span>
-                            </div>
-                        </div>
-                    </div>
+            {% if order.notes %}
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="text-sm text-gray-600 font-medium mb-1">Special Instructions</p>
+                <p class="text-gray-900">{{ order.notes }}</p>
+            </div>
+            {% endif %}
 
-                    <!-- Delivery Info -->
-                    <div>
-                        <h3 class="font-bold text-gray-900 mb-4">Delivery Information</h3>
-                        <div class="space-y-3">
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <p class="text-xs text-gray-600 font-medium">DELIVERY ADDRESS</p>
-                                <p class="text-gray-900 font-medium mt-1">John Doe</p>
-                                <p class="text-sm text-gray-600">123 Main Street, Barangay San Juan</p>
-                                <p class="text-sm text-gray-600">Postal Code: 1500</p>
-                            </div>
-                            <div class="p-3 bg-gray-50 rounded-lg">
-                                <p class="text-xs text-gray-600 font-medium">CONTACT NUMBER</p>
-                                <p class="text-gray-900 font-medium mt-1">(+63) 917-123-4567</p>
-                            </div>
-                            <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <p class="text-xs text-green-600 font-medium">PAYMENT STATUS</p>
-                                <p class="text-green-900 font-medium mt-1">✓ Confirmed</p>
-                            </div>
+            <div class="border-t border-gray-200 pt-4">
+                <h4 class="font-semibold text-gray-900 mb-3">Items Ordered:</h4>
+                <div class="space-y-2">
+                    {% for item in order.items.all %}
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ item.product.name }}</p>
+                            <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
                         </div>
+                        <span class="font-semibold text-gray-900">₱{{ item.get_subtotal }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-bold text-gray-900">Total Amount:</span>
+                        <span class="text-3xl font-bold text-fjc-blue-600">₱{{ order.total_amount }}</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Order Progress Timeline -->
-        <div class="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 class="text-xl font-bold text-gray-900">Order Status Timeline</h2>
-            </div>
+        <!-- Payment Status -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6 fade-in">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">💳 Payment Status</h3>
 
-            <div class="p-6">
-                <div class="space-y-6">
-                    <!-- Received -->
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center ring-4 ring-green-200">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div class="absolute w-1 h-24 bg-green-300 ml-6 mt-12"></div>
-                        </div>
-                        <div class="pt-1">
-                            <p class="text-lg font-bold text-gray-900">Order Received</p>
-                            <p class="text-sm text-gray-600">Your order has been received and confirmed</p>
-                            <p class="text-xs text-gray-500 mt-1">2:30 PM, Nov 08, 2025</p>
-                        </div>
+            {% if order.payment.method == 'CASH' %}
+                {% if order.payment.status == 'PENDING' %}
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
+                    <div class="text-5xl mb-3">⏳</div>
+                    <h4 class="text-xl font-bold text-yellow-800 mb-2">Payment Pending</h4>
+                    <p class="text-yellow-700 mb-4">
+                        Please proceed to the cashier counter to complete your payment.
+                    </p>
+                    <div class="bg-white rounded-lg p-4 inline-block">
+                        <p class="text-sm text-gray-600 mb-1">Amount to Pay:</p>
+                        <p class="text-3xl font-bold text-yellow-600">₱{{ order.total_amount }}</p>
                     </div>
+                </div>
+                {% else %}
+                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
+                    <div class="text-5xl mb-3">✅</div>
+                    <h4 class="text-xl font-bold text-green-800 mb-2">Payment Confirmed</h4>
+                    <p class="text-green-700">
+                        Your payment has been confirmed. Your order is now being prepared!
+                    </p>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
+                    <div class="text-5xl mb-3">✅</div>
+                    <h4 class="text-xl font-bold text-green-800 mb-2">Payment Successful</h4>
+                    <p class="text-green-700">
+                        Your online payment was processed successfully. Your order is being prepared!
+                    </p>
+                </div>
+            {% endif %}
+        </div>
 
-                    <!-- Confirmed -->
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center ring-4 ring-green-200">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div class="absolute w-1 h-24 bg-green-300 ml-6 mt-12"></div>
+        <!-- Order Status Timeline -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6 fade-in">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">📍 Order Status</h3>
+
+            <div class="space-y-6">
+                <!-- Order Placed -->
+                <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center ring-4 ring-green-200">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
                         </div>
-                        <div class="pt-1">
-                            <p class="text-lg font-bold text-gray-900">Order Confirmed</p>
-                            <p class="text-sm text-gray-600">Payment has been verified</p>
-                            <p class="text-xs text-gray-500 mt-1">2:32 PM, Nov 08, 2025</p>
-                        </div>
+                        {% if order.status != 'PENDING' %}
+                        <div class="w-0.5 h-12 bg-green-300 mt-2"></div>
+                        {% else %}
+                        <div class="w-0.5 h-12 bg-gray-200 mt-2"></div>
+                        {% endif %}
                     </div>
-
-                    <!-- Preparing -->
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-fjc-blue-100 flex items-center justify-center ring-4 ring-fjc-blue-200 animate-pulse">
-                                <svg class="w-6 h-6 text-fjc-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div class="absolute w-1 h-24 bg-gray-300 ml-6 mt-12"></div>
-                        </div>
-                        <div class="pt-1">
-                            <p class="text-lg font-bold text-gray-900">Preparing Your Order</p>
-                            <p class="text-sm text-gray-600">Your delicious pizza is being prepared in the kitchen</p>
-                            <p class="text-xs text-gray-500 mt-1">Estimated time: 20 minutes</p>
-                        </div>
+                    <div class="flex-1 pt-1">
+                        <p class="font-bold text-gray-900">Order Placed</p>
+                        <p class="text-sm text-gray-600">Your order has been received</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ order.created_at|date:"h:i A, M d, Y" }}</p>
                     </div>
+                </div>
 
-                    <!-- Ready for Delivery -->
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center">
-                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center ring-4 ring-gray-300">
-                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
+                <!-- In Progress -->
+                <div class="flex gap-4">
+                    <div class="flex flex-col items-center">
+                        {% if order.status == 'IN_PROGRESS' or order.status == 'FINISHED' %}
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center ring-4 ring-blue-200 {% if order.status == 'IN_PROGRESS' %}animate-pulse{% endif %}">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                         </div>
-                        <div class="pt-1">
-                            <p class="text-lg font-bold text-gray-900">Ready for Delivery</p>
-                            <p class="text-sm text-gray-600">Your order will be out for delivery soon</p>
-                            <p class="text-xs text-gray-500 mt-1">Estimated: 2:55 PM</p>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center ring-4 ring-gray-300">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                         </div>
+                        {% endif %}
+                        {% if order.status == 'FINISHED' %}
+                        <div class="w-0.5 h-12 bg-green-300 mt-2"></div>
+                        {% else %}
+                        <div class="w-0.5 h-12 bg-gray-200 mt-2"></div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 pt-1">
+                        <p class="font-bold {% if order.status == 'IN_PROGRESS' or order.status == 'FINISHED' %}text-gray-900{% else %}text-gray-500{% endif %}">
+                            Being Prepared
+                        </p>
+                        <p class="text-sm text-gray-600">Your delicious food is being prepared in the kitchen</p>
+                        {% if order.status == 'IN_PROGRESS' %}
+                        <p class="text-xs text-blue-600 font-medium mt-1">⏱ Estimated time: 15-20 minutes</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ready for Pickup -->
+                <div class="flex gap-4">
+                    <div>
+                        {% if order.status == 'FINISHED' %}
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center ring-4 ring-green-200">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center ring-4 ring-gray-300">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 pt-1">
+                        <p class="font-bold {% if order.status == 'FINISHED' %}text-gray-900{% else %}text-gray-500{% endif %}">
+                            Ready for Pickup
+                        </p>
+                        <p class="text-sm text-gray-600">Your order is ready at Table {{ order.table_number }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Delivery Estimate -->
-        <div class="bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50 rounded-lg border-2 border-fjc-blue-200 p-6 mb-8">
-            <div class="flex items-center gap-4">
-                <div class="text-4xl">🚗</div>
-                <div class="flex-1">
-                    <h3 class="text-xl font-bold text-gray-900">Delivery Estimate</h3>
-                    <p class="text-gray-600 mt-1">Your order will arrive in approximately <span class="font-bold text-fjc-blue-600">18 minutes</span></p>
-                    <p class="text-sm text-gray-500 mt-2">Estimated Delivery Time: <span class="font-semibold">3:00 PM - 3:15 PM</span></p>
+        <!-- Next Steps -->
+        {% if order.payment.status == 'PENDING' %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg mb-6 fade-in">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-yellow-800">Next Steps</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Proceed to the cashier counter</li>
+                            <li>Show your order number: <strong class="text-lg">{{ order.order_number }}</strong></li>
+                            <li>Pay the total amount: <strong class="text-lg">₱{{ order.total_amount }}</strong></li>
+                            <li>Wait at your table while your order is being prepared</li>
+                        </ol>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Support Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-3">Need Help?</h3>
-                <p class="text-gray-600 mb-4">Contact our customer support team for assistance</p>
-                <a href="tel:+63912345678" class="bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-bold py-2 px-4 rounded-lg transition inline-block">
-                    📞 Call Support
-                </a>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-bold text-gray-900 mb-3">Rate Your Experience</h3>
-                <p class="text-gray-600 mb-4">Help us improve by sharing your feedback</p>
-                <button class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition">
-                    ⭐ Give Feedback
-                </button>
-            </div>
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 fade-in">
+            <a href="{% url 'kiosk:home' %}" class="block w-full bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white font-bold py-3 px-4 rounded-lg text-center transition">
+                🏠 Back to Menu
+            </a>
+            <button onclick="window.print()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition">
+                🖨️ Print Receipt
+            </button>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <script>
+        // Auto-refresh page every 30 seconds to update order status
+        {% if order.status != 'FINISHED' %}
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+        {% endif %}
+    </script>
+</body>
+</html>
