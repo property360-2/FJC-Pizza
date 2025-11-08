@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.db.models import F
+from django.http import JsonResponse
+from django.db.models import F, Q
+from django.core.paginator import Paginator
 from .models import Product
 from system.models import AuditTrail
 import json
@@ -12,13 +14,92 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def product_list(request):
-    """List all products"""
-    products = Product.objects.filter(is_archived=False)
-    low_stock_products = products.filter(stock__lt=F('threshold'))
+    """List all products with search, filter, and pagination"""
 
+    # Get query parameters
+    search = request.GET.get('search', '').strip()
+    category = request.GET.get('category', '').strip()
+    stock_status = request.GET.get('stock_status', '').strip()
+    page_number = request.GET.get('page', 1)
+
+    # Base queryset
+    products = Product.objects.filter(is_archived=False)
+
+    # Apply search filter
+    if search:
+        products = products.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(category__icontains=search)
+        )
+
+    # Apply category filter
+    if category:
+        products = products.filter(category=category)
+
+    # Apply stock status filter
+    if stock_status == 'low':
+        products = products.filter(stock__lt=F('threshold'), stock__gt=0)
+    elif stock_status == 'out':
+        products = products.filter(stock=0)
+    elif stock_status == 'in_stock':
+        products = products.filter(stock__gte=F('threshold'))
+
+    # Get all categories for filter dropdown
+    categories = Product.objects.filter(
+        is_archived=False
+    ).values_list('category', flat=True).distinct().order_by('category')
+    categories = [c for c in categories if c]  # Remove empty categories
+
+    # Calculate statistics
+    low_stock_products = Product.objects.filter(is_archived=False, stock__lt=F('threshold'), stock__gt=0)
+    total_count = products.count()
+
+    # Pagination
+    paginator = Paginator(products.order_by('category', 'name'), 12)  # 12 products per page
+    page_obj = paginator.get_page(page_number)
+
+    # Check if AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return JSON for AJAX requests
+        products_data = []
+        for product in page_obj:
+            products_data.append({
+                'id': product.id,
+                'name': product.name,
+                'description': product.description or '',
+                'price': float(product.price),
+                'stock': product.stock,
+                'threshold': product.threshold,
+                'category': product.category or '',
+                'is_low_stock': product.is_low_stock,
+                'image_url': product.image.url if product.image else None,
+            })
+
+        return JsonResponse({
+            'success': True,
+            'products': products_data,
+            'pagination': {
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_count': total_count,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+            }
+        })
+
+    # Regular page load
     context = {
-        'products': products,
+        'page_obj': page_obj,
+        'products': page_obj,  # For backward compatibility
+        'categories': categories,
         'low_stock_count': low_stock_products.count(),
+        'total_count': total_count,
+        'search': search,
+        'selected_category': category,
+        'selected_stock_status': stock_status,
     }
     return render(request, 'products/list.html', context)
 

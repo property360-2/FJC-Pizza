@@ -11,117 +11,386 @@
             <p class="mt-1 text-sm text-gray-500">View and manage all orders</p>
         </div>
         <div>
-            {% include 'components/atoms/button.html' with type='primary' text='New Order' href='#' %}
+            <a href="{% url 'orders:pos_create_order' %}" class="bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                + New Order
+            </a>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4">
-        <div class="flex flex-wrap gap-2 items-center">
-            <span class="text-sm font-medium text-gray-700">Filter by Status:</span>
-            {% include 'components/atoms/button.html' with type='secondary' text='All' class='text-xs px-3 py-1' %}
-            {% include 'components/atoms/button.html' with type='outline' text='Pending' class='text-xs px-3 py-1' %}
-            {% include 'components/atoms/button.html' with type='outline' text='In Progress' class='text-xs px-3 py-1' %}
-            {% include 'components/atoms/button.html' with type='outline' text='Completed' class='text-xs px-3 py-1' %}
-            {% include 'components/atoms/button.html' with type='outline' text='Cancelled' class='text-xs px-3 py-1' %}
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div class="md:col-span-2">
+                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Search Orders</label>
+                <input type="text" id="search-input" placeholder="Search by order number, customer name, or table..." value="{{ search }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+                <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select id="status-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                    <option value="">All Status</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Results Info -->
+        <div class="mt-4 flex items-center justify-between">
+            <p class="text-sm text-gray-600">
+                Showing <span id="results-count" class="font-semibold">{{ page_obj.paginator.count }}</span> order{{ page_obj.paginator.count|pluralize }}
+            </p>
+            <button id="clear-filters-btn" class="text-sm text-fjc-blue-600 hover:text-fjc-blue-700 font-medium {% if not search and not status_filter %}hidden{% endif %}">
+                Clear Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="orders-loading" class="hidden">
+        <div class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-fjc-blue-500"></div>
         </div>
     </div>
 
     <!-- Orders Table -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Order ID</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Customer</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Items</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    <!-- Sample order 1 -->
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4">
-                            <span class="font-semibold text-gray-900">#001</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">John Doe</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">2x Large Pizza, 1x Drinks</td>
-                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱450.00</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">Nov 08, 2025</td>
-                        <td class="px-6 py-4">
-                            {% include 'components/atoms/badge.html' with type='in-progress' text='In Progress' %}
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
-                        </td>
-                    </tr>
-
-                    <!-- Sample order 2 -->
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4">
-                            <span class="font-semibold text-gray-900">#002</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">Jane Smith</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">3x Medium Pizza, 2x Sides</td>
-                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱620.00</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">Nov 08, 2025</td>
-                        <td class="px-6 py-4">
-                            {% include 'components/atoms/badge.html' with type='warning' text='Pending' %}
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
-                        </td>
-                    </tr>
-
-                    <!-- Sample order 3 -->
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4">
-                            <span class="font-semibold text-gray-900">#003</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">Mike Johnson</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">1x Large Pizza</td>
-                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱320.00</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">Nov 07, 2025</td>
-                        <td class="px-6 py-4">
-                            {% include 'components/atoms/badge.html' with type='success' text='Completed' %}
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
-                        </td>
-                    </tr>
-
-                    <!-- Sample order 4 -->
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4">
-                            <span class="font-semibold text-gray-900">#004</span>
-                        </td>
-                        <td class="px-6 py-4 text-gray-600">Sarah Wilson</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">2x Small Pizza, 1x Dessert</td>
-                        <td class="px-6 py-4 font-medium text-fjc-blue-600">₱380.00</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">Nov 07, 2025</td>
-                        <td class="px-6 py-4">
-                            {% include 'components/atoms/badge.html' with type='danger' text='Cancelled' %}
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">View</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <p class="text-sm text-gray-600">Showing <span class="font-semibold">1</span> to <span class="font-semibold">4</span> of <span class="font-semibold">24</span> orders</p>
-            <div class="flex gap-2">
-                {% include 'components/atoms/button.html' with type='secondary' text='Previous' class='px-3 py-2 text-sm' %}
-                {% include 'components/atoms/button.html' with type='secondary' text='Next' class='px-3 py-2 text-sm' %}
+    <div id="orders-container">
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            {% if orders %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Customer</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Table</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Items</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200" id="orders-tbody">
+                        {% for order in orders %}
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4">
+                                <span class="font-semibold text-gray-900">{{ order.order_number }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-600">{{ order.customer_name }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ order.table_number|default:"-" }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                {% for item in order.items.all|slice:":2" %}
+                                    {{ item.quantity }}x {{ item.product.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if order.items.count > 2 %}
+                                    , +{{ order.items.count|add:"-2" }} more
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 font-medium text-fjc-blue-600">₱{{ order.total_amount }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ order.created_at|date:"M d, Y g:i A" }}</td>
+                            <td class="px-6 py-4">
+                                {% if order.status == 'PENDING' %}
+                                {% include 'components/atoms/badge.html' with type='warning' text='Pending' %}
+                                {% elif order.status == 'IN_PROGRESS' %}
+                                {% include 'components/atoms/badge.html' with type='info' text='In Progress' %}
+                                {% elif order.status == 'FINISHED' %}
+                                {% include 'components/atoms/badge.html' with type='success' text='Completed' %}
+                                {% elif order.status == 'CANCELLED' %}
+                                {% include 'components/atoms/badge.html' with type='danger' text='Cancelled' %}
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="{% url 'orders:detail' order.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between" id="pagination-container">
+                <p class="text-sm text-gray-600">
+                    Page <span class="font-semibold">{{ page_obj.number }}</span> of <span class="font-semibold">{{ page_obj.paginator.num_pages }}</span>
+                </p>
+                <div class="flex gap-2">
+                    <button id="prev-page-btn" data-page="{{ page_obj.previous_page_number }}"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_previous %}opacity-50 cursor-not-allowed{% endif %}"
+                            {% if not page_obj.has_previous %}disabled{% endif %}>
+                        Previous
+                    </button>
+                    <button id="next-page-btn" data-page="{{ page_obj.next_page_number }}"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition {% if not page_obj.has_next %}opacity-50 cursor-not-allowed{% endif %}"
+                            {% if not page_obj.has_next %}disabled{% endif %}>
+                        Next
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="p-12 text-center">
+                <span class="text-6xl mb-4 block">📋</span>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
+                <p class="text-gray-500 mb-6">Try adjusting your filters or create a new order</p>
+                {% if search or status_filter %}
+                <button id="clear-all-btn" class="bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                    Clear Filters
+                </button>
+                {% else %}
+                <a href="{% url 'orders:pos_create_order' %}" class="inline-block bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                    Create Order
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Include Toast Component -->
+{% include 'components/toast.html' %}
+
+<script>
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Load orders with filters
+async function loadOrders(page = 1) {
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const ordersContainer = document.getElementById('orders-container');
+    const loadingEl = document.getElementById('orders-loading');
+
+    // Build query string
+    const params = new URLSearchParams();
+    if (searchInput.value) params.append('search', searchInput.value);
+    if (statusFilter.value) params.append('status', statusFilter.value);
+    params.append('page', page);
+
+    // Show loading
+    loadingEl.classList.remove('hidden');
+    ordersContainer.classList.add('opacity-50');
+
+    try {
+        const response = await fetch(`/orders/?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            renderOrders(data.orders, data.pagination);
+            updateResultsCount(data.pagination.total_count);
+            updateClearButton();
+        } else {
+            Toast.error('Failed to load orders');
+        }
+    } catch (error) {
+        Toast.error('Network error. Please try again.');
+    } finally {
+        loadingEl.classList.add('hidden');
+        ordersContainer.classList.remove('opacity-50');
+    }
+}
+
+// Render orders
+function renderOrders(orders, pagination) {
+    const container = document.getElementById('orders-container');
+
+    if (orders.length === 0) {
+        container.innerHTML = `
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div class="p-12 text-center">
+                    <span class="text-6xl mb-4 block">📋</span>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No orders found</h3>
+                    <p class="text-gray-500 mb-6">Try adjusting your filters</p>
+                    <button onclick="clearAllFilters()" class="bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-6 rounded-lg transition">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Order ID</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Customer</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Table</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Items</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+    `;
+
+    orders.forEach(order => {
+        // Determine status badge
+        let badgeHtml = '';
+        switch(order.status) {
+            case 'PENDING':
+                badgeHtml = '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">Pending</span>';
+                break;
+            case 'IN_PROGRESS':
+                badgeHtml = '<span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">In Progress</span>';
+                break;
+            case 'FINISHED':
+                badgeHtml = '<span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Completed</span>';
+                break;
+            case 'CANCELLED':
+                badgeHtml = '<span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">Cancelled</span>';
+                break;
+        }
+
+        html += `
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4">
+                    <span class="font-semibold text-gray-900">${order.order_number}</span>
+                </td>
+                <td class="px-6 py-4 text-gray-600">${order.customer_name}</td>
+                <td class="px-6 py-4 text-gray-600">${order.table_number}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${order.items_summary}</td>
+                <td class="px-6 py-4 font-medium text-fjc-blue-600">₱${order.total_amount}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${order.created_at}</td>
+                <td class="px-6 py-4">${badgeHtml}</td>
+                <td class="px-6 py-4">
+                    <a href="/orders/${order.id}/" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">
+                        View
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                    </tbody>
+                </table>
+            </div>
+    `;
+
+    // Add pagination
+    if (pagination.total_pages > 1) {
+        html += `
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-600">
+                    Page <span class="font-semibold">${pagination.current_page}</span> of <span class="font-semibold">${pagination.total_pages}</span>
+                </p>
+                <div class="flex gap-2">
+                    <button id="prev-page-btn" data-page="${pagination.previous_page || ''}"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_previous ? 'opacity-50 cursor-not-allowed' : ''}"
+                            ${!pagination.has_previous ? 'disabled' : ''}>
+                        Previous
+                    </button>
+                    <button id="next-page-btn" data-page="${pagination.next_page || ''}"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition ${!pagination.has_next ? 'opacity-50 cursor-not-allowed' : ''}"
+                            ${!pagination.has_next ? 'disabled' : ''}>
+                        Next
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    html += '</div>';
+
+    container.innerHTML = html;
+
+    // Attach pagination event listeners
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+
+    if (prevBtn && !prevBtn.disabled) {
+        prevBtn.addEventListener('click', () => loadOrders(pagination.previous_page));
+    }
+    if (nextBtn && !nextBtn.disabled) {
+        nextBtn.addEventListener('click', () => loadOrders(pagination.next_page));
+    }
+}
+
+// Update results count
+function updateResultsCount(count) {
+    const countEl = document.getElementById('results-count');
+    if (countEl) countEl.textContent = count;
+}
+
+// Update clear button visibility
+function updateClearButton() {
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const clearBtn = document.getElementById('clear-filters-btn');
+
+    const hasFilters = searchInput.value || statusFilter.value;
+    if (clearBtn) {
+        if (hasFilters) {
+            clearBtn.classList.remove('hidden');
+        } else {
+            clearBtn.classList.add('hidden');
+        }
+    }
+}
+
+// Clear all filters
+function clearAllFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('status-filter').value = '';
+    loadOrders(1);
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const statusFilter = document.getElementById('status-filter');
+    const clearBtn = document.getElementById('clear-filters-btn');
+    const clearAllBtn = document.getElementById('clear-all-btn');
+
+    // Search with debounce
+    searchInput.addEventListener('input', debounce(() => loadOrders(1), 500));
+
+    // Filter
+    statusFilter.addEventListener('change', () => loadOrders(1));
+
+    // Clear buttons
+    if (clearBtn) clearBtn.addEventListener('click', clearAllFilters);
+    if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllFilters);
+
+    // Pagination buttons (for initial load)
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+
+    if (prevBtn && !prevBtn.disabled) {
+        prevBtn.addEventListener('click', () => loadOrders(prevBtn.dataset.page));
+    }
+    if (nextBtn && !nextBtn.disabled) {
+        nextBtn.addEventListener('click', () => loadOrders(nextBtn.dataset.page));
+    }
+});
+</script>
 {% endblock %}
