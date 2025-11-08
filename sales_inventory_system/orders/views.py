@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.db import transaction
+from django.db.models import Q
+from django.core.paginator import Paginator
 from .models import Order, OrderItem, Payment
 from products.models import Product
 from system.models import AuditTrail
@@ -10,17 +12,77 @@ from system.models import AuditTrail
 
 @login_required
 def order_list(request):
-    """Display list of all orders"""
-    # Filter by status if provided
-    status_filter = request.GET.get('status', '')
+    """Display list of all orders with search, filter, and pagination"""
 
-    orders = Order.objects.all().select_related('payment').order_by('-created_at')
+    # Get query parameters
+    search = request.GET.get('search', '').strip()
+    status_filter = request.GET.get('status', '').strip()
+    page_number = request.GET.get('page', 1)
 
+    # Base queryset
+    orders = Order.objects.all().select_related('payment').prefetch_related('items__product')
+
+    # Apply search filter
+    if search:
+        orders = orders.filter(
+            Q(order_number__icontains=search) |
+            Q(customer_name__icontains=search) |
+            Q(table_number__icontains=search)
+        )
+
+    # Apply status filter
     if status_filter:
         orders = orders.filter(status=status_filter)
 
+    # Order by most recent
+    orders = orders.order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(orders, 20)  # 20 orders per page
+    page_obj = paginator.get_page(page_number)
+
+    # Check if AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return JSON for AJAX requests
+        orders_data = []
+        for order in page_obj:
+            # Get item summary
+            items_list = [f"{item.quantity}x {item.product.name}" for item in order.items.all()]
+            items_summary = ", ".join(items_list[:2])  # First 2 items
+            if len(items_list) > 2:
+                items_summary += f", +{len(items_list) - 2} more"
+
+            orders_data.append({
+                'id': order.id,
+                'order_number': order.order_number,
+                'customer_name': order.customer_name,
+                'table_number': order.table_number or '-',
+                'items_summary': items_summary,
+                'total_amount': float(order.total_amount),
+                'status': order.status,
+                'status_display': order.get_status_display(),
+                'created_at': order.created_at.strftime('%b %d, %Y %I:%M %p'),
+                'payment_status': order.payment.status if hasattr(order, 'payment') else 'PENDING',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'orders': orders_data,
+            'pagination': {
+                'current_page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_count': paginator.count,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+            }
+        })
+
     context = {
-        'orders': orders,
+        'page_obj': page_obj,
+        'orders': page_obj,  # For backward compatibility
+        'search': search,
         'status_filter': status_filter,
         'status_choices': Order.STATUS_CHOICES,
     }
