@@ -7,6 +7,7 @@ from datetime import timedelta
 from decimal import Decimal
 from orders.models import Order, Payment, OrderItem
 from products.models import Product
+from .forecasting import forecast_sales
 
 
 def is_admin(user):
@@ -165,3 +166,28 @@ def sales_data_api(request):
         'success': True,
         'data': data
     })
+
+
+@login_required
+@user_passes_test(is_admin)
+def sales_forecast(request):
+    """Display sales forecasting using Holt-Winters Exponential Smoothing"""
+
+    # Get parameters from request (with defaults)
+    days_back = int(request.GET.get('days_back', 30))
+    days_ahead = int(request.GET.get('days_ahead', 7))
+
+    # Validate parameters
+    days_back = max(7, min(days_back, 90))  # Between 7 and 90 days
+    days_ahead = max(1, min(days_ahead, 30))  # Between 1 and 30 days
+
+    # Generate forecast
+    forecast_result = forecast_sales(days_back=days_back, days_ahead=days_ahead)
+
+    context = {
+        'forecast_result': forecast_result,
+        'days_back': days_back,
+        'days_ahead': days_ahead,
+    }
+
+    return render(request, 'analytics/forecast.html', context)
