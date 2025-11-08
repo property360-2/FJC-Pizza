@@ -1,9 +1,10 @@
 """
-Management command to populate the database with demo data for FJC Pizza
+Management command to populate the database with comprehensive demo data for FJC Pizza
 """
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
+from datetime import timedelta
 from decimal import Decimal
 from accounts.models import User
 from products.models import Product
@@ -12,7 +13,7 @@ from system.models import AuditTrail
 
 
 class Command(BaseCommand):
-    help = 'Populate database with demo data for FJC Pizza'
+    help = 'Populate database with comprehensive demo data for FJC Pizza'
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.SUCCESS('Starting demo data population...'))
@@ -27,27 +28,65 @@ class Command(BaseCommand):
             # Create sample orders
             self.create_orders()
 
-        self.stdout.write(self.style.SUCCESS('✅ Demo data created successfully!'))
+        self.stdout.write(self.style.SUCCESS('\n✅ Demo data created successfully!'))
         self.stdout.write(self.style.SUCCESS('\nLogin credentials:'))
         self.stdout.write('  Admin: username=admin, password=admin123')
-        self.stdout.write('  Cashier: username=cashier, password=cashier123')
+        self.stdout.write('  Cashier 1: username=cashier, password=cashier123')
+        self.stdout.write('  Cashier 2: username=maria, password=maria123')
+        self.stdout.write('  Cashier 3: username=jose, password=jose123')
 
     def create_users(self):
         """Create demo users"""
-        # Create cashier user
-        if not User.objects.filter(username='cashier').exists():
-            cashier = User.objects.create_user(
-                username='cashier',
-                email='cashier@fjcpizza.com',
-                password='cashier123',
-                first_name='John',
-                last_name='Doe',
-                role='CASHIER'
-            )
-            self.stdout.write(f'  ✓ Created cashier user: {cashier.username}')
+        self.stdout.write('\n📝 Creating users...')
+
+        users_data = [
+            {
+                'username': 'cashier',
+                'email': 'cashier@fjcpizza.com',
+                'password': 'cashier123',
+                'first_name': 'John',
+                'last_name': 'Doe',
+                'phone': '+63 917 123 4567',
+                'role': 'CASHIER'
+            },
+            {
+                'username': 'maria',
+                'email': 'maria@fjcpizza.com',
+                'password': 'maria123',
+                'first_name': 'Maria',
+                'last_name': 'Santos',
+                'phone': '+63 918 234 5678',
+                'role': 'CASHIER'
+            },
+            {
+                'username': 'jose',
+                'email': 'jose@fjcpizza.com',
+                'password': 'jose123',
+                'first_name': 'Jose',
+                'last_name': 'Reyes',
+                'phone': '+63 919 345 6789',
+                'role': 'CASHIER'
+            },
+            {
+                'username': 'manager',
+                'email': 'manager@fjcpizza.com',
+                'password': 'manager123',
+                'first_name': 'Ana',
+                'last_name': 'Garcia',
+                'phone': '+63 920 456 7890',
+                'role': 'ADMIN'
+            },
+        ]
+
+        for user_data in users_data:
+            if not User.objects.filter(username=user_data['username']).exists():
+                user = User.objects.create_user(**user_data)
+                self.stdout.write(f'  ✓ Created {user_data["role"].lower()}: {user.username}')
 
     def create_products(self):
         """Create demo pizza products"""
+        self.stdout.write('\n🍕 Creating products...')
+
         products_data = [
             # Pizzas
             {
@@ -98,6 +137,22 @@ class Command(BaseCommand):
                 'threshold': 10,
                 'category': 'Pizza'
             },
+            {
+                'name': 'Veggie Supreme Pizza',
+                'description': 'Mushrooms, bell peppers, onions, olives, and tomatoes',
+                'price': Decimal('339.00'),
+                'stock': 28,
+                'threshold': 10,
+                'category': 'Pizza'
+            },
+            {
+                'name': 'Meat Lovers Pizza',
+                'description': 'Pepperoni, sausage, bacon, ham, and ground beef',
+                'price': Decimal('429.00'),
+                'stock': 20,
+                'threshold': 8,
+                'category': 'Pizza'
+            },
 
             # Sides
             {
@@ -130,6 +185,22 @@ class Command(BaseCommand):
                 'price': Decimal('79.00'),
                 'stock': 120,
                 'threshold': 25,
+                'category': 'Sides'
+            },
+            {
+                'name': 'Onion Rings',
+                'description': 'Crispy battered onion rings',
+                'price': Decimal('99.00'),
+                'stock': 80,
+                'threshold': 20,
+                'category': 'Sides'
+            },
+            {
+                'name': 'Caesar Salad',
+                'description': 'Fresh romaine lettuce with Caesar dressing and croutons',
+                'price': Decimal('129.00'),
+                'stock': 40,
+                'threshold': 10,
                 'category': 'Sides'
             },
 
@@ -166,6 +237,14 @@ class Command(BaseCommand):
                 'threshold': 75,
                 'category': 'Drinks'
             },
+            {
+                'name': 'Orange Juice (500ml)',
+                'description': 'Freshly squeezed orange juice',
+                'price': Decimal('69.00'),
+                'stock': 90,
+                'threshold': 25,
+                'category': 'Drinks'
+            },
 
             # Desserts
             {
@@ -184,6 +263,24 @@ class Command(BaseCommand):
                 'threshold': 8,
                 'category': 'Desserts'
             },
+            {
+                'name': 'Cheesecake',
+                'description': 'Creamy New York style cheesecake',
+                'price': Decimal('139.00'),
+                'stock': 35,
+                'threshold': 8,
+                'category': 'Desserts'
+            },
+
+            # Low stock items for testing
+            {
+                'name': 'Buffalo Wings (12pcs)',
+                'description': 'Spicy buffalo wings with ranch dressing',
+                'price': Decimal('279.00'),
+                'stock': 5,  # Low stock
+                'threshold': 10,
+                'category': 'Sides'
+            },
         ]
 
         for product_data in products_data:
@@ -192,143 +289,87 @@ class Command(BaseCommand):
                 defaults=product_data
             )
             if created:
-                self.stdout.write(f'  ✓ Created product: {product.name}')
+                status = ' [LOW STOCK]' if product.stock < product.threshold else ''
+                self.stdout.write(f'  ✓ Created product: {product.name}{status}')
 
     def create_orders(self):
         """Create sample orders for demonstration"""
-        admin = User.objects.get(username='admin')
-        products = list(Product.objects.all())  # Get all products
+        self.stdout.write('\n📦 Creating orders...')
 
-        if not products or len(products) < 4:
-            self.stdout.write(self.style.WARNING('  ⚠ Not enough products found, skipping order creation'))
-            return
+        try:
+            admin = User.objects.get(username='admin')
+            cashier = User.objects.filter(username='cashier').first()
+            products = list(Product.objects.all())
 
-        # Create completed order (online payment)
-        order1 = Order.objects.create(
-            customer_name='Alice Johnson',
-            table_number='T01',
-            status='FINISHED',
-            notes='Extra napkins please'
-        )
+            if not products or len(products) < 4:
+                self.stdout.write(self.style.WARNING('  ⚠ Not enough products found, skipping order creation'))
+                return
 
-        OrderItem.objects.create(
-            order=order1,
-            product=products[0],
-            quantity=2
-        )
-        if len(products) > 6:
-            OrderItem.objects.create(
-                order=order1,
-                product=products[6],
-                quantity=1
-            )
+            # Sample customer names
+            customers = [
+                ('Alice Johnson', 'T01'),
+                ('Bob Smith', 'T02'),
+                ('Carol Williams', 'T03'),
+                ('David Brown', 'T04'),
+                ('Emma Davis', 'T05'),
+                ('Frank Miller', 'T06'),
+                ('Grace Lee', 'T07'),
+                ('Henry Wilson', 'T08'),
+            ]
 
-        order1.calculate_total()
+            # Create 10 varied orders
+            for i in range(10):
+                customer_name, table = customers[i % len(customers)]
 
-        Payment.objects.create(
-            order=order1,
-            method='ONLINE',
-            status='SUCCESS',
-            amount=order1.total_amount,
-            processed_by=admin
-        )
+                # Vary the order status
+                if i < 2:
+                    status = 'PENDING'
+                    payment_status = 'PENDING'
+                    payment_method = 'CASH'
+                    processed_by = None
+                elif i < 5:
+                    status = 'IN_PROGRESS'
+                    payment_status = 'SUCCESS'
+                    payment_method = 'CASH' if i % 2 == 0 else 'ONLINE'
+                    processed_by = cashier or admin
+                else:
+                    status = 'FINISHED'
+                    payment_status = 'SUCCESS'
+                    payment_method = 'ONLINE' if i % 3 == 0 else 'CASH'
+                    processed_by = cashier or admin
 
-        self.stdout.write(f'  ✓ Created order: {order1.order_number} (FINISHED)')
+                # Create order
+                order = Order.objects.create(
+                    customer_name=customer_name,
+                    table_number=table,
+                    status=status,
+                    notes='Extra napkins' if i % 3 == 0 else '',
+                    processed_by=processed_by,
+                    created_at=timezone.now() - timedelta(hours=i)
+                )
 
-        # Create in-progress order (cash payment confirmed)
-        order2 = Order.objects.create(
-            customer_name='Bob Smith',
-            table_number='T02',
-            status='IN_PROGRESS'
-        )
+                # Add 2-4 random items
+                num_items = 2 + (i % 3)
+                for j in range(num_items):
+                    product_index = (i * 3 + j) % len(products)
+                    OrderItem.objects.create(
+                        order=order,
+                        product=products[product_index],
+                        quantity=1 + (j % 2)
+                    )
 
-        OrderItem.objects.create(
-            order=order2,
-            product=products[1],
-            quantity=1
-        )
-        if len(products) > 7:
-            OrderItem.objects.create(
-                order=order2,
-                product=products[7],
-                quantity=1
-            )
+                order.calculate_total()
 
-        order2.calculate_total()
+                # Create payment
+                Payment.objects.create(
+                    order=order,
+                    method=payment_method,
+                    status=payment_status,
+                    amount=order.total_amount,
+                    processed_by=processed_by
+                )
 
-        Payment.objects.create(
-            order=order2,
-            method='CASH',
-            status='SUCCESS',
-            amount=order2.total_amount,
-            processed_by=admin
-        )
+                self.stdout.write(f'  ✓ Created order: {order.order_number} ({status}, {payment_method})')
 
-        self.stdout.write(f'  ✓ Created order: {order2.order_number} (IN_PROGRESS)')
-
-        # Create pending order (waiting for cash payment)
-        order3 = Order.objects.create(
-            customer_name='Carol Williams',
-            table_number='T03',
-            status='PENDING'
-        )
-
-        OrderItem.objects.create(
-            order=order3,
-            product=products[2],
-            quantity=1
-        )
-        if len(products) > 10:
-            OrderItem.objects.create(
-                order=order3,
-                product=products[10],
-                quantity=2
-            )
-
-        order3.calculate_total()
-
-        Payment.objects.create(
-            order=order3,
-            method='CASH',
-            status='PENDING',
-            amount=order3.total_amount
-        )
-
-        self.stdout.write(f'  ✓ Created order: {order3.order_number} (PENDING)')
-
-        # Create another completed order
-        order4 = Order.objects.create(
-            customer_name='David Brown',
-            table_number='T04',
-            status='FINISHED'
-        )
-
-        OrderItem.objects.create(
-            order=order4,
-            product=products[3],
-            quantity=1
-        )
-        if len(products) > 8:
-            OrderItem.objects.create(
-                order=order4,
-                product=products[8],
-                quantity=1
-            )
-        if len(products) > 11:
-            OrderItem.objects.create(
-                order=order4,
-                product=products[11],
-                quantity=2
-            )
-
-        order4.calculate_total()
-
-        Payment.objects.create(
-            order=order4,
-            method='ONLINE',
-            status='SUCCESS',
-            amount=order4.total_amount,
-            processed_by=admin
-        )
-
-        self.stdout.write(f'  ✓ Created order: {order4.order_number} (FINISHED)')
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'  ✗ Error creating orders: {str(e)}'))
