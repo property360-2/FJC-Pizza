@@ -61,7 +61,8 @@
     <div id="orders-container">
         <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
             {% if orders %}
-            <div class="overflow-x-auto">
+            <!-- Desktop Table View (hidden on mobile) -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gray-50 border-b border-gray-200">
@@ -113,6 +114,59 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card View (shown only on mobile) -->
+            <div class="md:hidden divide-y divide-gray-200" id="orders-cards">
+                {% for order in orders %}
+                <div class="p-4 hover:bg-gray-50 transition">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <p class="font-semibold text-gray-900 text-lg">{{ order.order_number }}</p>
+                            <p class="text-sm text-gray-600 mt-1">{{ order.customer_name }}</p>
+                        </div>
+                        <div>
+                            {% if order.status == 'PENDING' %}
+                            {% include 'components/atoms/badge.html' with type='warning' text='Pending' %}
+                            {% elif order.status == 'IN_PROGRESS' %}
+                            {% include 'components/atoms/badge.html' with type='info' text='In Progress' %}
+                            {% elif order.status == 'FINISHED' %}
+                            {% include 'components/atoms/badge.html' with type='success' text='Completed' %}
+                            {% elif order.status == 'CANCELLED' %}
+                            {% include 'components/atoms/badge.html' with type='danger' text='Cancelled' %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Table:</span>
+                            <span class="text-gray-900">{{ order.table_number|default:"-" }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Items:</span>
+                            <span class="text-gray-900 text-right">
+                                {% for item in order.items.all|slice:":2" %}
+                                    {{ item.quantity }}x {{ item.product.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if order.items.count > 2 %}
+                                    , +{{ order.items.count|add:"-2" }} more
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Total:</span>
+                            <span class="font-semibold text-fjc-blue-600">₱{{ order.total_amount }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500">Date:</span>
+                            <span class="text-gray-900">{{ order.created_at|date:"M d, Y g:i A" }}</span>
+                        </div>
+                    </div>
+                    <a href="{% url 'orders:detail' order.pk %}" class="block w-full text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                        View Details
+                    </a>
+                </div>
+                {% endfor %}
             </div>
 
             <!-- Pagination -->
@@ -235,7 +289,8 @@ function renderOrders(orders, pagination) {
 
     let html = `
         <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gray-50 border-b border-gray-200">
@@ -252,6 +307,7 @@ function renderOrders(orders, pagination) {
                     <tbody class="divide-y divide-gray-200">
     `;
 
+    // Table rows for desktop
     orders.forEach(order => {
         // Determine status badge
         let badgeHtml = '';
@@ -293,6 +349,65 @@ function renderOrders(orders, pagination) {
     html += `
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="md:hidden divide-y divide-gray-200">
+    `;
+
+    // Card view for mobile
+    orders.forEach(order => {
+        let badgeHtml = '';
+        switch(order.status) {
+            case 'PENDING':
+                badgeHtml = '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">Pending</span>';
+                break;
+            case 'IN_PROGRESS':
+                badgeHtml = '<span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">In Progress</span>';
+                break;
+            case 'FINISHED':
+                badgeHtml = '<span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Completed</span>';
+                break;
+            case 'CANCELLED':
+                badgeHtml = '<span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">Cancelled</span>';
+                break;
+        }
+
+        html += `
+            <div class="p-4 hover:bg-gray-50 transition">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <p class="font-semibold text-gray-900 text-lg">${order.order_number}</p>
+                        <p class="text-sm text-gray-600 mt-1">${order.customer_name}</p>
+                    </div>
+                    <div>${badgeHtml}</div>
+                </div>
+                <div class="space-y-2 mb-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Table:</span>
+                        <span class="text-gray-900">${order.table_number}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Items:</span>
+                        <span class="text-gray-900 text-right">${order.items_summary}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Total:</span>
+                        <span class="font-semibold text-fjc-blue-600">₱${order.total_amount}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Date:</span>
+                        <span class="text-gray-900">${order.created_at}</span>
+                    </div>
+                </div>
+                <a href="/orders/${order.id}/" class="block w-full text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                    View Details
+                </a>
+            </div>
+        `;
+    });
+
+    html += `
             </div>
     `;
 

@@ -39,7 +39,8 @@
                             </div>
                             <div class="flex items-center gap-2 mt-3">
                                 <button type="button" onclick="decrementQty({{ product.id }})"
-                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-8 h-8 rounded">
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation"
+                                        aria-label="Decrease quantity">
                                     -
                                 </button>
                                 <input type="number"
@@ -51,9 +52,10 @@
                                        onchange="updateCart()"
                                        data-price="{{ product.price }}"
                                        data-name="{{ product.name }}"
-                                       class="w-16 text-center border border-gray-300 rounded py-1">
+                                       class="w-16 text-center border border-gray-300 rounded py-2 touch-manipulation">
                                 <button type="button" onclick="incrementQty({{ product.id }}, {{ product.stock }})"
-                                        class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold w-8 h-8 rounded">
+                                        class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation"
+                                        aria-label="Increase quantity">
                                     +
                                 </button>
                             </div>

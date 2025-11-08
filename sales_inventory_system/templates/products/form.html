@@ -31,6 +31,7 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
                     placeholder="e.g., Margherita Pizza"
                 />
+                <p id="name-error" class="mt-1 text-sm text-red-600 hidden"></p>
             </div>
 
             <!-- Description -->
@@ -64,6 +65,7 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
                         placeholder="0.00"
                     />
+                    <p id="price-error" class="mt-1 text-sm text-red-600 hidden"></p>
                 </div>
 
                 <div>
@@ -80,6 +82,7 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
                         placeholder="0"
                     />
+                    <p id="stock-error" class="mt-1 text-sm text-red-600 hidden"></p>
                 </div>
             </div>
 
@@ -154,4 +157,123 @@
         </form>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const nameInput = document.getElementById('name');
+    const priceInput = document.getElementById('price');
+    const stockInput = document.getElementById('stock');
+
+    // Validation functions
+    function validateName() {
+        const value = nameInput.value.trim();
+        const errorEl = document.getElementById('name-error');
+
+        if (!value) {
+            showError(nameInput, errorEl, 'Product name is required');
+            return false;
+        } else if (value.length < 2) {
+            showError(nameInput, errorEl, 'Product name must be at least 2 characters');
+            return false;
+        } else {
+            clearError(nameInput, errorEl);
+            return true;
+        }
+    }
+
+    function validatePrice() {
+        const value = parseFloat(priceInput.value);
+        const errorEl = document.getElementById('price-error');
+
+        if (!priceInput.value) {
+            showError(priceInput, errorEl, 'Price is required');
+            return false;
+        } else if (isNaN(value) || value <= 0) {
+            showError(priceInput, errorEl, 'Price must be greater than 0');
+            return false;
+        } else if (value > 99999) {
+            showError(priceInput, errorEl, 'Price must be less than ₱99,999');
+            return false;
+        } else {
+            clearError(priceInput, errorEl);
+            return true;
+        }
+    }
+
+    function validateStock() {
+        const value = parseInt(stockInput.value);
+        const errorEl = document.getElementById('stock-error');
+
+        if (!stockInput.value && stockInput.value !== '0') {
+            showError(stockInput, errorEl, 'Stock quantity is required');
+            return false;
+        } else if (isNaN(value) || value < 0) {
+            showError(stockInput, errorEl, 'Stock must be 0 or greater');
+            return false;
+        } else if (value > 999999) {
+            showError(stockInput, errorEl, 'Stock must be less than 1,000,000');
+            return false;
+        } else {
+            clearError(stockInput, errorEl);
+            return true;
+        }
+    }
+
+    function showError(input, errorEl, message) {
+        input.classList.remove('border-gray-300', 'focus:border-fjc-blue-500', 'focus:ring-fjc-blue-500');
+        input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    }
+
+    function clearError(input, errorEl) {
+        input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        input.classList.add('border-gray-300', 'focus:border-fjc-blue-500', 'focus:ring-fjc-blue-500');
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+    }
+
+    // Add event listeners for real-time validation
+    nameInput.addEventListener('blur', validateName);
+    nameInput.addEventListener('input', function() {
+        if (nameInput.value.trim()) {
+            validateName();
+        }
+    });
+
+    priceInput.addEventListener('blur', validatePrice);
+    priceInput.addEventListener('input', function() {
+        if (priceInput.value) {
+            validatePrice();
+        }
+    });
+
+    stockInput.addEventListener('blur', validateStock);
+    stockInput.addEventListener('input', function() {
+        if (stockInput.value) {
+            validateStock();
+        }
+    });
+
+    // Validate on form submit
+    form.addEventListener('submit', function(e) {
+        const isNameValid = validateName();
+        const isPriceValid = validatePrice();
+        const isStockValid = validateStock();
+
+        if (!isNameValid || !isPriceValid || !isStockValid) {
+            e.preventDefault();
+
+            // Scroll to first error
+            const firstError = document.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+});
+</script>
 {% endblock %}
