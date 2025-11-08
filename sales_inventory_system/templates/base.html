@@ -184,16 +184,14 @@
     </nav>
     {% endif %}
 
-    <!-- Messages -->
+    <!-- Messages (hidden - using toasts instead) -->
+    <div style="display: none;">
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
         {% for message in messages %}
-        <div class="{% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border rounded-lg px-4 py-3 mb-3" role="alert">
-            <p class="text-sm font-medium">{{ message }}</p>
-        </div>
+        <span data-message="{{ message }}" data-type="{{ message.tags }}"></span>
         {% endfor %}
-    </div>
     {% endif %}
+    </div>
 
     <!-- Main Content -->
     <main class="{% if user.is_authenticated %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endif %}">
@@ -210,6 +208,28 @@
         </div>
     </footer>
     {% endif %}
+
+    <!-- Toast Notification Component -->
+    {% include 'components/toast.html' %}
+
+    <!-- Convert Django messages to toasts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                Toast.error('{{ message|escapejs }}');
+                {% elif message.tags == 'success' %}
+                Toast.success('{{ message|escapejs }}');
+                {% elif message.tags == 'warning' %}
+                Toast.warning('{{ message|escapejs }}');
+                {% else %}
+                Toast.info('{{ message|escapejs }}');
+                {% endif %}
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

@@ -161,12 +161,14 @@ def process_payment(request, pk):
                     }
                 )
 
-                messages.success(request, f'Payment processed for order {order.order_number}')
-
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Payment processed successfully'
-                })
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Payment processed for order {order.order_number}'
+                    })
+                else:
+                    messages.success(request, f'Payment processed for order {order.order_number}')
+                    return redirect('cashier_pos')
 
         except ValueError as e:
             return JsonResponse({
