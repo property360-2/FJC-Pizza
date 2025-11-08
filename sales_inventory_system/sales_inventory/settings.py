@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # must be above others
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -85,13 +86,13 @@ WSGI_APPLICATION = "sales_inventory.wsgi.application"
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fcj_pizza',
-        'USER': 'fcj_pizza_user',
-        'PASSWORD': 'UGix6jojdpAg8N48ofG7U5HJUSgrKWfk',
-        'HOST': 'dpg-d47hrei4d50c7386fbtg-a.singapore-postgres.render.com',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "fcj_pizza",
+        "USER": "fcj_pizza_user",
+        "PASSWORD": "UGix6jojdpAg8N48ofG7U5HJUSgrKWfk",
+        "HOST": "dpg-d47hrei4d50c7386fbtg-a.singapore-postgres.render.com",
+        "PORT": "5432",
     }
 }
 
