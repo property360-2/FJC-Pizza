@@ -125,12 +125,21 @@ FJC-Pizza/
    - Username: `admin`
    - Password: `admin123`
 
-5. **Run the development server**
+5. **Populate demo data** (Optional but recommended)
+   ```bash
+   python manage.py populate_demo_data
+   ```
+   This creates:
+   - 16 sample products (pizzas, sides, drinks, desserts)
+   - 4 sample orders with different statuses
+   - 1 additional cashier user
+
+6. **Run the development server**
    ```bash
    python manage.py runserver
    ```
 
-6. **Access the application**
+7. **Access the application**
    - Admin/Cashier Login: http://localhost:8000/accounts/login/
    - Customer Kiosk: http://localhost:8000/kiosk/
    - Django Admin: http://localhost:8000/admin/
