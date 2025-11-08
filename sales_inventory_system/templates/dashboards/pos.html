@@ -68,12 +68,9 @@
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-fjc-yellow-600 font-bold">₱{{ order.total_amount }}</p>
                         {% if order.payment.method == 'CASH' and order.payment.status == 'PENDING' %}
-                        <form method="POST" action="{% url 'orders:process_payment' order.payment.pk %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
-                                ✓ Confirm Cash
-                            </button>
-                        </form>
+                        <button onclick="confirmPayment({{ order.payment.pk }}, '{{ order.order_number }}', this)" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                            ✓ Confirm Cash
+                        </button>
                         {% endif %}
                     </div>
                     {% if order.notes %}
@@ -116,9 +113,9 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-fjc-blue-600 font-bold">₱{{ order.total_amount }}</p>
-                        <a href="{% url 'orders:detail' order.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 text-xs font-medium">
+                        <button onclick="updateOrderStatus({{ order.pk }}, 'FINISHED', this)" class="text-fjc-blue-600 hover:text-fjc-blue-700 hover:bg-fjc-blue-50 text-xs font-medium px-3 py-1 rounded transition">
                             Mark Ready →
-                        </a>
+                        </button>
                     </div>
                 </div>
                 {% empty %}
@@ -184,4 +181,119 @@
         </div>
     </div>
 </div>
+
+<!-- Auto-refresh for real-time updates -->
+<script>
+    // Auto-refresh every 30 seconds
+    setTimeout(() => location.reload(), 30000);
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function confirmPayment(paymentId, orderNumber, buttonElement) {
+    if (!confirm(`Confirm cash payment for ${orderNumber}?`)) {
+        return;
+    }
+
+    // Disable the button to prevent double-clicks
+    const originalText = buttonElement.textContent;
+    buttonElement.disabled = true;
+    buttonElement.textContent = 'Processing...';
+    buttonElement.classList.add('opacity-50', 'cursor-not-allowed');
+
+    const url = `/orders/payment/${paymentId}/process-payment/`;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    Loading.show();
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+        Loading.hide();
+
+        if (result.success) {
+            Toast.success(result.message);
+            // Reload page after a short delay to show updated status
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            Toast.error(result.message || 'Failed to process payment');
+            // Re-enable button on error
+            buttonElement.disabled = false;
+            buttonElement.textContent = originalText;
+            buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (error) {
+        Loading.hide();
+        Toast.error('Network error. Please try again.');
+        // Re-enable button on error
+        buttonElement.disabled = false;
+        buttonElement.textContent = originalText;
+        buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+async function updateOrderStatus(orderId, newStatus, buttonElement) {
+    // Disable button to prevent double-clicks
+    if (buttonElement) {
+        const originalText = buttonElement.textContent;
+        buttonElement.disabled = true;
+        buttonElement.textContent = 'Updating...';
+        buttonElement.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    const url = `/orders/${orderId}/update-status/`;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    Loading.show();
+
+    try {
+        const formData = new FormData();
+        formData.append('status', newStatus);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const result = await response.json();
+        Loading.hide();
+
+        if (result.success) {
+            Toast.success(result.message);
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            Toast.error(result.message || 'Failed to update order');
+            // Re-enable button on error
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.textContent = originalText;
+                buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    } catch (error) {
+        Loading.hide();
+        Toast.error('Network error. Please try again.');
+        // Re-enable button on error
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.textContent = originalText;
+            buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+}
+</script>
 {% endblock %}

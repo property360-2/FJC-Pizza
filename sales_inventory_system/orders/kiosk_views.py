@@ -158,12 +158,33 @@ def checkout(request):
                 request.session['cart'] = {}
                 request.session.modified = True
 
+                # Check if AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Order {order.order_number} placed successfully!',
+                        'order_number': order.order_number,
+                        'redirect_url': f'/kiosk/order/{order.order_number}/'
+                    })
+
                 messages.success(request, f'Order {order.order_number} placed successfully!')
                 return redirect('kiosk:order_status', order_number=order.order_number)
 
         except ValueError as e:
+            # Check if AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': str(e)
+                })
             messages.error(request, str(e))
         except Exception as e:
+            # Check if AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'An error occurred while processing your order.'
+                })
             messages.error(request, 'An error occurred while processing your order.')
 
     context = {

@@ -55,9 +55,73 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
+        /* Loading overlay */
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #loading-overlay.active {
+            display: flex;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+            font-weight: 600;
+        }
+        .toast.success { background: #10b981; color: white; }
+        .toast.error { background: #ef4444; color: white; }
+        .toast.warning { background: #f59e0b; color: white; }
+        .toast.info { background: #3b82f6; color: white; }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="bg-white rounded-lg p-8 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-fjc-blue-500 mx-auto"></div>
+            <p class="mt-4 text-gray-700 font-semibold">Processing...</p>
+        </div>
+    </div>
     <!-- Header -->
     <div class="bg-gradient-to-r from-fjc-yellow-500 to-fjc-blue-500 text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -75,26 +139,35 @@
                 </div>
                 <a href="{% url 'kiosk:cart' %}" class="relative bg-white text-fjc-blue-600 px-6 py-3 rounded-lg hover:bg-gray-100 font-semibold shadow-lg transition">
                     🛒 Cart
-                    {% if cart_count > 0 %}
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center {% if cart_count == 0 %}hidden{% endif %}">
                         {{ cart_count }}
                     </span>
-                    {% endif %}
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Messages -->
-    {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        {% for message in messages %}
-        <div class="{% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% elif message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 text-yellow-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border rounded-lg px-4 py-3 mb-3" role="alert">
-            <p class="text-sm font-medium">{{ message }}</p>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    <!-- Messages are now handled by toast notifications -->
+    <script>
+        // Show Django messages as toasts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if messages %}
+            {% for message in messages %}
+            setTimeout(function() {
+                {% if message.tags == 'error' %}
+                Toast.error('{{ message|escapejs }}');
+                {% elif message.tags == 'success' %}
+                Toast.success('{{ message|escapejs }}');
+                {% elif message.tags == 'warning' %}
+                Toast.warning('{{ message|escapejs }}');
+                {% else %}
+                Toast.info('{{ message|escapejs }}');
+                {% endif %}
+            }, 100);
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -199,43 +272,80 @@
         </div>
     </footer>
 
-    <!-- Add to Cart Script -->
+    <!-- Toast Notification System & Add to Cart Script -->
     <script>
-        function addToCart(productId, quantity) {
-            fetch(`/kiosk/add-to-cart/${productId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: `quantity=${quantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
+        // Toast Notification Helper
+        const Toast = {
+            show(message, type = 'info', duration = 4000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+
+                return toast;
+            },
+            success(message, duration) { return this.show(message, 'success', duration); },
+            error(message, duration) { return this.show(message, 'error', duration); },
+            warning(message, duration) { return this.show(message, 'warning', duration); },
+            info(message, duration) { return this.show(message, 'info', duration); }
+        };
+
+        // Loading Overlay Helper
+        const Loading = {
+            show() {
+                document.getElementById('loading-overlay').classList.add('active');
+            },
+            hide() {
+                document.getElementById('loading-overlay').classList.remove('active');
+            }
+        };
+
+        // Update cart badge
+        function updateCartBadge(count) {
+            const badge = document.getElementById('cart-badge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Add to cart with async operation
+        async function addToCart(productId, quantity) {
+            Loading.show();
+
+            try {
+                const response = await fetch(`/kiosk/add-to-cart/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `quantity=${quantity}`
+                });
+
+                const data = await response.json();
+                Loading.hide();
+
                 if (data.success) {
-                    // Show success message
-                    showToast(data.message, 'success');
-                    // Reload page to update cart count
-                    setTimeout(() => location.reload(), 500);
+                    Toast.success(data.message);
+                    updateCartBadge(data.cart_count);
                 } else {
-                    showToast(data.message, 'error');
+                    Toast.error(data.message);
                 }
-            })
-            .catch(error => {
-                showToast('Error adding to cart', 'error');
-            });
+            } catch (error) {
+                Loading.hide();
+                Toast.error('Network error. Please try again.');
+            }
         }
 
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            } text-white font-semibold`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
+        // Get CSRF token from cookies
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
