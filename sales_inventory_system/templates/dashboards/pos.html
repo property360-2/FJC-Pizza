@@ -10,7 +10,10 @@
             <h1 class="text-3xl font-bold text-gray-900">Point of Sale</h1>
             <p class="mt-1 text-sm text-gray-500">Manage and process customer orders</p>
         </div>
-        <div>
+        <div class="flex gap-3">
+            <a href="{% url 'orders:pos_create_order' %}" class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-semibold px-4 py-2 rounded-lg transition">
+                ➕ New Order
+            </a>
             <a href="{% url 'orders:list' %}" class="bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white font-semibold px-4 py-2 rounded-lg transition">
                 View All Orders
             </a>
