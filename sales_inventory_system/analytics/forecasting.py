@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from django.utils import timezone
+from django.db.models import Sum
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from orders.models import Payment
 from decimal import Decimal
@@ -32,7 +33,7 @@ def prepare_sales_data(days=30):
         daily_revenue = Payment.objects.filter(
             status='SUCCESS',
             created_at__date=date.date()
-        ).aggregate(total=Decimal('0.00'))['total'] or Decimal('0.00')
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
 
         sales_data.append(float(daily_revenue))
 
