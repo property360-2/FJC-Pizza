@@ -140,6 +140,16 @@
                         </div>
                     </div>
 
+                    <!-- Order Type -->
+                    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">🚗 Order Type</h2>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-fjc-blue-400 transition">
+                            <input type="checkbox" id="takeout_checkbox" name="is_takeout" class="w-4 h-4 text-fjc-yellow-500">
+                            <span class="ml-3 font-medium text-gray-900">This is a takeout order</span>
+                        </label>
+                        <p class="text-xs text-gray-500 mt-2">Check this if the order is for takeout (no table needed)</p>
+                    </div>
+
                     <!-- Payment Method -->
                     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
                         <h2 class="text-xl font-bold text-gray-900 mb-4">💳 Payment Method</h2>
@@ -259,7 +269,26 @@
             }
         };
 
-        // Handle checkout form submission
+        // Handle takeout checkbox
+        const takeoutCheckbox = document.getElementById('takeout_checkbox');
+        const tableNumberInput = document.getElementById('table_number');
+        const tableNumberLabel = document.querySelector('label[for="table_number"]');
+
+        if (takeoutCheckbox) {
+            takeoutCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    tableNumberInput.disabled = true;
+                    tableNumberInput.value = 'TAKEOUT';
+                    tableNumberLabel.innerHTML += '<span class="text-gray-500"> (Not required for takeout)</span>';
+                } else {
+                    tableNumberInput.disabled = false;
+                    tableNumberInput.value = '';
+                    tableNumberLabel.innerHTML = tableNumberLabel.innerHTML.replace('<span class="text-gray-500"> (Not required for takeout)</span>', '');
+                }
+            });
+        }
+
+        // Optimized: Faster checkout with instant feedback
         document.getElementById('checkout-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -267,11 +296,25 @@
             const submitBtn = document.getElementById('submit-btn');
             const formData = new FormData(form);
 
-            // Disable submit button
+            // Fast validation
+            if (!takeoutCheckbox.checked && !tableNumberInput.value.trim()) {
+                Toast.error('Please enter a table number or mark as takeout');
+                return;
+            }
+
+            // Quick client-side validation before server call
+            const customerName = formData.get('customer_name')?.trim();
+            if (!customerName) {
+                Toast.error('Please enter your name');
+                return;
+            }
+
+            // Disable submit button immediately
             submitBtn.disabled = true;
             submitBtn.textContent = 'Processing...';
 
-            Loading.show();
+            // Show loading only after brief delay (prevent flashing)
+            const loadingTimer = setTimeout(() => Loading.show(), 500);
 
             try {
                 const response = await fetch(form.action, {
@@ -280,24 +323,28 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRFToken': formData.get('csrfmiddlewaretoken')
                     },
-                    body: formData
+                    body: formData,
+                    signal: AbortSignal.timeout(10000) // 10 second timeout
                 });
 
-                const data = await response.json();
+                clearTimeout(loadingTimer);
                 Loading.hide();
 
+                const data = await response.json();
+
                 if (data.success) {
-                    Toast.success(data.message, 2000);
-                    // Redirect to order status page
+                    Toast.success(data.message, 1500);
+                    // Redirect immediately (don't wait)
                     setTimeout(() => {
                         window.location.href = data.redirect_url;
-                    }, 1000);
+                    }, 500);
                 } else {
                     Toast.error(data.message);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Place Order';
                 }
             } catch (error) {
+                clearTimeout(loadingTimer);
                 Loading.hide();
                 Toast.error('Network error. Please try again.');
                 submitBtn.disabled = false;

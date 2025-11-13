@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.db import transaction
+from django.views.decorators.http import require_http_methods
+import json
 from decimal import Decimal
 from products.models import Product
 from .models import Order, OrderItem, Payment
@@ -326,6 +328,94 @@ def update_cart_quantity(request, product_id):
             return JsonResponse({
                 'success': False,
                 'message': 'Error updating cart'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+def get_cart_json(request):
+    """Return cart data as JSON for modal"""
+    cart = get_cart(request)
+    return JsonResponse(cart)
+
+
+def get_cart_details(request):
+    """Get cart items with product details for modal display"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_ids = [int(pid) for pid in data.get('product_ids', [])]
+
+            products = Product.objects.filter(id__in=product_ids)
+            products_dict = {}
+
+            for product in products:
+                products_dict[str(product.id)] = {
+                    'id': product.id,
+                    'name': product.name,
+                    'price': float(product.price),
+                    'image': product.image.url if product.image else None,
+                    'stock': product.stock
+                }
+
+            return JsonResponse({
+                'success': True,
+                'products': products_dict
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': 'Error fetching cart details'
+            })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+def search_order(request):
+    """Search for order by order number"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            order_number = data.get('order_number', '').strip()
+
+            if not order_number:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please provide an order number'
+                })
+
+            try:
+                order = Order.objects.get(order_number=order_number)
+                items = []
+
+                for order_item in order.items.all():
+                    items.append({
+                        'quantity': order_item.quantity,
+                        'product_name': order_item.product_name,
+                        'product_price': float(order_item.product_price),
+                        'subtotal': float(order_item.quantity * order_item.product_price)
+                    })
+
+                return JsonResponse({
+                    'success': True,
+                    'order': {
+                        'order_number': order.order_number,
+                        'customer_name': order.customer_name,
+                        'table_number': order.table_number,
+                        'status': order.status,
+                        'total_amount': float(order.total_amount),
+                        'items': items
+                    }
+                })
+            except Order.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Order not found'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': 'Error searching order'
             })
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})

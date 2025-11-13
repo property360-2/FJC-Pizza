@@ -112,6 +112,210 @@
                 opacity: 0;
             }
         }
+
+        /* Floating cart button */
+        .floating-cart {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+        }
+
+        .floating-cart-btn {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .floating-cart-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .floating-cart-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .cart-badge.hidden {
+            display: none;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeInOverlay 0.3s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+            animation: slideUpModal 0.3s ease-out;
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .modal-overlay.active {
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                width: 90%;
+                max-width: 600px;
+                border-radius: 16px;
+            }
+        }
+
+        /* Modal items list */
+        .modal-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s;
+        }
+
+        .modal-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .modal-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .modal-item-details {
+            flex: 1;
+        }
+
+        .modal-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 0.25rem;
+        }
+
+        .quantity-control button {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .quantity-control button:hover {
+            background-color: #f3f4f6;
+        }
+
+        .quantity-control input {
+            width: 40px;
+            border: none;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
+
+        /* Scrollbar styling */
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50">
@@ -137,12 +341,9 @@
                         </div>
                     </div>
                 </div>
-                <a href="{% url 'kiosk:cart' %}" class="relative bg-white text-fjc-blue-600 px-6 py-3 rounded-lg hover:bg-gray-100 font-semibold shadow-lg transition">
-                    🛒 Cart
-                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center {% if cart_count == 0 %}hidden{% endif %}">
-                        {{ cart_count }}
-                    </span>
-                </a>
+                <button id="view-order-btn" class="bg-white text-fjc-blue-600 px-6 py-3 rounded-lg hover:bg-gray-100 font-semibold shadow-lg transition">
+                    📦 View Order Status
+                </button>
             </div>
         </div>
     </div>
@@ -207,10 +408,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {% for product in category.list %}
                     <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow" x-data="{ quantity: 1 }">
-                        <!-- Product Image -->
+                        <!-- Product Image with Lazy Loading -->
                         {% if product.image %}
                         <div class="h-48 overflow-hidden bg-gray-100">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f3f4f6' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
                         </div>
                         {% else %}
                         <div class="h-48 bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 flex items-center justify-center">
@@ -272,6 +473,77 @@
         </div>
     </footer>
 
+    <!-- Floating Cart Button -->
+    <div class="floating-cart">
+        <button id="floating-cart-btn" class="floating-cart-btn" title="Open cart">
+            🛒
+            <span id="floating-cart-badge" class="cart-badge {% if cart_count == 0 %}hidden{% endif %}">
+                {{ cart_count }}
+            </span>
+        </button>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 p-4 rounded-t-3xl md:rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">🛒 Your Cart</h2>
+                    <button id="close-cart-modal" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="cart-modal-items" class="space-y-0">
+                <!-- Cart items will be inserted here dynamically -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+                <div class="space-y-3">
+                    <div class="bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold text-gray-900">Total:</span>
+                            <span id="modal-total" class="text-2xl font-bold text-fjc-blue-600">₱0.00</span>
+                        </div>
+                    </div>
+                    <button id="confirm-order-btn" class="w-full bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Order Status Modal -->
+    <div id="view-order-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 p-4 rounded-t-3xl md:rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">📦 View Order Status</h2>
+                    <button id="close-view-order-modal" class="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="order-number-input" class="block text-sm font-medium text-gray-700 mb-2">Order Number</label>
+                        <input type="text" id="order-number-input" placeholder="e.g., ORD-123456"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                    </div>
+                    <button id="search-order-btn" class="w-full bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        Search Order
+                    </button>
+                </div>
+                <div id="order-result-container" class="mt-6"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification System & Add to Cart Script -->
     <script>
         // Toast Notification Helper
@@ -305,46 +577,6 @@
             }
         };
 
-        // Update cart badge
-        function updateCartBadge(count) {
-            const badge = document.getElementById('cart-badge');
-            if (count > 0) {
-                badge.textContent = count;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        // Add to cart with async operation
-        async function addToCart(productId, quantity) {
-            Loading.show();
-
-            try {
-                const response = await fetch(`/kiosk/add-to-cart/${productId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: `quantity=${quantity}`
-                });
-
-                const data = await response.json();
-                Loading.hide();
-
-                if (data.success) {
-                    Toast.success(data.message);
-                    updateCartBadge(data.cart_count);
-                } else {
-                    Toast.error(data.message);
-                }
-            } catch (error) {
-                Loading.hide();
-                Toast.error('Network error. Please try again.');
-            }
-        }
-
         // Get CSRF token from cookies
         function getCookie(name) {
             let cookieValue = null;
@@ -360,6 +592,478 @@
             }
             return cookieValue;
         }
+
+        // ===== PERFORMANCE OPTIMIZATIONS =====
+        // Cart state management with caching
+        let cartData = {};
+        let productCache = {}; // Cache product details to avoid multiple API calls
+        let modalVisible = false;
+        let cartDirty = false; // Track if cart needs refresh
+
+        // Optimized: Combine get-cart and get-cart-details into single API call
+        async function loadCartDataOptimized() {
+            try {
+                const response = await fetch('/kiosk/get-cart/', {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                if (response.ok) {
+                    const newCartData = await response.json();
+
+                    // Only update if cart changed
+                    if (JSON.stringify(newCartData) !== JSON.stringify(cartData)) {
+                        cartData = newCartData;
+                        updateCartBadges();
+                        cartDirty = true; // Mark for refresh when modal opens
+                    }
+                }
+            } catch (error) {
+                console.log('Using cached cart data');
+            }
+        }
+
+        // Optimized: Fast badge update (no modal rendering yet)
+        function updateCartBadges() {
+            const totalItems = Object.values(cartData).reduce((sum, qty) => sum + parseInt(qty), 0);
+            const floatingBadge = document.getElementById('floating-cart-badge');
+
+            if (totalItems > 0) {
+                floatingBadge.textContent = totalItems;
+                floatingBadge.classList.remove('hidden');
+            } else {
+                floatingBadge.classList.add('hidden');
+            }
+        }
+
+        // Optimized: Lazy load modal only when needed + use cached product data
+        async function updateCartModalOptimized() {
+            const container = document.getElementById('cart-modal-items');
+            const totalSpan = document.getElementById('modal-total');
+
+            if (Object.keys(cartData).length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-gray-500"><p>Your cart is empty</p></div>';
+                totalSpan.textContent = '₱0.00';
+                return;
+            }
+
+            // Get product IDs that need loading
+            const productIds = Object.keys(cartData);
+            const missingIds = productIds.filter(id => !productCache[id]);
+
+            // Only fetch missing products (incremental loading)
+            if (missingIds.length > 0) {
+                try {
+                    const response = await fetch('/kiosk/get-cart-details/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({ product_ids: missingIds })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Cache the fetched products
+                        Object.assign(productCache, data.products);
+                    }
+                } catch (error) {
+                    console.error('Error loading product details:', error);
+                }
+            }
+
+            // Build HTML using cached products
+            let total = 0;
+            let itemsHTML = '';
+
+            for (const productId in cartData) {
+                const product = productCache[productId];
+                if (product) {
+                    const quantity = parseInt(cartData[productId]);
+                    const subtotal = product.price * quantity;
+                    total += subtotal;
+
+                    itemsHTML += `
+                        <div class="modal-item" id="modal-item-${productId}">
+                            ${product.image ? `<img src="${product.image}" alt="${product.name}" class="modal-item-image" loading="lazy">` : `<div class="modal-item-image bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 flex items-center justify-center text-4xl">🍕</div>`}
+                            <div class="modal-item-details">
+                                <h4 class="font-bold text-gray-900">${product.name}</h4>
+                                <p class="text-sm text-gray-600">₱${product.price} each</p>
+                                <p class="text-sm font-semibold text-fjc-blue-600">₱${subtotal.toFixed(2)}</p>
+                            </div>
+                            <div class="modal-item-actions">
+                                <div class="quantity-control">
+                                    <button onclick="updateItemQuantity(${productId}, ${quantity - 1})" ${quantity <= 1 ? 'disabled style="opacity:0.5"' : ''}>−</button>
+                                    <input type="text" value="${quantity}" readonly>
+                                    <button onclick="updateItemQuantity(${productId}, ${quantity + 1})">+</button>
+                                </div>
+                                <button class="btn-delete" onclick="removeItemFromCart(${productId})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = itemsHTML;
+            totalSpan.textContent = `₱${total.toFixed(2)}`;
+            cartDirty = false;
+        }
+
+        // Optimized: Add to cart with faster feedback
+        async function addToCart(productId, quantity) {
+            // Show quick feedback immediately (don't wait for server)
+            Toast.info('Adding to cart...');
+
+            try {
+                const response = await fetch(`/kiosk/add-to-cart/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `quantity=${quantity}`,
+                    signal: AbortSignal.timeout(5000) // 5 second timeout
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update cart data in background
+                    cartData[productId] = (cartData[productId] || 0) + quantity;
+                    updateCartBadges();
+                    cartDirty = true;
+
+                    Toast.success(data.message);
+                } else {
+                    Toast.error(data.message);
+                }
+            } catch (error) {
+                Toast.error('Network error. Please try again.');
+            }
+        }
+
+        // Optimized: Update item quantity with instant UI feedback
+        async function updateItemQuantity(productId, newQuantity) {
+            if (newQuantity < 1) {
+                removeItemFromCart(productId);
+                return;
+            }
+
+            // Instantly update UI
+            const itemElement = document.getElementById(`modal-item-${productId}`);
+            if (itemElement) {
+                itemElement.style.opacity = '0.7';
+            }
+
+            try {
+                const response = await fetch(`/kiosk/update-cart-quantity/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: `quantity=${newQuantity}`,
+                    signal: AbortSignal.timeout(5000)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    cartData[productId] = newQuantity;
+                    // Only update changed item, not entire modal
+                    updateItemDisplay(productId);
+                    updateCartBadges();
+                    if (itemElement) itemElement.style.opacity = '1';
+                } else {
+                    Toast.error(data.message);
+                    if (itemElement) itemElement.style.opacity = '1';
+                }
+            } catch (error) {
+                Toast.error('Error updating quantity');
+                if (itemElement) itemElement.style.opacity = '1';
+            }
+        }
+
+        // Helper: Update only specific item display (faster than full modal rebuild)
+        function updateItemDisplay(productId) {
+            const product = productCache[productId];
+            const quantity = parseInt(cartData[productId]);
+            if (!product || !quantity) return;
+
+            const subtotal = product.price * quantity;
+            const itemElement = document.getElementById(`modal-item-${productId}`);
+
+            if (itemElement) {
+                // Update subtotal
+                const subtotalElement = itemElement.querySelector('.modal-item-details p:last-child');
+                if (subtotalElement) {
+                    subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+                }
+
+                // Update quantity input
+                const qtyInput = itemElement.querySelector('.quantity-control input');
+                if (qtyInput) {
+                    qtyInput.value = quantity;
+                }
+
+                // Update minus button state
+                const minusBtn = itemElement.querySelector('.quantity-control button:first-child');
+                if (minusBtn) {
+                    if (quantity <= 1) {
+                        minusBtn.disabled = true;
+                        minusBtn.style.opacity = '0.5';
+                    } else {
+                        minusBtn.disabled = false;
+                        minusBtn.style.opacity = '1';
+                    }
+                }
+            }
+
+            // Recalculate total
+            updateModalTotal();
+        }
+
+        // Helper: Recalculate and update total price
+        function updateModalTotal() {
+            let total = 0;
+            for (const productId in cartData) {
+                const product = productCache[productId];
+                if (product) {
+                    total += product.price * parseInt(cartData[productId]);
+                }
+            }
+            const totalSpan = document.getElementById('modal-total');
+            if (totalSpan) {
+                totalSpan.textContent = `₱${total.toFixed(2)}`;
+            }
+        }
+
+        // Optimized: Remove item from cart with instant visual feedback
+        async function removeItemFromCart(productId) {
+            if (!confirm('Remove this item from cart?')) return;
+
+            // Instantly hide item
+            const itemElement = document.getElementById(`modal-item-${productId}`);
+            if (itemElement) {
+                itemElement.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => itemElement.remove(), 300);
+            }
+
+            try {
+                const response = await fetch(`/kiosk/remove-from-cart/${productId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    signal: AbortSignal.timeout(5000)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Toast.success(data.message);
+                    delete cartData[productId];
+                    updateCartBadges();
+                    updateModalTotal();
+
+                    // If cart empty, show empty state
+                    if (Object.keys(cartData).length === 0) {
+                        const container = document.getElementById('cart-modal-items');
+                        container.innerHTML = '<div class="p-6 text-center text-gray-500"><p>Your cart is empty</p></div>';
+                    }
+                } else {
+                    Toast.error(data.message);
+                    // Restore item if removal failed
+                    if (itemElement && itemElement.parentElement) {
+                        itemElement.style.animation = '';
+                    }
+                }
+            } catch (error) {
+                Toast.error('Error removing item');
+                if (itemElement && itemElement.parentElement) {
+                    itemElement.style.animation = '';
+                }
+            }
+        }
+
+        // Modal Management
+        const cartModalOverlay = document.getElementById('cart-modal-overlay');
+        const viewOrderModalOverlay = document.getElementById('view-order-modal-overlay');
+        const floatingCartBtn = document.getElementById('floating-cart-btn');
+        const closCartModalBtn = document.getElementById('close-cart-modal');
+        const closeViewOrderModalBtn = document.getElementById('close-view-order-modal');
+        const viewOrderBtn = document.getElementById('view-order-btn');
+        const confirmOrderBtn = document.getElementById('confirm-order-btn');
+        const searchOrderBtn = document.getElementById('search-order-btn');
+        const orderNumberInput = document.getElementById('order-number-input');
+
+        // Optimized: Open cart modal instantly, load data in background
+        floatingCartBtn.addEventListener('click', () => {
+            // Show modal immediately with cached data
+            cartModalOverlay.classList.add('active');
+            modalVisible = true;
+
+            // If cart data is dirty or empty, refresh in background
+            if (cartDirty || Object.keys(cartData).length === 0) {
+                updateCartModalOptimized();
+            }
+
+            // Also refresh cart data from server (don't wait)
+            loadCartDataOptimized();
+        });
+
+        // Close cart modal
+        closCartModalBtn.addEventListener('click', () => {
+            cartModalOverlay.classList.remove('active');
+        });
+
+        // Close cart modal when clicking overlay
+        cartModalOverlay.addEventListener('click', (e) => {
+            if (e.target === cartModalOverlay) {
+                cartModalOverlay.classList.remove('active');
+            }
+        });
+
+        // Open view order modal
+        viewOrderBtn.addEventListener('click', () => {
+            viewOrderModalOverlay.classList.add('active');
+            orderNumberInput.focus();
+        });
+
+        // Close view order modal
+        closeViewOrderModalBtn.addEventListener('click', () => {
+            viewOrderModalOverlay.classList.remove('active');
+        });
+
+        // Close view order modal when clicking overlay
+        viewOrderModalOverlay.addEventListener('click', (e) => {
+            if (e.target === viewOrderModalOverlay) {
+                viewOrderModalOverlay.classList.remove('active');
+            }
+        });
+
+        // Proceed to checkout
+        confirmOrderBtn.addEventListener('click', () => {
+            window.location.href = '{% url "kiosk:checkout" %}';
+        });
+
+        // Search order by number
+        searchOrderBtn.addEventListener('click', searchOrder);
+        orderNumberInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchOrder();
+        });
+
+        async function searchOrder() {
+            const orderNumber = orderNumberInput.value.trim();
+            if (!orderNumber) {
+                Toast.warning('Please enter an order number');
+                return;
+            }
+
+            Loading.show();
+            try {
+                const response = await fetch(`/kiosk/search-order/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order_number: orderNumber })
+                });
+
+                const data = await response.json();
+                Loading.hide();
+
+                const resultContainer = document.getElementById('order-result-container');
+                if (data.success) {
+                    const order = data.order;
+                    const statusColors = {
+                        'PENDING': '#f59e0b',
+                        'IN_PROGRESS': '#3b82f6',
+                        'FINISHED': '#10b981',
+                        'CANCELLED': '#ef4444'
+                    };
+
+                    let itemsHTML = order.items.map(item => `
+                        <div class="text-sm text-gray-600">
+                            <span>${item.quantity}x ${item.product_name}</span>
+                            <span class="float-right">₱${item.subtotal}</span>
+                        </div>
+                    `).join('');
+
+                    resultContainer.innerHTML = `
+                        <div class="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-lg font-bold text-gray-900">Order #${order.order_number}</h3>
+                                <span style="background-color: ${statusColors[order.status]}" class="text-white text-xs font-bold px-3 py-1 rounded-full">
+                                    ${order.status}
+                                </span>
+                            </div>
+                            <div class="border-t border-gray-200 pt-3 space-y-2">
+                                <p class="text-sm"><strong>Customer:</strong> ${order.customer_name}</p>
+                                <p class="text-sm"><strong>Table:</strong> ${order.table_number}</p>
+                            </div>
+                            <div class="border-t border-gray-200 pt-3 space-y-2">
+                                ${itemsHTML}
+                            </div>
+                            <div class="border-t border-gray-200 pt-3">
+                                <div class="flex justify-between font-bold">
+                                    <span>Total:</span>
+                                    <span>₱${order.total_amount}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    Toast.success('Order found!');
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
+                            <p class="text-red-800 font-semibold">Order Not Found</p>
+                            <p class="text-sm text-red-600">Please check the order number and try again</p>
+                        </div>
+                    `;
+                    Toast.error(data.message);
+                }
+            } catch (error) {
+                Loading.hide();
+                Toast.error('Error searching order');
+            }
+        }
+
+        // Add lazy loading to all product images
+        function addLazyLoadingToProducts() {
+            const productImages = document.querySelectorAll('.h-48 img');
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src || img.src;
+                            img.classList.add('loaded');
+                            observer.unobserve(img);
+                        }
+                    });
+                });
+
+                productImages.forEach(img => imageObserver.observe(img));
+            }
+        }
+
+        // Optimized: Load cart data on page load (non-blocking)
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCartDataOptimized();
+            addLazyLoadingToProducts();
+        });
+
+        // Periodic background refresh (every 30 seconds while modal is visible)
+        setInterval(() => {
+            if (modalVisible) {
+                loadCartDataOptimized();
+            }
+        }, 30000);
     </script>
 </body>
 </html>
