@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from decimal import Decimal
 from products.models import Product
+from products.inventory_service import BOMService
 from .models import Order, OrderItem, Payment
 
 
@@ -107,6 +108,22 @@ def checkout(request):
         notes = request.POST.get('notes', '')
 
         try:
+            # First, check ingredient availability before creating order
+            order_items_data = [
+                {'product_id': int(pid), 'quantity': qty}
+                for pid, qty in cart.items()
+            ]
+
+            availability = BOMService.check_order_availability(order_items_data)
+            if not availability['available']:
+                # Return error with shortage details
+                error_msg = 'Unable to complete order. Ingredient shortages:\n\n'
+                for shortage in availability['shortages']:
+                    error_msg += f"• {shortage['product']} ({shortage['ingredient']}): "
+                    error_msg += f"Need {shortage['needed']:.2f}, Have {shortage['available']:.2f} {shortage['unit']}\n"
+
+                raise ValueError(error_msg.strip())
+
             with transaction.atomic():
                 # Create order
                 order = Order.objects.create(
@@ -240,16 +257,34 @@ def add_to_cart(request, product_id):
                     'message': f'Only {product.stock} items available in stock'
                 })
 
+            # Check ingredient availability
+            availability = BOMService.check_ingredient_availability(product_id, new_quantity)
+            warning_message = None
+
+            if not availability['available'] and availability['has_recipe']:
+                # Build warning message about ingredient shortages
+                shortages = availability['shortages']
+                warning_message = f"⚠️ Limited ingredients: "
+                shortage_list = [f"{s['ingredient']} ({s['available']:.0f}/{s['needed']:.0f} {s['unit']})" for s in shortages[:2]]
+                warning_message += ", ".join(shortage_list)
+                if len(shortages) > 2:
+                    warning_message += f" +{len(shortages) - 2} more"
+
             cart[str(product_id)] = new_quantity
             save_cart(request, cart)
 
             cart_count = sum(cart.values())
 
-            return JsonResponse({
+            response = {
                 'success': True,
                 'message': f'{product.name} added to cart',
                 'cart_count': cart_count
-            })
+            }
+
+            if warning_message:
+                response['warning'] = warning_message
+
+            return JsonResponse(response)
         except Exception as e:
             return JsonResponse({
                 'success': False,

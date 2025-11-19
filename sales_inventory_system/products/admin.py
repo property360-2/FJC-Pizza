@@ -106,7 +106,7 @@ class StockTransactionAdmin(admin.ModelAdmin):
 @admin.register(PhysicalCount)
 class PhysicalCountAdmin(admin.ModelAdmin):
     list_display = ['count_date', 'ingredient', 'physical_quantity', 'theoretical_quantity', 'variance_percentage', 'within_tolerance']
-    list_filter = ['count_date', 'ingredient', 'within_tolerance']
+    list_filter = ['count_date', 'ingredient']
     search_fields = ['ingredient__name', 'notes']
     readonly_fields = ['variance_quantity', 'variance_percentage', 'within_tolerance', 'created_at']
 
@@ -136,7 +136,7 @@ class PhysicalCountAdmin(admin.ModelAdmin):
 @admin.register(VarianceRecord)
 class VarianceRecordAdmin(admin.ModelAdmin):
     list_display = ['period_end', 'ingredient', 'theoretical_used', 'actual_used', 'variance_percentage', 'within_tolerance']
-    list_filter = ['period_end', 'ingredient', 'within_tolerance']
+    list_filter = ['period_end', 'ingredient']
     search_fields = ['ingredient__name', 'notes']
     readonly_fields = ['created_at']
 
