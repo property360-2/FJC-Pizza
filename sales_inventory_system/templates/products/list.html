@@ -10,7 +10,10 @@
             <h1 class="text-3xl font-bold text-gray-900">Product Management</h1>
             <p class="mt-1 text-sm text-gray-500">Manage your pizza menu and inventory</p>
         </div>
-        <div>
+        <div class="flex gap-3">
+            <a href="{% url 'products:ingredient_list' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-sm">
+                📦 Manage Ingredients
+            </a>
             {% include 'components/atoms/button.html' with type='primary' text='Add New Product' href='/products/create/' %}
         </div>
     </div>

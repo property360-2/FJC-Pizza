@@ -4,9 +4,10 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
-from .models import Product
+from .models import Product, Ingredient, RecipeItem, RecipeIngredient
 from system.models import AuditTrail
 import json
+from decimal import Decimal
 
 def is_admin(user):
     return user.is_authenticated and user.is_admin
@@ -207,3 +208,132 @@ def product_archive(request, pk):
 
     messages.success(request, f'Product "{product.name}" archived successfully!')
     return redirect('products:list')
+
+
+# ==================== Ingredient Management Views ====================
+
+@login_required
+@user_passes_test(is_admin)
+def ingredient_list(request):
+    """List all ingredients with search and filtering"""
+    search = request.GET.get('search', '').strip()
+    status = request.GET.get('status', '').strip()
+    page_number = request.GET.get('page', 1)
+
+    # Base queryset
+    ingredients = Ingredient.objects.all()
+
+    # Apply search filter
+    if search:
+        ingredients = ingredients.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search)
+        )
+
+    # Apply status filter
+    if status == 'active':
+        ingredients = ingredients.filter(is_active=True)
+    elif status == 'inactive':
+        ingredients = ingredients.filter(is_active=False)
+    elif status == 'low':
+        ingredients = ingredients.filter(current_stock__lt=F('min_stock'))
+
+    # Order by name
+    ingredients = ingredients.order_by('name')
+
+    # Pagination
+    paginator = Paginator(ingredients, 20)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'ingredients': page_obj,
+        'search': search,
+        'status': status,
+    }
+    return render(request, 'products/ingredient_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def ingredient_create(request):
+    """Create a new ingredient"""
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            description = request.POST.get('description', '')
+            unit = request.POST.get('unit', 'kg')
+            cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
+            current_stock = Decimal(request.POST.get('current_stock', '0.00'))
+            min_stock = Decimal(request.POST.get('min_stock', '10.00'))
+            variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
+
+            if not name:
+                raise ValueError('Ingredient name is required')
+
+            ingredient = Ingredient.objects.create(
+                name=name,
+                description=description,
+                unit=unit,
+                cost_per_unit=cost_per_unit,
+                current_stock=current_stock,
+                min_stock=min_stock,
+                variance_allowance=variance_allowance,
+                is_active=True
+            )
+
+            messages.success(request, f'Ingredient "{ingredient.name}" created successfully!')
+            return redirect('products:ingredient_list')
+
+        except Exception as e:
+            messages.error(request, f'Error creating ingredient: {str(e)}')
+
+    context = {
+        'action': 'Create',
+        'units': ['kg', 'g', 'L', 'ml', 'pcs', 'box', 'dozen']
+    }
+    return render(request, 'products/ingredient_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def ingredient_edit(request, pk):
+    """Edit an existing ingredient"""
+    ingredient = get_object_or_404(Ingredient, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            ingredient.name = request.POST.get('name')
+            ingredient.description = request.POST.get('description', '')
+            ingredient.unit = request.POST.get('unit', 'kg')
+            ingredient.cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
+            ingredient.current_stock = Decimal(request.POST.get('current_stock', '0.00'))
+            ingredient.min_stock = Decimal(request.POST.get('min_stock', '10.00'))
+            ingredient.variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
+            ingredient.is_active = request.POST.get('is_active') == 'on'
+            ingredient.save()
+
+            messages.success(request, f'Ingredient "{ingredient.name}" updated successfully!')
+            return redirect('products:ingredient_list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating ingredient: {str(e)}')
+
+    context = {
+        'ingredient': ingredient,
+        'action': 'Edit',
+        'units': ['kg', 'g', 'L', 'ml', 'pcs', 'box', 'dozen']
+    }
+    return render(request, 'products/ingredient_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def ingredient_delete(request, pk):
+    """Delete an ingredient"""
+    ingredient = get_object_or_404(Ingredient, pk=pk)
+    name = ingredient.name
+    ingredient.delete()
+
+    messages.success(request, f'Ingredient "{name}" deleted successfully!')
+    return redirect('products:ingredient_list')

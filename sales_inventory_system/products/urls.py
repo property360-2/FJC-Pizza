@@ -10,6 +10,12 @@ urlpatterns = [
     path('<int:pk>/edit/', views.product_edit, name='edit'),
     path('<int:pk>/archive/', views.product_archive, name='archive'),
 
+    # Ingredient Management
+    path('ingredients/', views.ingredient_list, name='ingredient_list'),
+    path('ingredients/create/', views.ingredient_create, name='ingredient_create'),
+    path('ingredients/<int:pk>/edit/', views.ingredient_edit, name='ingredient_edit'),
+    path('ingredients/<int:pk>/delete/', views.ingredient_delete, name='ingredient_delete'),
+
     # BOM (Bill of Materials) routes
     path('bom/dashboard/', bom_views.bom_dashboard, name='bom_dashboard'),
     path('bom/usage-report/', bom_views.ingredient_usage_report, name='bom_usage_report'),
