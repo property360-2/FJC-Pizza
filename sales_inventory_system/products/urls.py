@@ -16,6 +16,9 @@ urlpatterns = [
     path('ingredients/<int:pk>/edit/', views.ingredient_edit, name='ingredient_edit'),
     path('ingredients/<int:pk>/delete/', views.ingredient_delete, name='ingredient_delete'),
 
+    # Recipe Management
+    path('<int:pk>/recipe/', views.recipe_edit, name='recipe_edit'),
+
     # BOM (Bill of Materials) routes
     path('bom/dashboard/', bom_views.bom_dashboard, name='bom_dashboard'),
     path('bom/usage-report/', bom_views.ingredient_usage_report, name='bom_usage_report'),

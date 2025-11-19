@@ -337,3 +337,59 @@ def ingredient_delete(request, pk):
 
     messages.success(request, f'Ingredient "{name}" deleted successfully!')
     return redirect('products:ingredient_list')
+
+
+# ==================== Recipe/BOM Management Views ====================
+
+@login_required
+@user_passes_test(is_admin)
+def recipe_edit(request, pk):
+    """Edit product recipe/BOM"""
+    from django.db import transaction
+
+    product = get_object_or_404(Product, pk=pk)
+
+    # Get or create recipe item
+    recipe_item, created = RecipeItem.objects.get_or_create(product=product)
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # Delete existing ingredients
+                recipe_item.recipeingredient_set.all().delete()
+
+                # Add new ingredients from form
+                ingredients_data = request.POST.getlist('ingredient_id')
+                quantities_data = request.POST.getlist('quantity')
+
+                for ing_id, qty in zip(ingredients_data, quantities_data):
+                    if ing_id and qty:
+                        try:
+                            ingredient = Ingredient.objects.get(id=ing_id)
+                            RecipeIngredient.objects.create(
+                                recipe_item=recipe_item,
+                                ingredient=ingredient,
+                                quantity=Decimal(qty)
+                            )
+                        except (Ingredient.DoesNotExist, ValueError):
+                            pass
+
+                messages.success(request, f'Recipe for "{product.name}" updated successfully!')
+                return redirect('products:edit', pk=product.id)
+
+        except Exception as e:
+            messages.error(request, f'Error updating recipe: {str(e)}')
+
+    # Get all active ingredients
+    all_ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
+
+    # Get current recipe ingredients
+    recipe_ingredients = recipe_item.recipeingredient_set.all()
+
+    context = {
+        'product': product,
+        'recipe_item': recipe_item,
+        'recipe_ingredients': recipe_ingredients,
+        'all_ingredients': all_ingredients,
+    }
+    return render(request, 'products/recipe_form.html', context)
