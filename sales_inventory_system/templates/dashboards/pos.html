@@ -68,7 +68,7 @@
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-fjc-yellow-600 font-bold">₱{{ order.total_amount }}</p>
                         {% if order.payment.method == 'CASH' and order.payment.status == 'PENDING' %}
-                        <button onclick="confirmPayment({{ order.payment.pk }}, '{{ order.order_number }}', this)" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                        <button onclick="confirmPayment({{ order.pk }}, '{{ order.order_number }}', this)" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
                             ✓ Confirm Cash
                         </button>
                         {% endif %}
@@ -215,7 +215,7 @@ function getCsrfToken() {
     return cookieValue;
 }
 
-async function confirmPayment(paymentId, orderNumber, buttonElement) {
+async function confirmPayment(orderId, orderNumber, buttonElement) {
     if (!confirm(`Confirm cash payment for ${orderNumber}?`)) {
         return;
     }
@@ -226,7 +226,7 @@ async function confirmPayment(paymentId, orderNumber, buttonElement) {
     buttonElement.textContent = 'Processing...';
     buttonElement.classList.add('opacity-50', 'cursor-not-allowed');
 
-    const url = `/orders/payment/${paymentId}/process-payment/`;
+    const url = `/orders/${orderId}/process-payment/`;
     const csrfToken = getCsrfToken();
 
     if (!csrfToken) {
