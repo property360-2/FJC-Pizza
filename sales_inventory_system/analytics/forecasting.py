@@ -126,12 +126,13 @@ def forecast_sales_holt_winters(historical_data, forecast_periods=7, seasonal_pe
             })
 
         # Model statistics
+        mse = float(np.mean(residuals**2))
         stats = {
             'aic': float(fitted_model.aic),
             'bic': float(fitted_model.bic),
-            'mse': float(fitted_model.mse),
+            'mse': mse,
             'mae': float(np.mean(np.abs(residuals))),
-            'rmse': float(np.sqrt(fitted_model.mse))
+            'rmse': float(np.sqrt(mse))
         }
 
         return {

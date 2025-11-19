@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
-from django.db.models import Sum, Count, F, Q
+from django.db.models import Sum, Count, F, Q, Case, When, Value, DecimalField
+from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.utils import timezone
-from datetime import timedelta
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+from datetime import timedelta, datetime
 from decimal import Decimal
 from orders.models import Order, Payment, OrderItem
 from products.models import Product
@@ -16,49 +19,105 @@ def is_admin(user):
 
 @login_required
 @user_passes_test(is_admin)
+@cache_page(300)  # Cache for 5 minutes
 def dashboard(request):
     """Display analytics dashboard with comprehensive sales data"""
 
     # Date ranges
     today = timezone.now().date()
+    today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
     week_ago = today - timedelta(days=7)
     month_ago = today - timedelta(days=30)
 
-    # Total revenue (all time)
-    total_revenue = Payment.objects.filter(
+    # Optimize: Combine all revenue queries into single query with Case/When
+    revenue_stats = Payment.objects.filter(
         status='SUCCESS'
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    ).aggregate(
+        # Total revenue (all time)
+        total_revenue=Coalesce(Sum('amount'), Decimal('0.00')),
+        # Today's revenue
+        today_revenue=Coalesce(
+            Sum(
+                Case(
+                    When(created_at__gte=today_start, then='amount'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            Decimal('0.00')
+        ),
+        # Week revenue
+        week_revenue=Coalesce(
+            Sum(
+                Case(
+                    When(created_at__date__gte=week_ago, then='amount'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            Decimal('0.00')
+        ),
+        # Month revenue
+        month_revenue=Coalesce(
+            Sum(
+                Case(
+                    When(created_at__date__gte=month_ago, then='amount'),
+                    default=Value(0),
+                    output_field=DecimalField()
+                )
+            ),
+            Decimal('0.00')
+        ),
+    )
 
-    # Revenue by period
-    today_revenue = Payment.objects.filter(
-        status='SUCCESS',
-        created_at__date=today
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    total_revenue = revenue_stats['total_revenue']
+    today_revenue = revenue_stats['today_revenue']
+    week_revenue = revenue_stats['week_revenue']
+    month_revenue = revenue_stats['month_revenue']
 
-    week_revenue = Payment.objects.filter(
-        status='SUCCESS',
-        created_at__date__gte=week_ago
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    # Optimize: Combine all order count queries into single query with Case/When
+    order_stats = Order.objects.aggregate(
+        # Total orders
+        total_orders=Count('id'),
+        # Today's orders
+        today_orders=Count(
+            Case(
+                When(created_at__gte=today_start, then=1)
+            )
+        ),
+        # Week orders
+        week_orders=Count(
+            Case(
+                When(created_at__date__gte=week_ago, then=1)
+            )
+        ),
+        # Status counts
+        pending_orders=Count(
+            Case(
+                When(status='PENDING', then=1)
+            )
+        ),
+        in_progress_orders=Count(
+            Case(
+                When(status='IN_PROGRESS', then=1)
+            )
+        ),
+        completed_orders=Count(
+            Case(
+                When(status='FINISHED', then=1)
+            )
+        ),
+    )
 
-    month_revenue = Payment.objects.filter(
-        status='SUCCESS',
-        created_at__date__gte=month_ago
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-
-    # Order statistics
-    total_orders = Order.objects.count()
-    today_orders = Order.objects.filter(created_at__date=today).count()
-    week_orders = Order.objects.filter(created_at__date__gte=week_ago).count()
-
-    pending_orders = Order.objects.filter(status='PENDING').count()
-    in_progress_orders = Order.objects.filter(status='IN_PROGRESS').count()
-    completed_orders = Order.objects.filter(status='FINISHED').count()
+    total_orders = order_stats['total_orders']
+    today_orders = order_stats['today_orders']
+    week_orders = order_stats['week_orders']
+    pending_orders = order_stats['pending_orders']
+    in_progress_orders = order_stats['in_progress_orders']
+    completed_orders = order_stats['completed_orders']
 
     # Average order value
-    avg_order_value = Payment.objects.filter(
-        status='SUCCESS'
-    ).aggregate(avg=Sum('amount'))['avg'] or Decimal('0.00')
-
+    avg_order_value = Decimal('0.00')
     if total_orders > 0:
         avg_order_value = total_revenue / total_orders
 
@@ -108,58 +167,90 @@ def dashboard(request):
 
 @login_required
 @user_passes_test(is_admin)
+@cache_page(60)  # Cache for 1 minute
 def sales_data_api(request):
-    """API endpoint for sales data (for charts)"""
-    period = request.GET.get('period', 'week')  # day, week, month
+    """API endpoint for sales data (for charts) - Optimized to use single query"""
+    from django.db.models.functions import TruncDate, TruncHour
 
+    period = request.GET.get('period', 'week')  # day, week, month
     today = timezone.now().date()
 
+    data = []
+
     if period == 'day':
-        # Last 24 hours by hour
-        data = []
+        # Last 24 hours by hour - optimized with single database query
+        hourly_data = Payment.objects.filter(
+            status='SUCCESS',
+            created_at__gte=timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        ).annotate(
+            hour=TruncHour('created_at')
+        ).values('hour').annotate(
+            total=Sum('amount')
+        ).order_by('hour')
+
+        # Create hour lookup for easy access
+        hour_dict = {
+            item['hour'].hour: float(item['total'] or 0)
+            for item in hourly_data
+        }
+
         for hour in range(24):
-            hour_start = timezone.now().replace(hour=hour, minute=0, second=0, microsecond=0)
-            hour_end = hour_start + timedelta(hours=1)
-
-            revenue = Payment.objects.filter(
-                status='SUCCESS',
-                created_at__gte=hour_start,
-                created_at__lt=hour_end
-            ).aggregate(total=Sum('amount'))['total'] or 0
-
+            revenue = hour_dict.get(hour, 0)
             data.append({
                 'label': f'{hour:02d}:00',
-                'value': float(revenue)
+                'value': revenue
             })
 
     elif period == 'week':
-        # Last 7 days
-        data = []
-        for i in range(7):
-            day = today - timedelta(days=6-i)
-            revenue = Payment.objects.filter(
-                status='SUCCESS',
-                created_at__date=day
-            ).aggregate(total=Sum('amount'))['total'] or 0
+        # Last 7 days - optimized with single database query
+        week_start = today - timedelta(days=6)
+        daily_data = Payment.objects.filter(
+            status='SUCCESS',
+            created_at__date__gte=week_start
+        ).annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(
+            total=Sum('amount')
+        ).order_by('date')
 
+        # Create date lookup
+        date_dict = {
+            item['date']: float(item['total'] or 0)
+            for item in daily_data
+        }
+
+        for i in range(7):
+            day = week_start + timedelta(days=i)
+            revenue = date_dict.get(day, 0)
             data.append({
                 'label': day.strftime('%a'),
-                'value': float(revenue)
+                'value': revenue
             })
 
     else:  # month
-        # Last 30 days
-        data = []
-        for i in range(30):
-            day = today - timedelta(days=29-i)
-            revenue = Payment.objects.filter(
-                status='SUCCESS',
-                created_at__date=day
-            ).aggregate(total=Sum('amount'))['total'] or 0
+        # Last 30 days - optimized with single database query
+        month_start = today - timedelta(days=29)
+        daily_data = Payment.objects.filter(
+            status='SUCCESS',
+            created_at__date__gte=month_start
+        ).annotate(
+            date=TruncDate('created_at')
+        ).values('date').annotate(
+            total=Sum('amount')
+        ).order_by('date')
 
+        # Create date lookup
+        date_dict = {
+            item['date']: float(item['total'] or 0)
+            for item in daily_data
+        }
+
+        for i in range(30):
+            day = month_start + timedelta(days=i)
+            revenue = date_dict.get(day, 0)
             data.append({
                 'label': day.strftime('%m/%d'),
-                'value': float(revenue)
+                'value': revenue
             })
 
     return JsonResponse({
@@ -181,8 +272,15 @@ def sales_forecast(request):
     days_back = max(7, min(days_back, 90))  # Between 7 and 90 days
     days_ahead = max(1, min(days_ahead, 30))  # Between 1 and 30 days
 
-    # Generate forecast
-    forecast_result = forecast_sales(days_back=days_back, days_ahead=days_ahead)
+    # Check cache first (expensive operation)
+    cache_key = f'forecast_{days_back}_{days_ahead}'
+    forecast_result = cache.get(cache_key)
+
+    if forecast_result is None:
+        # Generate forecast only if not cached
+        forecast_result = forecast_sales(days_back=days_back, days_ahead=days_ahead)
+        # Cache for 30 minutes
+        cache.set(cache_key, forecast_result, 1800)
 
     context = {
         'forecast_result': forecast_result,

@@ -4,7 +4,10 @@
       "Bash(tree:*)",
       "Bash(python manage.py check:*)",
       "Bash(python -m py_compile:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(python manage.py:*)",
+      "Bash(findstr:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

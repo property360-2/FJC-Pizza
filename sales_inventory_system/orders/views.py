@@ -46,8 +46,9 @@ def order_list(request):
         # Return JSON for AJAX requests
         orders_data = []
         for order in page_obj:
-            # Get item summary
-            items_list = [f"{item.quantity}x {item.product.name}" for item in order.items.all()]
+            # Use prefetched items to avoid N+1 query
+            items = list(order.items.all())  # Already prefetched from queryset
+            items_list = [f"{item.quantity}x {item.product.name}" for item in items]
             items_summary = ", ".join(items_list[:2])  # First 2 items
             if len(items_list) > 2:
                 items_summary += f", +{len(items_list) - 2} more"
@@ -185,17 +186,21 @@ def process_payment(request, pk):
                 order.processed_by = request.user
                 order.save()
 
-                # Deduct stock for each item
-                for item in order.items.all():
+                # Deduct stock for each item (optimized with bulk_update)
+                items = list(order.items.all().select_related('product'))
+                products_to_update = []
+                audit_trails = []
+
+                for item in items:
                     product = item.product
                     if product.stock < item.quantity:
                         raise ValueError(f'Insufficient stock for {product.name}')
 
                     product.stock -= item.quantity
-                    product.save()
+                    products_to_update.append(product)
 
-                    # Create audit log for stock deduction
-                    AuditTrail.objects.create(
+                    # Prepare audit log data
+                    audit_trails.append(AuditTrail(
                         user=request.user,
                         action='UPDATE',
                         model_name='Product',
@@ -207,7 +212,15 @@ def process_payment(request, pk):
                             'quantity_deducted': item.quantity,
                             'remaining_stock': product.stock
                         }
-                    )
+                    ))
+
+                # Bulk update products (single query instead of N queries)
+                if products_to_update:
+                    Product.objects.bulk_update(products_to_update, ['stock'], batch_size=100)
+
+                # Bulk create audit trails
+                if audit_trails:
+                    AuditTrail.objects.bulk_create(audit_trails, batch_size=100)
 
                 # Create audit log for payment
                 AuditTrail.objects.create(
@@ -283,30 +296,40 @@ def pos_create_order(request):
 
                 total_amount = 0
 
+                # Fetch all products at once (optimization: single query instead of N queries)
+                product_ids = [item['product_id'] for item in cart_items]
+                products_by_id = {
+                    p.id: p for p in Product.objects.filter(id__in=product_ids)
+                }
+
+                order_items = []
+                products_to_update = []
+                audit_trails = []
+
                 # Create order items and deduct stock
                 for item_data in cart_items:
-                    product = Product.objects.get(id=item_data['product_id'])
+                    product = products_by_id[item_data['product_id']]
                     quantity = item_data['quantity']
 
                     # Check stock
                     if product.stock < quantity:
                         raise ValueError(f'Insufficient stock for {product.name}. Available: {product.stock}')
 
-                    # Create order item
-                    OrderItem.objects.create(
+                    # Prepare order item creation
+                    order_items.append(OrderItem(
                         order=order,
                         product=product,
                         quantity=quantity
-                    )
+                    ))
 
                     # Deduct stock immediately
                     product.stock -= quantity
-                    product.save()
+                    products_to_update.append(product)
 
                     total_amount += product.price * quantity
 
-                    # Create audit log for stock deduction
-                    AuditTrail.objects.create(
+                    # Prepare audit log
+                    audit_trails.append(AuditTrail(
                         user=request.user,
                         action='UPDATE',
                         model_name='Product',
@@ -318,7 +341,19 @@ def pos_create_order(request):
                             'quantity_deducted': quantity,
                             'remaining_stock': product.stock
                         }
-                    )
+                    ))
+
+                # Bulk create order items
+                if order_items:
+                    OrderItem.objects.bulk_create(order_items, batch_size=100)
+
+                # Bulk update products (single query instead of N queries)
+                if products_to_update:
+                    Product.objects.bulk_update(products_to_update, ['stock'], batch_size=100)
+
+                # Bulk create audit trails
+                if audit_trails:
+                    AuditTrail.objects.bulk_create(audit_trails, batch_size=100)
 
                 # Update order total
                 order.calculate_total()

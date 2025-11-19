@@ -139,6 +139,30 @@ This documentation suite provides complete coverage of the **FJC Pizza Sales & I
 
 ---
 
+### 6. **06-IMPROVEMENT-PLAN.md** (Continuous Improvement)
+**For**: Developers, technical leads, DevOps/operations
+
+**Contains**:
+- Summary of codebase review findings
+- Security hardening recommendations
+- Performance and scalability improvements
+- UX/UI polish and consistency work
+- Code quality and maintainability upgrades
+- Deployment and operations enhancements
+- Prioritized roadmap (Now / Next / Later)
+
+**Key Sections**:
+- Security Hardening
+- Performance & Scalability
+- UX & UI Improvements
+- Code Quality & Maintainability
+- Deployment & Operations
+- Prioritized Roadmap
+
+**Time to Read**: 20-30 minutes
+
+---
+
 ## 🎯 Quick Navigation
 
 ### By Role
@@ -212,6 +236,7 @@ This documentation suite provides complete coverage of the **FJC Pizza Sales & I
 | 03-USER-ROLES-WORKFLOWS | ~45 | 40-50 min | All Users | Operations & Usage |
 | 04-FEATURES-FUNCTIONALITY | ~35 | 50-60 min | Product/Support | Feature Details |
 | 05-OPERATIONS-MAINTENANCE | ~40 | 45-60 min | Operations | Administration |
+| 06-IMPROVEMENT-PLAN | ~15 | 20-30 min | Technical/Operations | Improvements & Roadmap |
 | **TOTAL** | **~185** | **3-4 hours** | **Everyone** | **Complete Coverage** |
 
 ---
@@ -268,6 +293,15 @@ This documentation suite provides complete coverage of the **FJC Pizza Sales & I
 - Performance optimization
 - Maintenance schedules
 - Emergency procedures
+
+### 06-IMPROVEMENT-PLAN.md
+- Security hardening actions
+- Performance and database optimizations
+- UX/UI consistency improvements
+- Code quality and refactoring tasks
+- Testing and CI/CD recommendations
+- Deployment and operations enhancements
+- Short- and medium-term roadmap
 
 ---
 
