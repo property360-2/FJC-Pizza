@@ -68,7 +68,7 @@
                     <div class="flex justify-between items-center">
                         <p class="text-sm text-fjc-yellow-600 font-bold">₱{{ order.total_amount }}</p>
                         {% if order.payment.method == 'CASH' and order.payment.status == 'PENDING' %}
-                        <button onclick="confirmPayment({{ order.pk }}, '{{ order.order_number }}', this)" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
+                        <button onclick="openPaymentModal({{ order.pk }}, '{{ order.order_number }}', this)" class="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-3 py-1.5 rounded transition">
                             ✓ Confirm Cash
                         </button>
                         {% endif %}
@@ -182,6 +182,50 @@
     </div>
 </div>
 
+<!-- Payment Confirmation Modal -->
+<div id="paymentConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4 rounded-t-lg">
+            <h2 class="text-xl font-bold text-white flex items-center">
+                <span class="mr-3 text-2xl">💵</span>
+                Confirm Cash Payment
+            </h2>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="px-6 py-6 space-y-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600 mb-2"><strong>Order:</strong></p>
+                <p id="paymentModalOrderNumber" class="text-2xl font-bold text-gray-900">#12345</p>
+            </div>
+
+            <div class="space-y-2">
+                <p class="text-sm text-gray-700">
+                    <span class="block font-semibold text-gray-900 mb-1">Are you sure you want to confirm cash payment?</span>
+                    <span class="block text-gray-600 text-xs">This will mark the order as received and deduct inventory from stock.</span>
+                </p>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    ⚠️ <strong>Make sure you have received the cash payment from the customer.</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-gray-50 px-6 py-4 rounded-b-lg flex gap-3 border-t border-gray-200">
+            <button id="paymentConfirmCancel" onclick="closePaymentModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-100 transition">
+                Cancel
+            </button>
+            <button id="paymentConfirmButton" onclick="submitPaymentConfirmation()" class="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition">
+                ✓ Confirm Payment
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Auto-refresh for real-time updates -->
 <script>
     // Auto-refresh every 30 seconds
@@ -215,10 +259,36 @@ function getCsrfToken() {
     return cookieValue;
 }
 
-async function confirmPayment(orderId, orderNumber, buttonElement) {
-    if (!confirm(`Confirm cash payment for ${orderNumber}?`)) {
-        return;
-    }
+// Store current payment info for modal
+let currentPaymentData = null;
+let currentPaymentButton = null;
+
+function openPaymentModal(orderId, orderNumber, buttonElement) {
+    currentPaymentData = { orderId, orderNumber };
+    currentPaymentButton = buttonElement;
+
+    // Update modal with order number
+    document.getElementById('paymentModalOrderNumber').textContent = `#${orderNumber}`;
+
+    // Show modal
+    document.getElementById('paymentConfirmModal').classList.remove('hidden');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentConfirmModal').classList.add('hidden');
+    currentPaymentData = null;
+    currentPaymentButton = null;
+}
+
+async function submitPaymentConfirmation() {
+    if (!currentPaymentData) return;
+
+    const orderId = currentPaymentData.orderId;
+    const orderNumber = currentPaymentData.orderNumber;
+    const buttonElement = currentPaymentButton;
+
+    // Close modal
+    closePaymentModal();
 
     // Disable the button to prevent double-clicks
     const originalText = buttonElement.textContent;
@@ -339,5 +409,19 @@ async function updateOrderStatus(orderId, newStatus, buttonElement) {
         }
     }
 }
+
+// Close modal when clicking outside of it
+document.getElementById('paymentConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePaymentModal();
+    }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !document.getElementById('paymentConfirmModal').classList.contains('hidden')) {
+        closePaymentModal();
+    }
+});
 </script>
 {% endblock %}
