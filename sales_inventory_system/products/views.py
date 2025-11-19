@@ -356,7 +356,7 @@ def recipe_edit(request, pk):
         try:
             with transaction.atomic():
                 # Delete existing ingredients
-                recipe_item.recipeingredient_set.all().delete()
+                recipe_item.ingredients.all().delete()
 
                 # Add new ingredients from form
                 ingredients_data = request.POST.getlist('ingredient_id')
@@ -367,7 +367,7 @@ def recipe_edit(request, pk):
                         try:
                             ingredient = Ingredient.objects.get(id=ing_id)
                             RecipeIngredient.objects.create(
-                                recipe_item=recipe_item,
+                                recipe=recipe_item,
                                 ingredient=ingredient,
                                 quantity=Decimal(qty)
                             )
@@ -384,7 +384,7 @@ def recipe_edit(request, pk):
     all_ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
 
     # Get current recipe ingredients
-    recipe_ingredients = recipe_item.recipeingredient_set.all()
+    recipe_ingredients = recipe_item.ingredients.all()
 
     context = {
         'product': product,
