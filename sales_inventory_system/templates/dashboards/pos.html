@@ -191,6 +191,30 @@
 
 {% block extra_js %}
 <script>
+// Get CSRF token safely
+function getCsrfToken() {
+    // Try to get from HTML element first
+    const tokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (tokenElement) {
+        return tokenElement.value;
+    }
+
+    // Fallback: try to get from cookies
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 async function confirmPayment(paymentId, orderNumber, buttonElement) {
     if (!confirm(`Confirm cash payment for ${orderNumber}?`)) {
         return;
@@ -203,7 +227,15 @@ async function confirmPayment(paymentId, orderNumber, buttonElement) {
     buttonElement.classList.add('opacity-50', 'cursor-not-allowed');
 
     const url = `/orders/payment/${paymentId}/process-payment/`;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = getCsrfToken();
+
+    if (!csrfToken) {
+        Toast.error('Security error: CSRF token not found');
+        buttonElement.disabled = false;
+        buttonElement.textContent = originalText;
+        buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+        return;
+    }
 
     Loading.show();
 
@@ -233,6 +265,7 @@ async function confirmPayment(paymentId, orderNumber, buttonElement) {
         }
     } catch (error) {
         Loading.hide();
+        console.error('Payment error:', error);
         Toast.error('Network error. Please try again.');
         // Re-enable button on error
         buttonElement.disabled = false;
@@ -251,7 +284,17 @@ async function updateOrderStatus(orderId, newStatus, buttonElement) {
     }
 
     const url = `/orders/${orderId}/update-status/`;
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfToken = getCsrfToken();
+
+    if (!csrfToken) {
+        Toast.error('Security error: CSRF token not found');
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.textContent = originalText;
+            buttonElement.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        return;
+    }
 
     Loading.show();
 
@@ -286,6 +329,7 @@ async function updateOrderStatus(orderId, newStatus, buttonElement) {
         }
     } catch (error) {
         Loading.hide();
+        console.error('Status update error:', error);
         Toast.error('Network error. Please try again.');
         // Re-enable button on error
         if (buttonElement) {
