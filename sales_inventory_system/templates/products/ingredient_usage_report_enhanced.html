@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingredient Usage Report - FJC Pizza{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Ingredient Usage Report</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Track ingredient consumption and costs across all products
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'products:bom_dashboard' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-sm">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Period and Download Controls -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="flex flex-col md:flex-row gap-4 items-end">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Analysis Period (Days)</label>
+                <select id="days-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                    <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+                    <option value="60" {% if days == 60 %}selected{% endif %}>Last 60 Days</option>
+                    <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="?days={{ days }}&download=csv" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm flex items-center gap-2">
+                    📊 Download Summary CSV
+                </a>
+                <a href="?days={{ days }}&download=detailed" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2">
+                    📈 Download Detailed CSV
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            <strong>Period:</strong> {{ period_start|date:"M d, Y" }} to {{ period_end|date:"M d, Y" }} ({{ days }} days)
+        </div>
+    </div>
+
+    <!-- Overall Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <div class="text-gray-600 text-sm font-medium mb-2">Total Ingredients</div>
+            <div class="text-3xl font-bold text-gray-900">{{ total_ingredients }}</div>
+            <div class="text-xs text-gray-500 mt-2">With usage data</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <div class="text-gray-600 text-sm font-medium mb-2">Total Used</div>
+            <div class="text-3xl font-bold text-gray-900">{{ total_used|floatformat:1 }}</div>
+            <div class="text-xs text-gray-500 mt-2">Units across all ingredients</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <div class="text-gray-600 text-sm font-medium mb-2">Total Cost</div>
+            <div class="text-3xl font-bold text-blue-600">₱{{ total_cost|floatformat:2 }}</div>
+            <div class="text-xs text-gray-500 mt-2">Ingredient expenses</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <div class="text-gray-600 text-sm font-medium mb-2">Avg Cost Per Unit</div>
+            <div class="text-3xl font-bold text-gray-900">₱{{ avg_cost|floatformat:2 }}</div>
+            <div class="text-xs text-gray-500 mt-2">Weighted average</div>
+        </div>
+    </div>
+
+    <!-- Usage by Ingredient -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Usage by Ingredient</h2>
+            <p class="text-sm text-gray-600 mt-1">Detailed consumption and cost analysis</p>
+        </div>
+
+        {% if usage_summary %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ingredient</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Used</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Cost Per Unit</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Cost</th>
+                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">% of Total</th>
+                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Transactions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in usage_summary|dictsort:"cost"|slice:"::-1" %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <span class="font-medium text-gray-900">{{ item.ingredient.name }}</span>
+                            <div class="text-xs text-gray-500 mt-1">{{ item.ingredient.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-right text-gray-900">{{ item.total_quantity|floatformat:2 }}</td>
+                        <td class="px-6 py-4 text-right text-gray-700">₱{{ item.ingredient.cost_per_unit|floatformat:2 }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="font-bold text-gray-900">₱{{ item.cost|floatformat:2 }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-fjc-blue-600 h-2 rounded-full transition-all" style="width: {% widthratio item.cost total_cost 100 %}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600 mt-1 block">{% widthratio item.cost total_cost 100 %}%</span>
+                        </td>
+                        <td class="px-6 py-4 text-center text-gray-900">{{ item.transactions_count }}</td>
+                    </tr>
+
+                    <!-- Transaction Details -->
+                    <tr class="bg-gray-50">
+                        <td colspan="6" class="px-6 py-3">
+                            <div class="text-xs font-semibold text-gray-700 mb-3">
+                                📋 Transaction Breakdown
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                                {% for type_name, quantity in item.transaction_stats.items %}
+                                <div class="bg-white p-2 rounded border border-gray-200">
+                                    <div class="text-xs text-gray-600">{{ type_name }}</div>
+                                    <div class="text-sm font-bold text-gray-900">{{ quantity|floatformat:2 }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="text-xs font-semibold text-gray-700 mb-2">Latest Transactions</div>
+                            <div class="space-y-1 max-h-32 overflow-y-auto">
+                                {% for trans in item.transactions %}
+                                <div class="flex justify-between text-xs bg-white p-2 rounded border border-gray-200">
+                                    <span class="text-gray-600">{{ trans.created_at|date:"M d, H:i" }}</span>
+                                    <span class="font-medium">{{ trans.get_transaction_type_display }}</span>
+                                    <span class="text-gray-900">{{ trans.quantity|floatformat:3 }} {{ item.ingredient.unit }}</span>
+                                    {% if trans.notes %}
+                                    <span class="text-gray-500 italic">{{ trans.notes|truncatewords:3 }}</span>
+                                    {% endif %}
+                                </div>
+                                {% empty %}
+                                <div class="text-xs text-gray-500 p-2">No transactions</div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                    <tr class="font-semibold">
+                        <td class="px-6 py-3 text-gray-900">TOTAL</td>
+                        <td class="px-6 py-3 text-right text-gray-900">{{ total_used|floatformat:2 }}</td>
+                        <td class="px-6 py-3 text-right text-gray-600">—</td>
+                        <td class="px-6 py-3 text-right text-lg text-blue-600">₱{{ total_cost|floatformat:2 }}</td>
+                        <td class="px-6 py-3 text-center text-gray-900">100%</td>
+                        <td class="px-6 py-3 text-center text-gray-900">—</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <span class="text-5xl mb-4 block">📦</span>
+            <p class="text-gray-600 text-lg">No ingredient usage data available</p>
+            <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some stock transactions</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Top Consumed Items -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Most Costly Items -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Top Cost Items</h3>
+            <div class="space-y-3">
+                {% for item in usage_summary|dictsort:"cost"|slice:"::-1"|slice:":5" %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div>
+                        <div class="font-medium text-gray-900">{{ item.ingredient.name }}</div>
+                        <div class="text-xs text-gray-500">{{ item.total_quantity|floatformat:2 }} {{ item.ingredient.unit }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-blue-600">₱{{ item.cost|floatformat:2 }}</div>
+                        <div class="text-xs text-gray-500">{% widthratio item.cost total_cost 100 %}%</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-sm">No data available</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Most Used Items -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 Most Used Items</h3>
+            <div class="space-y-3">
+                {% for item in usage_summary|dictsort:"total_quantity"|slice:"::-1"|slice:":5" %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div>
+                        <div class="font-medium text-gray-900">{{ item.ingredient.name }}</div>
+                        <div class="text-xs text-gray-500">₱{{ item.ingredient.cost_per_unit|floatformat:2 }} per {{ item.ingredient.unit }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-gray-900">{{ item.total_quantity|floatformat:2 }}</div>
+                        <div class="text-xs text-gray-500">{{ item.ingredient.unit }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-500 text-sm">No data available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+        <div class="flex items-start">
+            <span class="text-2xl mr-3">💡</span>
+            <div>
+                <h3 class="font-semibold text-blue-900 mb-2">Usage Insights & Recommendations</h3>
+                <ul class="text-sm text-blue-800 space-y-2 list-disc list-inside">
+                    <li><strong>Cost Management:</strong> Focus on reducing usage of the top 5 most expensive ingredients to optimize costs.</li>
+                    <li><strong>Inventory Planning:</strong> Monitor most-used ingredients closely for adequate stock levels and reorder timing.</li>
+                    <li><strong>Supplier Negotiation:</strong> Consider bulk pricing for ingredients with high usage volume.</li>
+                    <li><strong>Portion Control:</strong> Review portion sizes for frequently-used ingredients to maintain quality while reducing waste.</li>
+                    <li><strong>Trend Analysis:</strong> Compare usage across different time periods to identify seasonal patterns.</li>
+                    <li><strong>Waste Reduction:</strong> Cross-reference this report with waste logs to identify and address inefficiencies.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('days-filter').addEventListener('change', function(e) {
+    window.location.href = `?days=${e.target.value}`;
+});
+</script>
+{% endblock %}
