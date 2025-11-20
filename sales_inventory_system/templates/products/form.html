@@ -104,7 +104,7 @@
                     <p class="mt-1 text-xs text-gray-500">Alert when stock falls below this number</p>
                 </div>
 
-                <div>
+                <div class="relative">
                     <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
                         Category
                     </label>
@@ -113,9 +113,11 @@
                         id="category"
                         name="category"
                         value="{{ product.category|default:'' }}"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                        class="category-search w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
                         placeholder="e.g., Pizza, Drinks, Desserts"
+                        autocomplete="off"
                     />
+                    <div class="category-suggestions absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden"></div>
                 </div>
             </div>
 
@@ -154,7 +156,7 @@
 
                 <!-- Recipe Preview -->
                 <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                    {% if product.recipeitem.ingredients.all %}
+                    {% if product.recipe.ingredients.all %}
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead class="border-b border-gray-300">
@@ -164,7 +166,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                {% for item in product.recipeitem.ingredients.all %}
+                                {% for item in product.recipe.ingredients.all %}
                                 <tr>
                                     <td class="py-2 px-3">{{ item.ingredient.name }}</td>
                                     <td class="py-2 px-3 text-right">{{ item.quantity }} {{ item.ingredient.unit }}</td>
@@ -322,6 +324,86 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+});
+
+// ========== Category Async Search ==========
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+async function searchCategories(input) {
+    const query = input.value.trim();
+    const suggestionsDiv = input.parentElement.querySelector('.category-suggestions');
+
+    if (!query || query.length < 1) {
+        suggestionsDiv.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/products/api/search-categories/?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (data.results.length === 0) {
+            suggestionsDiv.innerHTML = '<div class="p-3 text-sm text-gray-500">No categories found</div>';
+            suggestionsDiv.classList.remove('hidden');
+            return;
+        }
+
+        let html = '';
+        data.results.forEach(category => {
+            html += `
+                <div class="category-suggestion p-3 hover:bg-fjc-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
+                     data-name="${category.name}">
+                    <div class="font-medium text-gray-900">${category.name}</div>
+                </div>
+            `;
+        });
+
+        suggestionsDiv.innerHTML = html;
+        suggestionsDiv.classList.remove('hidden');
+
+        // Add click handlers to suggestions
+        suggestionsDiv.querySelectorAll('.category-suggestion').forEach(suggestion => {
+            suggestion.addEventListener('click', () => {
+                input.value = suggestion.dataset.name;
+                suggestionsDiv.classList.add('hidden');
+            });
+        });
+
+    } catch (error) {
+        console.error('Error searching categories:', error);
+        suggestionsDiv.innerHTML = '<div class="p-3 text-sm text-red-500">Error searching categories</div>';
+        suggestionsDiv.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryInput = document.querySelector('.category-search');
+
+    if (categoryInput) {
+        categoryInput.addEventListener('input', debounce(() => searchCategories(categoryInput), 300));
+        categoryInput.addEventListener('focus', () => {
+            if (categoryInput.value.trim().length > 0) {
+                searchCategories(categoryInput);
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        categoryInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                categoryInput.parentElement.querySelector('.category-suggestions').classList.add('hidden');
+            }, 200);
+        });
+    }
 });
 </script>
 {% endblock %}

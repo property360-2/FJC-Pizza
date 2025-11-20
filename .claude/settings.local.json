@@ -1,16 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)",
-      "Bash(python manage.py check:*)",
-      "Bash(python -m py_compile:*)",
-      "Bash(dir:*)",
-      "Bash(python manage.py:*)",
-      "Bash(findstr:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(timeout 10 python manage.py runserver:*)",
-      "Bash(python -c:*)"
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

@@ -7,6 +7,7 @@ app_name = 'products'
 urlpatterns = [
     path('', views.product_list, name='list'),
     path('create/', views.product_create, name='create'),
+    path('<int:pk>/', views.product_detail, name='detail'),
     path('<int:pk>/edit/', views.product_edit, name='edit'),
     path('<int:pk>/archive/', views.product_archive, name='archive'),
 
@@ -25,5 +26,9 @@ urlpatterns = [
     path('bom/variance-analysis/', bom_views.variance_analysis_report, name='bom_variance'),
     path('bom/low-stock/', bom_views.low_stock_report, name='bom_low_stock'),
     path('bom/waste/', bom_views.waste_report, name='bom_waste'),
+
+    # API routes
     path('api/ingredient-availability/', bom_views.api_ingredient_availability, name='api_ingredient_availability'),
+    path('api/search-ingredients/', views.api_search_ingredients, name='api_search_ingredients'),
+    path('api/search-categories/', views.api_search_categories, name='api_search_categories'),
 ]

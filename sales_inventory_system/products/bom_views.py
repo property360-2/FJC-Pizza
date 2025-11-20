@@ -4,8 +4,8 @@ Views for Bill of Materials reports and management
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.db.models import Q, Sum, F
+from django.http import JsonResponse, HttpResponse
+from django.db.models import Q, Sum, F, Avg, Max, Min, Count
 from django.utils import timezone
 from datetime import timedelta
 from .models import (
@@ -14,6 +14,8 @@ from .models import (
 )
 from .inventory_service import BOMService
 import json
+import csv
+from io import StringIO
 
 
 @login_required
@@ -63,96 +65,244 @@ def bom_dashboard(request):
 @login_required
 def ingredient_usage_report(request):
     """
-    Generate ingredient usage report for a specified period.
+    Comprehensive ingredient usage report for all active ingredients.
+    Shows usage analytics directly on the page.
     """
-    ingredient_id = request.GET.get('ingredient_id')
     days = int(request.GET.get('days', 30))
+    download = request.GET.get('download', '').lower()
 
-    if not ingredient_id:
-        ingredients = Ingredient.objects.filter(is_active=True).values('id', 'name')
-        context = {'ingredients': ingredients}
-        return render(request, 'products/ingredient_usage_report.html', context)
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=days)
 
-    try:
-        report = BOMService.get_ingredient_usage_report(ingredient_id, days=days)
+    # Get all active ingredients with usage data
+    ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
 
-        # Convert Decimal to float for JSON serialization
-        context = {
-            'report': report,
-            'ingredient_id': ingredient_id,
-            'days': days,
-        }
+    usage_summary = []
+    total_used = 0
+    total_cost = 0
 
-        return render(request, 'products/ingredient_usage_detail.html', context)
-    except Ingredient.DoesNotExist:
-        context = {
-            'error': 'Ingredient not found',
-            'ingredients': Ingredient.objects.filter(is_active=True).values('id', 'name')
-        }
-        return render(request, 'products/ingredient_usage_report.html', context)
+    for ingredient in ingredients:
+        # Get stock transactions
+        transactions = StockTransaction.objects.filter(
+            ingredient=ingredient,
+            created_at__gte=start_date,
+            created_at__lte=end_date
+        ).order_by('-created_at')
+
+        if not transactions.exists():
+            continue
+
+        # Calculate totals by transaction type
+        total_quantity = 0
+        transaction_stats = {}
+
+        for trans in transactions:
+            transaction_stats[trans.get_transaction_type_display()] = transaction_stats.get(trans.get_transaction_type_display(), 0) + float(trans.quantity)
+            if trans.transaction_type in ['DEDUCTION', 'PREP']:
+                total_quantity += float(trans.quantity)
+
+        # Calculate cost
+        ingredient_cost = float(ingredient.cost_per_unit) * total_quantity
+
+        usage_summary.append({
+            'ingredient': ingredient,
+            'total_quantity': total_quantity,
+            'cost': ingredient_cost,
+            'transaction_stats': transaction_stats,
+            'transactions': transactions[:10],  # Latest 10 transactions
+            'transactions_count': transactions.count(),
+        })
+
+        total_used += total_quantity
+        total_cost += ingredient_cost
+
+    # Calculate average cost per unit used
+    avg_cost = total_cost / total_used if total_used > 0 else 0
+
+    # Handle downloads
+    if download == 'csv':
+        return generate_usage_csv_download(usage_summary, days)
+    elif download == 'detailed':
+        return generate_usage_detailed_csv(usage_summary, days)
+
+    context = {
+        'usage_summary': usage_summary,
+        'days': days,
+        'total_used': total_used,
+        'total_cost': total_cost,
+        'avg_cost': avg_cost,
+        'period_start': start_date,
+        'period_end': end_date,
+        'total_ingredients': len(usage_summary),
+    }
+
+    return render(request, 'products/ingredient_usage_report_enhanced.html', context)
+
+
+def generate_usage_csv_download(usage_summary, days):
+    """Generate CSV report for ingredient usage"""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="ingredient_usage_{timezone.now().strftime("%Y%m%d")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Ingredient', 'Unit', 'Total Used', 'Cost Per Unit', 'Total Cost', 'Transactions'])
+
+    for item in usage_summary:
+        writer.writerow([
+            item['ingredient'].name,
+            item['ingredient'].unit,
+            f"{item['total_quantity']:.3f}",
+            f"{item['ingredient'].cost_per_unit:.2f}",
+            f"{item['cost']:.2f}",
+            item['transactions_count']
+        ])
+
+    return response
+
+
+def generate_usage_detailed_csv(usage_summary, days):
+    """Generate detailed CSV report with all transactions"""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="ingredient_usage_detailed_{timezone.now().strftime("%Y%m%d")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Ingredient', 'Date', 'Type', 'Quantity', 'Unit Cost', 'Cost Impact', 'Notes'])
+
+    for item in usage_summary:
+        for trans in item['transactions']:
+            cost_impact = float(trans.quantity) * float(item['ingredient'].cost_per_unit) if trans.unit_cost else 0
+            writer.writerow([
+                item['ingredient'].name,
+                trans.created_at.strftime("%Y-%m-%d %H:%M"),
+                trans.get_transaction_type_display(),
+                f"{trans.quantity:.3f}",
+                f"{item['ingredient'].cost_per_unit:.2f}",
+                f"{cost_impact:.2f}",
+                trans.notes or ''
+            ])
+
+    return response
 
 
 @login_required
 def variance_analysis_report(request):
     """
-    Generate variance analysis report comparing theoretical vs actual usage.
+    Comprehensive variance analysis report for all active ingredients.
+    Shows analytics directly on the page with download option.
     """
-    ingredient_id = request.GET.get('ingredient_id')
     days = int(request.GET.get('days', 30))
+    download = request.GET.get('download', '').lower()
 
-    if not ingredient_id:
-        ingredients = Ingredient.objects.filter(is_active=True).values('id', 'name')
-        context = {'ingredients': ingredients}
-        return render(request, 'products/variance_analysis.html', context)
+    end_date = timezone.now()
+    start_date = end_date - timedelta(days=days)
 
-    try:
-        # Get the variance analysis
-        end_date = timezone.now()
-        start_date = end_date - timedelta(days=days)
+    # Get all active ingredients
+    ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
 
-        variance_data = BOMService.calculate_variance(
-            ingredient_id,
-            period_start=start_date,
-            period_end=end_date
-        )
+    # Calculate variance for each ingredient
+    variance_summary = []
+    total_records = 0
+    within_tolerance_count = 0
 
-        # Get ingredient details
-        ingredient = Ingredient.objects.get(id=ingredient_id)
-
-        # Get all variance records for this ingredient
+    for ingredient in ingredients:
         variance_records = VarianceRecord.objects.filter(
-            ingredient_id=ingredient_id,
+            ingredient=ingredient,
             period_end__gte=start_date
         ).order_by('-period_end')
 
+        if not variance_records.exists():
+            continue
+
         # Calculate statistics
-        all_variances = variance_records.values_list('variance_percentage', flat=True)
-        if all_variances:
-            avg_variance = sum(all_variances) / len(all_variances)
-            max_variance = max(all_variances)
-            min_variance = min(all_variances)
-        else:
-            avg_variance = max_variance = min_variance = 0
+        variances = list(variance_records.values_list('variance_percentage', flat=True))
+        within_tolerance_records = variance_records.filter(within_tolerance=True).count()
 
-        context = {
-            'variance_data': variance_data,
-            'ingredient': ingredient,
-            'variance_records': variance_records,
-            'avg_variance': avg_variance,
-            'max_variance': max_variance,
-            'min_variance': min_variance,
-            'days': days,
-            'ingredient_id': ingredient_id,
-        }
+        if variances:
+            avg_variance = sum(variances) / len(variances)
+            max_variance = max(variances)
+            min_variance = min(variances)
+            within_tolerance = (within_tolerance_records / len(variances)) * 100
+            total_records += len(variances)
+            within_tolerance_count += within_tolerance_records
 
-        return render(request, 'products/variance_detail.html', context)
+            variance_summary.append({
+                'ingredient': ingredient,
+                'records_count': len(variances),
+                'avg_variance': avg_variance,
+                'max_variance': max_variance,
+                'min_variance': min_variance,
+                'within_tolerance_pct': within_tolerance,
+                'variance_records': variance_records[:5]  # Latest 5 records
+            })
 
-    except Ingredient.DoesNotExist:
-        context = {
-            'error': 'Ingredient not found',
-            'ingredients': Ingredient.objects.filter(is_active=True).values('id', 'name')
-        }
-        return render(request, 'products/variance_analysis.html', context)
+    # Calculate overall statistics
+    if variance_summary:
+        avg_of_avgs = sum(v['avg_variance'] for v in variance_summary) / len(variance_summary)
+        overall_within_tolerance = (within_tolerance_count / total_records * 100) if total_records > 0 else 0
+    else:
+        avg_of_avgs = 0
+        overall_within_tolerance = 0
+
+    # Handle download
+    if download == 'csv':
+        return generate_variance_csv_download(variance_summary, days)
+    elif download == 'detailed':
+        return generate_variance_detailed_csv(variance_summary, days)
+
+    context = {
+        'variance_summary': variance_summary,
+        'days': days,
+        'total_records': total_records,
+        'avg_of_avgs': avg_of_avgs,
+        'overall_within_tolerance': overall_within_tolerance,
+        'period_start': start_date,
+        'period_end': end_date,
+    }
+
+    return render(request, 'products/variance_analysis_report.html', context)
+
+
+def generate_variance_csv_download(variance_summary, days):
+    """Generate CSV report for variance analysis"""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="variance_analysis_{timezone.now().strftime("%Y%m%d")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Ingredient', 'Avg Variance %', 'Max Variance %', 'Min Variance %', 'Within Tolerance %', 'Records'])
+
+    for item in variance_summary:
+        writer.writerow([
+            item['ingredient'].name,
+            f"{item['avg_variance']:.2f}",
+            f"{item['max_variance']:.2f}",
+            f"{item['min_variance']:.2f}",
+            f"{item['within_tolerance_pct']:.2f}",
+            item['records_count']
+        ])
+
+    return response
+
+
+def generate_variance_detailed_csv(variance_summary, days):
+    """Generate detailed CSV report with all variance records"""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="variance_detailed_{timezone.now().strftime("%Y%m%d")}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Ingredient', 'Period End', 'Theoretical Used', 'Actual Used', 'Variance %', 'Status'])
+
+    for item in variance_summary:
+        for record in item['variance_records']:
+            writer.writerow([
+                item['ingredient'].name,
+                record.period_end.strftime("%Y-%m-%d"),
+                f"{record.theoretical_used:.3f}",
+                f"{record.actual_used:.3f}",
+                f"{record.variance_percentage:.2f}",
+                'Within Tolerance' if record.within_tolerance else 'Outside Tolerance'
+            ])
+
+    return response
 
 
 @login_required

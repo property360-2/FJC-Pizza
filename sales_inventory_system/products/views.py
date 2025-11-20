@@ -14,6 +14,22 @@ def is_admin(user):
 
 @login_required
 @user_passes_test(is_admin)
+def product_detail(request, pk):
+    """Display product details including recipe/BOM"""
+    product = get_object_or_404(Product, pk=pk, is_archived=False)
+
+    # Get or create recipe
+    recipe_item, _ = RecipeItem.objects.get_or_create(product=product)
+
+    context = {
+        'product': product,
+        'recipe_item': recipe_item,
+        'recipe_ingredients': recipe_item.ingredients.all(),
+    }
+    return render(request, 'products/detail.html', context)
+
+@login_required
+@user_passes_test(is_admin)
 def product_list(request):
     """List all products with search, filter, and pagination"""
 
@@ -393,3 +409,60 @@ def recipe_edit(request, pk):
         'all_ingredients': all_ingredients,
     }
     return render(request, 'products/recipe_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_search_ingredients(request):
+    """API endpoint for searching ingredients (async search)"""
+    query = request.GET.get('q', '').strip()
+
+    if not query or len(query) < 1:
+        return JsonResponse({'results': []})
+
+    # Search ingredients by name or unit
+    ingredients = Ingredient.objects.filter(
+        is_active=True
+    ).filter(
+        Q(name__icontains=query) |
+        Q(description__icontains=query) |
+        Q(unit__icontains=query)
+    ).order_by('name')[:10]  # Limit to 10 results
+
+    results = []
+    for ingredient in ingredients:
+        results.append({
+            'id': ingredient.id,
+            'name': ingredient.name,
+            'unit': ingredient.unit,
+            'cost_per_unit': float(ingredient.cost_per_unit),
+            'current_stock': float(ingredient.current_stock),
+            'display': f"{ingredient.name} ({ingredient.unit})"
+        })
+
+    return JsonResponse({'results': results})
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_search_categories(request):
+    """API endpoint for searching product categories (async search)"""
+    query = request.GET.get('q', '').strip()
+
+    # Get all unique categories
+    all_categories = Product.objects.filter(
+        is_archived=False
+    ).values_list('category', flat=True).distinct().order_by('category')
+    all_categories = [c for c in all_categories if c]  # Remove empty categories
+
+    # Filter based on query
+    if query:
+        matching_categories = [c for c in all_categories if query.lower() in c.lower()]
+    else:
+        matching_categories = list(all_categories)
+
+    # Limit to 10 results
+    matching_categories = matching_categories[:10]
+
+    results = [{'name': cat} for cat in matching_categories]
+    return JsonResponse({'results': results})

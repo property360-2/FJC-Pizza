@@ -1,353 +1,621 @@
-"""
-Management command to seed the database with sample data
-Usage: python manage.py seed_data
-"""
 from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
 from django.utils import timezone
 from decimal import Decimal
-from products.models import (
-    Ingredient, Product, RecipeItem, RecipeIngredient
-)
-from accounts.models import User as CustomUser
+import random
+from datetime import timedelta
 
-User = get_user_model()
+from accounts.models import User
+from products.models import (
+    Product, Ingredient, RecipeItem, RecipeIngredient,
+    StockTransaction, PhysicalCount, VarianceRecord,
+    WasteLog, PrepBatch
+)
+from orders.models import Order, OrderItem, Payment
+from system.models import AuditTrail, Archive
 
 
 class Command(BaseCommand):
-    help = 'Seeds the database with sample pizza restaurant data'
+    help = 'Seed comprehensive test data for the FJC Pizza system'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.SUCCESS('[*] Starting data seeding...'))
+        self.stdout.write(self.style.SUCCESS('Starting comprehensive data seeding...'))
 
-        # Create users
-        self.create_users()
+        try:
+            # Create users
+            self.stdout.write('Creating users...')
+            admin_user, cashier_users = self.create_users()
 
-        # Create ingredients
-        ingredients = self.create_ingredients()
+            # Create ingredients
+            self.stdout.write('Creating ingredients...')
+            ingredients = self.create_ingredients(admin_user)
 
-        # Create products
-        self.create_products(ingredients)
+            # Create products
+            self.stdout.write('Creating products...')
+            products = self.create_products()
 
-        self.stdout.write(self.style.SUCCESS('[OK] Data seeding completed successfully!'))
+            # Create recipes/BOM
+            self.stdout.write('Creating recipes and BOM...')
+            recipes = self.create_recipes(products, ingredients, admin_user)
+
+            # Create stock transactions
+            self.stdout.write('Creating stock transactions...')
+            self.create_stock_transactions(ingredients, admin_user)
+
+            # Create physical counts
+            self.stdout.write('Creating physical counts...')
+            self.create_physical_counts(ingredients, admin_user)
+
+            # Create variance records
+            self.stdout.write('Creating variance records...')
+            self.create_variance_records(ingredients)
+
+            # Create waste logs
+            self.stdout.write('Creating waste logs...')
+            self.create_waste_logs(ingredients, admin_user)
+
+            # Create prep batches
+            self.stdout.write('Creating prep batches...')
+            self.create_prep_batches(recipes, admin_user)
+
+            # Create orders and payments
+            self.stdout.write('Creating orders...')
+            self.create_orders(products, cashier_users, admin_user)
+
+            # Create audit trails
+            self.stdout.write('Creating audit trails...')
+            self.create_audit_trails(admin_user, cashier_users)
+
+            self.stdout.write(self.style.SUCCESS('✓ Data seeding completed successfully!'))
+
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Error during seeding: {str(e)}'))
+            raise
 
     def create_users(self):
-        """Create sample users"""
-        self.stdout.write('Creating users...')
-
-        users_data = [
-            {
-                'username': 'admin',
-                'email': 'admin@fjcpizza.com',
-                'password': 'admin123',
+        """Create admin and cashier users"""
+        # Create or get admin user
+        admin_user, created = User.objects.get_or_create(
+            username='admin',
+            defaults={
                 'first_name': 'Admin',
                 'last_name': 'User',
-                'role': 'ADMIN'
-            },
-            {
-                'username': 'cashier',
-                'email': 'cashier@fjcpizza.com',
-                'password': 'cashier123',
-                'first_name': 'Cashier',
-                'last_name': 'User',
-                'role': 'CASHIER'
-            },
+                'email': 'admin@fjcpizza.com',
+                'phone': '555-0001',
+                'role': 'ADMIN',
+                'is_staff': True,
+                'is_superuser': True,
+            }
+        )
+        if created:
+            admin_user.set_password('admin123')
+            admin_user.save()
+            self.stdout.write(f'  Created admin user: {admin_user.username}')
+        else:
+            self.stdout.write(f'  Admin user already exists: {admin_user.username}')
+
+        # Create cashier users
+        cashier_users = []
+        cashier_names = [
+            ('Maria', 'Garcia'),
+            ('John', 'Smith'),
+            ('Sarah', 'Johnson'),
+            ('Carlos', 'Martinez'),
         ]
 
-        for user_data in users_data:
-            if not User.objects.filter(username=user_data['username']).exists():
-                User.objects.create_user(
-                    username=user_data['username'],
-                    email=user_data['email'],
-                    password=user_data['password'],
-                    first_name=user_data['first_name'],
-                    last_name=user_data['last_name'],
-                    role=user_data['role']
-                )
-                self.stdout.write(f"  [+] Created user: {user_data['username']}")
+        for i, (first_name, last_name) in enumerate(cashier_names):
+            username = f'cashier{i+1}'
+            cashier, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email': f'{username}@fjcpizza.com',
+                    'phone': f'555-000{i+2}',
+                    'role': 'CASHIER',
+                }
+            )
+            if created:
+                cashier.set_password('cashier123')
+                cashier.save()
+                self.stdout.write(f'  Created cashier: {cashier.username}')
+            cashier_users.append(cashier)
 
-    def create_ingredients(self):
-        """Create ingredients"""
-        self.stdout.write('Creating ingredients...')
+        return admin_user, cashier_users
 
+    def create_ingredients(self, created_by_user):
+        """Create pizza ingredients"""
         ingredients_data = [
-            # Bases
-            {'name': 'Pizza Dough', 'unit': 'kg', 'cost': 15.00, 'stock': 50, 'min': 10, 'variance': 5},
-            {'name': 'Tomato Sauce', 'unit': 'L', 'cost': 85.00, 'stock': 20, 'min': 5, 'variance': 10},
-
-            # Cheese & Dairy
-            {'name': 'Mozzarella Cheese', 'unit': 'kg', 'cost': 320.00, 'stock': 30, 'min': 5, 'variance': 8},
-            {'name': 'Parmesan Cheese', 'unit': 'kg', 'cost': 450.00, 'stock': 10, 'min': 2, 'variance': 5},
-            {'name': 'Cheddar Cheese', 'unit': 'kg', 'cost': 280.00, 'stock': 15, 'min': 3, 'variance': 8},
-
-            # Meats
-            {'name': 'Pepperoni', 'unit': 'kg', 'cost': 400.00, 'stock': 20, 'min': 5, 'variance': 5},
-            {'name': 'Italian Sausage', 'unit': 'kg', 'cost': 350.00, 'stock': 15, 'min': 3, 'variance': 5},
-            {'name': 'Bacon', 'unit': 'kg', 'cost': 380.00, 'stock': 12, 'min': 2, 'variance': 5},
-            {'name': 'Ham', 'unit': 'kg', 'cost': 320.00, 'stock': 18, 'min': 3, 'variance': 5},
-            {'name': 'Chicken Breast', 'unit': 'kg', 'cost': 250.00, 'stock': 25, 'min': 5, 'variance': 8},
-
-            # Vegetables
-            {'name': 'Onion', 'unit': 'kg', 'cost': 25.00, 'stock': 40, 'min': 10, 'variance': 10},
-            {'name': 'Bell Pepper', 'unit': 'kg', 'cost': 50.00, 'stock': 30, 'min': 5, 'variance': 10},
-            {'name': 'Mushroom', 'unit': 'kg', 'cost': 60.00, 'stock': 25, 'min': 5, 'variance': 10},
-            {'name': 'Olive', 'unit': 'kg', 'cost': 200.00, 'stock': 15, 'min': 3, 'variance': 5},
-            {'name': 'Pineapple', 'unit': 'kg', 'cost': 80.00, 'stock': 20, 'min': 5, 'variance': 10},
-            {'name': 'Spinach', 'unit': 'kg', 'cost': 45.00, 'stock': 12, 'min': 3, 'variance': 10},
-            {'name': 'Garlic', 'unit': 'kg', 'cost': 120.00, 'stock': 8, 'min': 2, 'variance': 5},
-            {'name': 'Tomato', 'unit': 'kg', 'cost': 50.00, 'stock': 25, 'min': 5, 'variance': 10},
-
-            # Toppings & Extras
-            {'name': 'Extra Virgin Olive Oil', 'unit': 'L', 'cost': 400.00, 'stock': 5, 'min': 1, 'variance': 5},
-            {'name': 'Oregano', 'unit': 'kg', 'cost': 150.00, 'stock': 3, 'min': 1, 'variance': 5},
-            {'name': 'Fresh Basil', 'unit': 'kg', 'cost': 100.00, 'stock': 5, 'min': 1, 'variance': 10},
-
-            # Dessert Ingredients
-            {'name': 'Cream Cheese', 'unit': 'kg', 'cost': 380.00, 'stock': 8, 'min': 2, 'variance': 5},
-            {'name': 'Eggs', 'unit': 'pcs', 'cost': 8.00, 'stock': 200, 'min': 50, 'variance': 10},
-            {'name': 'Sugar', 'unit': 'kg', 'cost': 35.00, 'stock': 30, 'min': 10, 'variance': 10},
-            {'name': 'Chocolate', 'unit': 'kg', 'cost': 350.00, 'stock': 10, 'min': 2, 'variance': 5},
-            {'name': 'Vanilla Extract', 'unit': 'L', 'cost': 500.00, 'stock': 1, 'min': 0.5, 'variance': 5},
-
-            # Beverages
-            {'name': 'Coca Cola Syrup', 'unit': 'L', 'cost': 120.00, 'stock': 15, 'min': 5, 'variance': 10},
-            {'name': 'Sprite Syrup', 'unit': 'L', 'cost': 120.00, 'stock': 12, 'min': 3, 'variance': 10},
-            {'name': 'Iced Tea Powder', 'unit': 'kg', 'cost': 180.00, 'stock': 5, 'min': 1, 'variance': 10},
-            {'name': 'Coffee Beans', 'unit': 'kg', 'cost': 400.00, 'stock': 4, 'min': 1, 'variance': 5},
-            {'name': 'Milk', 'unit': 'L', 'cost': 50.00, 'stock': 20, 'min': 5, 'variance': 10},
+            {
+                'name': 'Pizza Flour',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('2.50'),
+                'current_stock': Decimal('50.000'),
+                'min_stock': Decimal('10.000'),
+                'variance_allowance': Decimal('5.00'),
+            },
+            {
+                'name': 'Mozzarella Cheese',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('8.00'),
+                'current_stock': Decimal('30.000'),
+                'min_stock': Decimal('5.000'),
+                'variance_allowance': Decimal('3.00'),
+            },
+            {
+                'name': 'Tomato Sauce',
+                'unit': 'l',
+                'cost_per_unit': Decimal('3.50'),
+                'current_stock': Decimal('25.000'),
+                'min_stock': Decimal('5.000'),
+                'variance_allowance': Decimal('2.00'),
+            },
+            {
+                'name': 'Pepperoni',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('12.00'),
+                'current_stock': Decimal('10.000'),
+                'min_stock': Decimal('3.000'),
+                'variance_allowance': Decimal('2.00'),
+            },
+            {
+                'name': 'Fresh Basil',
+                'unit': 'g',
+                'cost_per_unit': Decimal('0.05'),
+                'current_stock': Decimal('500.000'),
+                'min_stock': Decimal('100.000'),
+                'variance_allowance': Decimal('10.00'),
+            },
+            {
+                'name': 'Olive Oil',
+                'unit': 'l',
+                'cost_per_unit': Decimal('15.00'),
+                'current_stock': Decimal('20.000'),
+                'min_stock': Decimal('3.000'),
+                'variance_allowance': Decimal('2.00'),
+            },
+            {
+                'name': 'Mushrooms',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('4.00'),
+                'current_stock': Decimal('8.000'),
+                'min_stock': Decimal('2.000'),
+                'variance_allowance': Decimal('5.00'),
+            },
+            {
+                'name': 'Bell Peppers',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('3.50'),
+                'current_stock': Decimal('6.000'),
+                'min_stock': Decimal('2.000'),
+                'variance_allowance': Decimal('8.00'),
+            },
+            {
+                'name': 'Onions',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('1.50'),
+                'current_stock': Decimal('15.000'),
+                'min_stock': Decimal('3.000'),
+                'variance_allowance': Decimal('5.00'),
+            },
+            {
+                'name': 'Yeast',
+                'unit': 'g',
+                'cost_per_unit': Decimal('0.20'),
+                'current_stock': Decimal('200.000'),
+                'min_stock': Decimal('50.000'),
+                'variance_allowance': Decimal('10.00'),
+            },
+            {
+                'name': 'Salt',
+                'unit': 'kg',
+                'cost_per_unit': Decimal('0.50'),
+                'current_stock': Decimal('10.000'),
+                'min_stock': Decimal('2.000'),
+                'variance_allowance': Decimal('5.00'),
+            },
+            {
+                'name': 'Water',
+                'unit': 'l',
+                'cost_per_unit': Decimal('0.20'),
+                'current_stock': Decimal('100.000'),
+                'min_stock': Decimal('20.000'),
+                'variance_allowance': Decimal('3.00'),
+            },
         ]
 
         ingredients = {}
-        for ing_data in ingredients_data:
+        for data in ingredients_data:
             ingredient, created = Ingredient.objects.get_or_create(
-                name=ing_data['name'],
+                name=data['name'],
                 defaults={
-                    'unit': ing_data['unit'],
-                    'cost_per_unit': Decimal(str(ing_data['cost'])),
-                    'current_stock': Decimal(str(ing_data['stock'])),
-                    'min_stock': Decimal(str(ing_data['min'])),
-                    'variance_allowance': Decimal(str(ing_data['variance'])),
-                    'is_active': True
+                    'description': f'Ingredient: {data["name"]}',
+                    'unit': data['unit'],
+                    'cost_per_unit': data['cost_per_unit'],
+                    'current_stock': data['current_stock'],
+                    'min_stock': data['min_stock'],
+                    'variance_allowance': data['variance_allowance'],
+                    'is_active': True,
                 }
             )
-            ingredients[ing_data['name']] = ingredient
             if created:
-                self.stdout.write(f"  [+] Created ingredient: {ing_data['name']}")
+                self.stdout.write(f'  Created ingredient: {ingredient.name}')
+            ingredients[data['name']] = ingredient
 
         return ingredients
 
-    def create_products(self, ingredients):
-        """Create products with recipes"""
-        self.stdout.write('Creating products and recipes...')
-
+    def create_products(self):
+        """Create pizza products"""
         products_data = [
             {
                 'name': 'Margherita Pizza',
-                'description': 'Classic pizza with tomato sauce, mozzarella, and fresh basil',
-                'category': 'Pizza',
-                'price': 199.00,
-                'stock': 50,
+                'description': 'Classic pizza with tomato sauce, mozzarella, and basil',
+                'price': Decimal('12.99'),
+                'stock': 20,
                 'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Tomato Sauce', '0.2'),
-                    ('Mozzarella Cheese', '0.15'),
-                    ('Fresh Basil', '0.01'),
-                    ('Olive Oil', '0.05'),
-                ]
+                'category': 'Pizzas',
             },
             {
                 'name': 'Pepperoni Pizza',
-                'description': 'Loaded with pepperoni slices and melted mozzarella',
-                'category': 'Pizza',
-                'price': 249.00,
-                'stock': 45,
+                'description': 'Pizza with tomato sauce, mozzarella, and pepperoni',
+                'price': Decimal('14.99'),
+                'stock': 15,
                 'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Tomato Sauce', '0.2'),
-                    ('Mozzarella Cheese', '0.15'),
-                    ('Pepperoni', '0.1'),
-                    ('Olive Oil', '0.05'),
-                ]
+                'category': 'Pizzas',
             },
             {
-                'name': 'Hawaiian Pizza',
-                'description': 'Tropical pizza with ham and pineapple',
-                'category': 'Pizza',
-                'price': 269.00,
-                'stock': 35,
+                'name': 'Vegetarian Pizza',
+                'description': 'Pizza with vegetables including mushrooms, peppers, onions',
+                'price': Decimal('13.99'),
+                'stock': 10,
                 'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Tomato Sauce', '0.2'),
-                    ('Mozzarella Cheese', '0.15'),
-                    ('Ham', '0.08'),
-                    ('Pineapple', '0.1'),
-                ]
+                'category': 'Pizzas',
             },
             {
-                'name': 'Veggie Supreme Pizza',
-                'description': 'Fresh vegetables: peppers, onions, mushrooms, olives',
-                'category': 'Pizza',
-                'price': 239.00,
+                'name': 'Supreme Pizza',
+                'description': 'Loaded pizza with multiple toppings',
+                'price': Decimal('16.99'),
+                'stock': 8,
+                'threshold': 3,
+                'category': 'Pizzas',
+            },
+            {
+                'name': 'Cola',
+                'description': 'Cold cola beverage',
+                'price': Decimal('2.99'),
+                'stock': 50,
+                'threshold': 10,
+                'category': 'Beverages',
+            },
+            {
+                'name': 'Lemonade',
+                'description': 'Fresh lemonade',
+                'price': Decimal('3.49'),
                 'stock': 40,
-                'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Tomato Sauce', '0.2'),
-                    ('Mozzarella Cheese', '0.15'),
-                    ('Bell Pepper', '0.08'),
-                    ('Onion', '0.06'),
-                    ('Mushroom', '0.08'),
-                    ('Olive', '0.04'),
-                ]
+                'threshold': 10,
+                'category': 'Beverages',
             },
             {
-                'name': 'Meat Lovers Pizza',
-                'description': 'Loaded with pepperoni, sausage, ham, and bacon',
-                'category': 'Pizza',
-                'price': 299.00,
-                'stock': 30,
-                'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Tomato Sauce', '0.2'),
-                    ('Mozzarella Cheese', '0.15'),
-                    ('Pepperoni', '0.06'),
-                    ('Italian Sausage', '0.06'),
-                    ('Ham', '0.05'),
-                    ('Bacon', '0.05'),
-                ]
-            },
-            {
-                'name': 'BBQ Chicken Pizza',
-                'description': 'Grilled chicken with BBQ sauce and red onions',
-                'category': 'Pizza',
-                'price': 279.00,
-                'stock': 32,
-                'threshold': 5,
-                'recipe': [
-                    ('Pizza Dough', '0.4'),
-                    ('Chicken Breast', '0.15'),
-                    ('Mozzarella Cheese', '0.12'),
-                    ('Onion', '0.05'),
-                    ('Cheddar Cheese', '0.03'),
-                ]
-            },
-            {
-                'name': 'Cheesecake',
-                'description': 'Creamy New York style cheesecake',
-                'category': 'Dessert',
-                'price': 139.00,
-                'stock': 32,
-                'threshold': 3,
-                'recipe': [
-                    ('Cream Cheese', '0.3'),
-                    ('Eggs', '4'),
-                    ('Sugar', '0.15'),
-                    ('Vanilla Extract', '0.01'),
-                ]
-            },
-            {
-                'name': 'Chocolate Cake',
-                'description': 'Rich chocolate cake with chocolate frosting',
-                'category': 'Dessert',
-                'price': 129.00,
+                'name': 'Garlic Bread',
+                'description': 'Crispy garlic bread',
+                'price': Decimal('4.99'),
                 'stock': 25,
-                'threshold': 3,
-                'recipe': [
-                    ('Chocolate', '0.3'),
-                    ('Eggs', '5'),
-                    ('Sugar', '0.2'),
-                    ('Milk', '0.15'),
-                ]
+                'threshold': 5,
+                'category': 'Sides',
             },
             {
-                'name': 'Coca Cola',
-                'description': 'Cold Coca Cola soft drink',
-                'category': 'Beverage',
-                'price': 49.00,
-                'stock': 100,
-                'threshold': 20,
-                'recipe': [
-                    ('Coca Cola Syrup', '0.25'),
-                ]
-            },
-            {
-                'name': 'Sprite',
-                'description': 'Refreshing lemon-lime soft drink',
-                'category': 'Beverage',
-                'price': 49.00,
-                'stock': 90,
-                'threshold': 20,
-                'recipe': [
-                    ('Sprite Syrup', '0.25'),
-                ]
-            },
-            {
-                'name': 'Iced Tea',
-                'description': 'Cold refreshing iced tea',
-                'category': 'Beverage',
-                'price': 39.00,
-                'stock': 80,
-                'threshold': 15,
-                'recipe': [
-                    ('Iced Tea Powder', '0.02'),
-                ]
-            },
-            {
-                'name': 'Espresso',
-                'description': 'Strong Italian espresso coffee',
-                'category': 'Beverage',
-                'price': 69.00,
-                'stock': 60,
-                'threshold': 10,
-                'recipe': [
-                    ('Coffee Beans', '0.01'),
-                ]
-            },
-            {
-                'name': 'Capuccino',
-                'description': 'Creamy cappuccino with milk foam',
-                'category': 'Beverage',
-                'price': 89.00,
-                'stock': 55,
-                'threshold': 10,
-                'recipe': [
-                    ('Coffee Beans', '0.015'),
-                    ('Milk', '0.1'),
-                ]
+                'name': 'Caesar Salad',
+                'description': 'Fresh caesar salad with croutons',
+                'price': Decimal('7.99'),
+                'stock': 15,
+                'threshold': 5,
+                'category': 'Sides',
             },
         ]
 
-        for prod_data in products_data:
+        products = {}
+        for data in products_data:
             product, created = Product.objects.get_or_create(
-                name=prod_data['name'],
+                name=data['name'],
                 defaults={
-                    'description': prod_data['description'],
-                    'category': prod_data['category'],
-                    'price': Decimal(str(prod_data['price'])),
-                    'stock': prod_data['stock'],
-                    'threshold': prod_data['threshold'],
-                    'is_archived': False
+                    'description': data['description'],
+                    'price': data['price'],
+                    'stock': data['stock'],
+                    'threshold': data['threshold'],
+                    'category': data['category'],
                 }
+            )
+            if created:
+                self.stdout.write(f'  Created product: {product.name}')
+            products[data['name']] = product
+
+        return products
+
+    def create_recipes(self, products, ingredients, created_by_user):
+        """Create recipes/BOM for all products (pizzas, beverages, sides)"""
+        recipes = {}
+
+        for product in products.values():
+            recipe, created = RecipeItem.objects.get_or_create(
+                product=product,
+                defaults={'created_by': created_by_user}
             )
 
             if created:
-                self.stdout.write(f"  [+] Created product: {prod_data['name']}")
+                self.stdout.write(f'  Created recipe for: {product.name}')
 
-                # Create recipe
-                if prod_data.get('recipe'):
-                    recipe_item, _ = RecipeItem.objects.get_or_create(product=product)
+                # Define BOM based on product type and name
+                if product.name == 'Margherita Pizza':
+                    recipe_ingredients = [
+                        (ingredients['Pizza Flour'], Decimal('0.400')),
+                        (ingredients['Tomato Sauce'], Decimal('0.150')),
+                        (ingredients['Mozzarella Cheese'], Decimal('0.200')),
+                        (ingredients['Fresh Basil'], Decimal('5.000')),
+                        (ingredients['Olive Oil'], Decimal('0.015')),
+                        (ingredients['Yeast'], Decimal('5.000')),
+                        (ingredients['Salt'], Decimal('0.005')),
+                        (ingredients['Water'], Decimal('0.120')),
+                    ]
+                elif product.name == 'Pepperoni Pizza':
+                    recipe_ingredients = [
+                        (ingredients['Pizza Flour'], Decimal('0.400')),
+                        (ingredients['Tomato Sauce'], Decimal('0.150')),
+                        (ingredients['Mozzarella Cheese'], Decimal('0.200')),
+                        (ingredients['Pepperoni'], Decimal('0.100')),
+                        (ingredients['Olive Oil'], Decimal('0.015')),
+                        (ingredients['Yeast'], Decimal('5.000')),
+                        (ingredients['Salt'], Decimal('0.005')),
+                        (ingredients['Water'], Decimal('0.120')),
+                    ]
+                elif product.name == 'Vegetarian Pizza':
+                    recipe_ingredients = [
+                        (ingredients['Pizza Flour'], Decimal('0.400')),
+                        (ingredients['Tomato Sauce'], Decimal('0.150')),
+                        (ingredients['Mozzarella Cheese'], Decimal('0.200')),
+                        (ingredients['Mushrooms'], Decimal('0.080')),
+                        (ingredients['Bell Peppers'], Decimal('0.060')),
+                        (ingredients['Onions'], Decimal('0.050')),
+                        (ingredients['Olive Oil'], Decimal('0.015')),
+                        (ingredients['Yeast'], Decimal('5.000')),
+                        (ingredients['Salt'], Decimal('0.005')),
+                        (ingredients['Water'], Decimal('0.120')),
+                    ]
+                elif product.name == 'Supreme Pizza':
+                    recipe_ingredients = [
+                        (ingredients['Pizza Flour'], Decimal('0.400')),
+                        (ingredients['Tomato Sauce'], Decimal('0.150')),
+                        (ingredients['Mozzarella Cheese'], Decimal('0.250')),
+                        (ingredients['Pepperoni'], Decimal('0.080')),
+                        (ingredients['Mushrooms'], Decimal('0.080')),
+                        (ingredients['Bell Peppers'], Decimal('0.060')),
+                        (ingredients['Onions'], Decimal('0.050')),
+                        (ingredients['Olive Oil'], Decimal('0.020')),
+                        (ingredients['Yeast'], Decimal('5.000')),
+                        (ingredients['Salt'], Decimal('0.005')),
+                        (ingredients['Water'], Decimal('0.120')),
+                    ]
+                elif product.name == 'Garlic Bread':
+                    recipe_ingredients = [
+                        (ingredients['Pizza Flour'], Decimal('0.300')),
+                        (ingredients['Olive Oil'], Decimal('0.050')),
+                        (ingredients['Salt'], Decimal('0.003')),
+                        (ingredients['Water'], Decimal('0.100')),
+                        (ingredients['Yeast'], Decimal('3.000')),
+                    ]
+                elif product.name == 'Caesar Salad':
+                    recipe_ingredients = [
+                        (ingredients['Onions'], Decimal('0.100')),
+                        (ingredients['Bell Peppers'], Decimal('0.080')),
+                        (ingredients['Olive Oil'], Decimal('0.030')),
+                        (ingredients['Salt'], Decimal('0.002')),
+                    ]
+                elif product.name == 'Cola':
+                    # Beverages have simplified BOMs (just syrup + water)
+                    recipe_ingredients = [
+                        (ingredients['Water'], Decimal('0.250')),
+                        (ingredients['Salt'], Decimal('0.001')),
+                    ]
+                elif product.name == 'Lemonade':
+                    recipe_ingredients = [
+                        (ingredients['Water'], Decimal('0.300')),
+                        (ingredients['Salt'], Decimal('0.001')),
+                    ]
+                else:
+                    recipe_ingredients = []
 
-                    for ing_name, qty in prod_data['recipe']:
-                        ingredient = ingredients.get(ing_name)
-                        if ingredient:
-                            RecipeIngredient.objects.get_or_create(
-                                recipe=recipe_item,
-                                ingredient=ingredient,
-                                defaults={'quantity': Decimal(qty)}
-                            )
+                for ingredient, quantity in recipe_ingredients:
+                    RecipeIngredient.objects.get_or_create(
+                        recipe=recipe,
+                        ingredient=ingredient,
+                        defaults={'quantity': quantity}
+                    )
 
-                    self.stdout.write(f"      [*] Recipe with {len(prod_data['recipe'])} ingredients")
+            recipes[product.name] = recipe
+
+        return recipes
+
+    def create_stock_transactions(self, ingredients, user):
+        """Create stock transaction history"""
+        transaction_count = 0
+        base_date = timezone.now() - timedelta(days=30)
+
+        for ingredient in ingredients.values():
+            num_transactions = random.randint(3, 5)
+            for i in range(num_transactions):
+                transaction_type = random.choice(['PURCHASE', 'ADJUSTMENT', 'WASTE', 'PREP'])
+                quantity = Decimal(str(round(random.uniform(1, 10), 3)))
+                unit_cost = ingredient.cost_per_unit if transaction_type == 'PURCHASE' else None
+
+                StockTransaction.objects.create(
+                    ingredient=ingredient,
+                    transaction_type=transaction_type,
+                    quantity=quantity,
+                    unit_cost=unit_cost,
+                    reference_type='order' if transaction_type == 'PREP' else 'adjustment',
+                    notes=f'{transaction_type} transaction for {ingredient.name}',
+                    recorded_by=user,
+                    created_at=base_date + timedelta(days=random.randint(0, 30))
+                )
+                transaction_count += 1
+
+        self.stdout.write(f'  Created {transaction_count} stock transactions')
+
+    def create_physical_counts(self, ingredients, user):
+        """Create physical stock count records"""
+        count_count = 0
+        for ingredient in ingredients.values():
+            num_counts = random.randint(1, 2)
+            for _ in range(num_counts):
+                physical_qty = ingredient.current_stock * Decimal(str(round(random.uniform(0.95, 1.05), 3)))
+
+                PhysicalCount.objects.create(
+                    ingredient=ingredient,
+                    counted_by=user,
+                    physical_quantity=physical_qty,
+                    theoretical_quantity=ingredient.current_stock,
+                    count_date=timezone.now() - timedelta(days=random.randint(1, 7)),
+                    notes='Physical stock count'
+                )
+                count_count += 1
+
+        self.stdout.write(f'  Created {count_count} physical counts')
+
+    def create_variance_records(self, ingredients):
+        """Create variance records"""
+        variance_count = 0
+        base_date = timezone.now() - timedelta(days=30)
+
+        for ingredient in ingredients.values():
+            num_records = random.randint(1, 2)
+            for _ in range(num_records):
+                theoretical = ingredient.current_stock * Decimal(str(round(random.uniform(0.8, 1.0), 3)))
+                actual = theoretical * Decimal(str(round(random.uniform(0.95, 1.05), 3)))
+                variance = actual - theoretical
+                variance_pct = (variance / theoretical * 100) if theoretical > 0 else Decimal('0')
+
+                VarianceRecord.objects.create(
+                    ingredient=ingredient,
+                    period_start=base_date - timedelta(days=random.randint(15, 30)),
+                    period_end=base_date + timedelta(days=random.randint(0, 15)),
+                    theoretical_used=theoretical,
+                    actual_used=actual,
+                    variance_quantity=variance,
+                    variance_percentage=abs(variance_pct),
+                    within_tolerance=abs(variance_pct) <= ingredient.variance_allowance,
+                    notes='Automated variance record'
+                )
+                variance_count += 1
+
+        self.stdout.write(f'  Created {variance_count} variance records')
+
+    def create_waste_logs(self, ingredients, user):
+        """Create waste log entries"""
+        waste_count = 0
+        waste_types = ['SPOILAGE', 'WASTE', 'FREEBIE', 'SAMPLE']
+
+        for ingredient in list(ingredients.values())[:6]:
+            num_waste = random.randint(1, 3)
+            for _ in range(num_waste):
+                WasteLog.objects.create(
+                    ingredient=ingredient,
+                    waste_type=random.choice(waste_types),
+                    quantity=Decimal(str(round(random.uniform(0.5, 3), 3))),
+                    reason=f'Waste log entry for {ingredient.name}',
+                    reported_by=user,
+                    waste_date=timezone.now() - timedelta(days=random.randint(1, 30)),
+                    notes='Logged waste entry'
+                )
+                waste_count += 1
+
+        self.stdout.write(f'  Created {waste_count} waste log entries')
+
+    def create_prep_batches(self, recipes, user):
+        """Create prep batch records"""
+        batch_count = 0
+
+        for recipe in recipes.values():
+            num_batches = random.randint(1, 3)
+            for i in range(num_batches):
+                status = random.choice(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])
+                prep_start = timezone.now() - timedelta(days=random.randint(1, 30))
+                prep_end = prep_start + timedelta(hours=random.randint(1, 4)) if status in ['IN_PROGRESS', 'COMPLETED'] else None
+
+                PrepBatch.objects.create(
+                    name=f'{recipe.product.name} Batch {i+1}',
+                    recipe=recipe,
+                    quantity_produced=random.randint(5, 20),
+                    status=status,
+                    prepared_by=user if status != 'PLANNED' else None,
+                    prep_start=prep_start if status != 'PLANNED' else None,
+                    prep_end=prep_end,
+                    notes=f'Batch preparation for {recipe.product.name}'
+                )
+                batch_count += 1
+
+        self.stdout.write(f'  Created {batch_count} prep batches')
+
+    def create_orders(self, products, cashier_users, admin_user):
+        """Create orders and payments"""
+        order_count = 0
+        base_date = timezone.now() - timedelta(days=30)
+
+        num_orders = random.randint(20, 30)
+        for _ in range(num_orders):
+            order = Order.objects.create(
+                customer_name=random.choice(['John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Williams', 'Carlos Lopez']),
+                table_number=str(random.randint(1, 20)),
+                status=random.choice(['PENDING', 'IN_PROGRESS', 'FINISHED', 'CANCELLED']),
+                notes='Customer order',
+                processed_by=random.choice(cashier_users),
+                created_at=base_date + timedelta(days=random.randint(0, 30))
+            )
+
+            num_items = random.randint(1, 4)
+            selected_products = random.sample(list(products.values()), min(num_items, len(products)))
+
+            for product in selected_products:
+                quantity = random.randint(1, 3)
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_name=product.name,
+                    product_price=product.price,
+                    quantity=quantity,
+                    subtotal=product.price * quantity
+                )
+
+            order.calculate_total()
+
+            if order.status in ['FINISHED', 'IN_PROGRESS']:
+                Payment.objects.create(
+                    order=order,
+                    method=random.choice(['CASH', 'ONLINE']),
+                    status=random.choice(['SUCCESS', 'PENDING']),
+                    amount=order.total_amount,
+                    reference_number=f'REF-{order.order_number}',
+                    processed_by=random.choice(cashier_users),
+                )
+
+            order_count += 1
+
+        self.stdout.write(f'  Created {order_count} orders with items and payments')
+
+    def create_audit_trails(self, admin_user, cashier_users):
+        """Create audit trail entries"""
+        all_users = [admin_user] + cashier_users
+        audit_count = 0
+
+        actions = ['CREATE', 'UPDATE', 'DELETE', 'ARCHIVE', 'RESTORE']
+        model_names = ['Product', 'Order', 'Payment', 'Ingredient', 'Recipe']
+
+        for _ in range(30):
+            AuditTrail.objects.create(
+                user=random.choice(all_users),
+                action=random.choice(actions),
+                model_name=random.choice(model_names),
+                record_id=random.randint(1, 100),
+                description=f'Test audit trail entry',
+                ip_address='192.168.1.1',
+            )
+            audit_count += 1
+
+        self.stdout.write(f'  Created {audit_count} audit trail entries')
