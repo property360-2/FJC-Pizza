@@ -387,6 +387,7 @@ def low_stock_report(request):
 def waste_report(request):
     """
     Report of waste, spoilage, and freebies.
+    Supports both regular page loads and AJAX requests for async filtering.
     """
     days = int(request.GET.get('days', 30))
     waste_type = request.GET.get('waste_type', 'ALL')
@@ -420,6 +421,33 @@ def waste_report(request):
         waste_by_type[waste_t]['cost'] += float(waste.cost_impact)
         total_cost += float(waste.cost_impact)
 
+    # Check if this is an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Return JSON for async filtering
+        waste_logs_data = []
+        for waste in waste_logs[:20]:  # Latest 20
+            waste_logs_data.append({
+                'id': waste.id,
+                'ingredient_name': waste.ingredient.name if waste.ingredient else 'Unknown',
+                'waste_type': waste.get_waste_type_display(),
+                'quantity': float(waste.quantity),
+                'unit': waste.ingredient.unit if waste.ingredient else '',
+                'cost_impact': float(waste.cost_impact),
+                'reason': waste.reason or '',
+                'waste_date': waste.waste_date.strftime('%b %d, %Y %I:%M %p'),
+                'reported_by': waste.reported_by.username if waste.reported_by else 'Unknown',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'waste_logs': waste_logs_data,
+            'waste_by_type': waste_by_type,
+            'total_cost': float(total_cost),
+            'days': days,
+            'waste_type': waste_type,
+        })
+
+    # Regular page load - return HTML
     context = {
         'waste_logs': waste_logs[:20],  # Show latest 20
         'waste_by_type': waste_by_type,
