@@ -96,14 +96,11 @@
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
                                 <a href="{% url 'products:ingredient_edit' ingredient.pk %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">
-                                    Edit
+                                    ✏️ Edit
                                 </a>
-                                <form method="post" action="{% url 'products:ingredient_delete' ingredient.pk %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" onclick="return confirm('Are you sure?')" class="text-red-600 hover:text-red-700 font-medium text-sm">
-                                        Delete
-                                    </button>
-                                </form>
+                                <button type="button" onclick="deleteIngredient({{ ingredient.pk }}, '{{ ingredient.name|escapejs }}')" class="text-red-600 hover:text-red-700 font-medium text-sm">
+                                    🗑️ Delete
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -150,4 +147,38 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Include Toast Component for feedback -->
+{% include 'components/toast.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Delete ingredient with professional confirmation
+function deleteIngredient(ingredientId, ingredientName) {
+    Confirm.show({
+        title: 'Delete Ingredient',
+        message: `Remove "${ingredientName}" from your inventory? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger',
+        onConfirm: () => {
+            Loading.show();
+            // Create and submit a form to delete
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/products/ingredients/${ingredientId}/delete/`;
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode());
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+</script>
 {% endblock %}
