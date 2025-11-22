@@ -12,6 +12,17 @@
         </div>
     </div>
 
+    <!-- Search Bar -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+        <div class="flex gap-4">
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="Search ingredients by name, unit..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500"
+                       onkeyup="filterIngredients()">
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Spinner -->
     <div id="loadingSpinner" class="hidden">
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
@@ -95,6 +106,22 @@ document.addEventListener('DOMContentLoaded', function() {
     loadIngredients();
 });
 
+// Store all ingredients for filtering
+let allIngredients = [];
+
+function filterIngredients() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+    // Filter ingredients based on search query
+    const filteredIngredients = allIngredients.filter(ingredient => {
+        return ingredient.name.toLowerCase().includes(searchQuery) ||
+               ingredient.unit.toLowerCase().includes(searchQuery);
+    });
+
+    // Re-render with filtered results
+    renderIngredients(filteredIngredients);
+}
+
 function loadIngredients() {
     const loadingSpinner = document.getElementById('loadingSpinner');
     const desktopView = document.getElementById('desktopView');
@@ -110,6 +137,7 @@ function loadIngredients() {
         })
         .then(data => {
             if (data.success) {
+                allIngredients = data.ingredients;  // Store for filtering
                 renderIngredients(data.ingredients);
             } else {
                 Toast.error('Failed to load ingredients');

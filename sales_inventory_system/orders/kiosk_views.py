@@ -35,6 +35,18 @@ def calculate_cart_total(cart, products_dict):
 def kiosk_home(request):
     """Display kiosk home page with available products"""
     products = Product.objects.filter(is_archived=False, stock__gt=0).order_by('category', 'name')
+
+    # Check ingredient availability for each product
+    unavailable_products = set()
+    for product in products:
+        availability = BOMService.check_ingredient_availability(product.id)
+        if not availability['available']:
+            unavailable_products.add(product.id)
+
+    # Add availability flag to products
+    for product in products:
+        product.is_available_for_order = product.id not in unavailable_products
+
     cart = get_cart(request)
     cart_count = sum(cart.values())
 

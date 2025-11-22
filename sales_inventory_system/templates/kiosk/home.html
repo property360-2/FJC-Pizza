@@ -452,37 +452,43 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {% for product in category.list %}
-                    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow" x-data="{ quantity: 1 }">
+                    <div class="bg-white rounded-lg shadow-md border {% if product.is_available_for_order %}border-gray-200 hover:shadow-xl{% else %}border-red-300 bg-red-50{% endif %} overflow-hidden {% if product.is_available_for_order %}hover:shadow-xl{% endif %} transition-shadow {% if not product.is_available_for_order %}opacity-60{% endif %}" x-data="{ quantity: 1 }">
                         <!-- Product Image with Lazy Loading -->
                         {% if product.image %}
-                        <div class="h-48 overflow-hidden bg-gray-100">
+                        <div class="h-48 overflow-hidden bg-gray-100 {% if not product.is_available_for_order %}grayscale{% endif %}">
                             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23f3f4f6' width='300' height='200'/%3E%3C/svg%3E" data-src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover" loading="lazy">
                         </div>
                         {% else %}
-                        <div class="h-48 bg-gradient-to-br from-fjc-yellow-100 to-fjc-blue-100 flex items-center justify-center">
-                            <span class="text-6xl">🍕</span>
+                        <div class="h-48 bg-gradient-to-br {% if product.is_available_for_order %}from-fjc-yellow-100 to-fjc-blue-100{% else %}from-red-100 to-red-200{% endif %} flex items-center justify-center">
+                            <span class="text-6xl {% if not product.is_available_for_order %}grayscale{% endif %}">🍕</span>
                         </div>
                         {% endif %}
 
                         <!-- Product Details -->
                         <div class="p-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">{{ product.name }}</h3>
+                            <h3 class="text-lg font-bold {% if product.is_available_for_order %}text-gray-900{% else %}text-red-700{% endif %} mb-2">{{ product.name }}</h3>
                             {% if product.description %}
-                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ product.description }}</p>
+                            <p class="text-sm {% if product.is_available_for_order %}text-gray-600{% else %}text-red-600{% endif %} mb-3 line-clamp-2">{{ product.description }}</p>
                             {% endif %}
 
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-2xl font-bold text-fjc-blue-600">₱{{ product.price }}</span>
-                                <span class="text-sm text-gray-500">Stock: {{ product.stock }}</span>
+                                <span class="text-2xl font-bold {% if product.is_available_for_order %}text-fjc-blue-600{% else %}text-red-600{% endif %}">₱{{ product.price }}</span>
+                                <span class="text-sm {% if product.is_available_for_order %}text-gray-500{% else %}text-red-600 font-semibold{% endif %}">
+                                    {% if product.is_available_for_order %}
+                                    Stock: {{ product.stock }}
+                                    {% else %}
+                                    ❌ Out of Stock
+                                    {% endif %}
+                                </span>
                             </div>
 
                             <!-- Quantity Selector -->
                             <div class="flex items-center space-x-2 mb-3">
-                                <button @click="if(quantity > 1) quantity--" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded">
+                                <button @click="if(quantity > 1) quantity--" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded {% if not product.is_available_for_order %}opacity-50 cursor-not-allowed{% endif %}" {% if not product.is_available_for_order %}disabled{% endif %}>
                                     -
                                 </button>
-                                <input type="number" x-model="quantity" min="1" :max="{{ product.stock }}" class="w-16 text-center border border-gray-300 rounded py-1">
-                                <button @click="if(quantity < {{ product.stock }}) quantity++" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded">
+                                <input type="number" x-model="quantity" min="1" :max="{{ product.stock }}" class="w-16 text-center border border-gray-300 rounded py-1 {% if not product.is_available_for_order %}opacity-50 cursor-not-allowed{% endif %}" {% if not product.is_available_for_order %}disabled{% endif %}>
+                                <button @click="if(quantity < {{ product.stock }}) quantity++" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded {% if not product.is_available_for_order %}opacity-50 cursor-not-allowed{% endif %}" {% if not product.is_available_for_order %}disabled{% endif %}>
                                     +
                                 </button>
                             </div>
@@ -490,8 +496,13 @@
                             <!-- Add to Cart Button -->
                             <button
                                 @click="addToCart({{ product.id }}, quantity)"
-                                class="w-full bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                                class="w-full {% if product.is_available_for_order %}bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white{% else %}bg-gray-300 text-gray-500 cursor-not-allowed{% endif %} font-bold py-3 px-4 rounded-lg transition"
+                                {% if not product.is_available_for_order %}disabled{% endif %}>
+                                {% if product.is_available_for_order %}
                                 Add to Cart
+                                {% else %}
+                                Unavailable
+                                {% endif %}
                             </button>
                         </div>
                     </div>
@@ -853,6 +864,13 @@
 
         // Optimized: Add to cart with faster feedback
         async function addToCart(productId, quantity) {
+            // Check if product is available (client-side safety check)
+            const productCard = event.target.closest('[x-data]');
+            if (productCard && productCard.classList.contains('opacity-60')) {
+                Toast.error('This product is currently unavailable - missing ingredients');
+                return;
+            }
+
             // Show quick feedback immediately (don't wait for server)
             Toast.info('Adding to cart...');
 
