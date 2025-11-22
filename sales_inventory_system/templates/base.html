@@ -196,8 +196,13 @@
                 <!-- Right side: User Menu + Mobile Menu Button -->
                 <div class="flex items-center space-x-2">
                     <!-- User Menu -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100" aria-label="User menu">
+                    <div class="relative" x-data="{ open: false, focusedIndex: -1 }" @keydown.escape="open = false; focusedIndex = -1">
+                        <button @click="open = !open"
+                                @keydown.down.prevent="open = true; focusedIndex = 0"
+                                :aria-expanded="open"
+                                class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100"
+                                aria-label="User menu"
+                                aria-haspopup="true">
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-fjc-yellow-400 to-fjc-blue-500 flex items-center justify-center">
                                 <span class="text-white font-semibold text-sm">{{ user.username|slice:":1"|upper }}</span>
                             </div>
@@ -208,8 +213,12 @@
                         </button>
 
                         <!-- User Dropdown -->
-                        <div x-show="open" @click.away="open = false"
-                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+                        <div x-show="open"
+                             @click.away="open = false; focusedIndex = -1"
+                             role="menu"
+                             aria-orientation="vertical"
+                             aria-labelledby="user-menu-button"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
                              x-transition:enter="transition ease-out duration-100"
                              x-transition:enter-start="transform opacity-0 scale-95"
                              x-transition:enter-end="transform opacity-100 scale-100"
@@ -217,7 +226,11 @@
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
                              style="display: none;">
-                            <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                            <a href="{% url 'accounts:logout' %}"
+                               role="menuitem"
+                               tabindex="0"
+                               @keydown.enter.prevent="window.location.href = '{% url 'accounts:logout' %}'"
+                               class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:bg-red-50 focus:outline-none">
                                 Logout
                             </a>
                         </div>

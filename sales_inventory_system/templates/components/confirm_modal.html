@@ -119,14 +119,64 @@ const ConfirmModal = {
         this.modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
 
-        // Focus confirm button
+        // Store element that opened the modal for focus return
+        this.triggerElement = document.activeElement;
+
+        // Focus cancel button (safer default)
         setTimeout(() => this.cancelBtn.focus(), 100);
+
+        // Setup focus trap for modal
+        this._setupFocusTrap();
+    },
+
+    _setupFocusTrap() {
+        // Get all focusable elements within the modal
+        const focusableElements = this.modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        // Remove existing trap listener (prevent duplicates)
+        document.removeEventListener('keydown', this._trapKeyboardHandler);
+        this._trapKeyboardHandler = (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey) {
+                // Shift+Tab on first element -> focus last element
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                // Tab on last element -> focus first element
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        };
+
+        document.addEventListener('keydown', this._trapKeyboardHandler);
     },
 
     hide() {
         this.modal.classList.add('hidden');
         document.body.style.overflow = '';
         this.onConfirm = null;
+
+        // Remove focus trap listener
+        if (this._trapKeyboardHandler) {
+            document.removeEventListener('keydown', this._trapKeyboardHandler);
+        }
+
+        // Return focus to trigger element
+        if (this.triggerElement && typeof this.triggerElement.focus === 'function') {
+            setTimeout(() => this.triggerElement.focus(), 0);
+        }
     }
 };
 
