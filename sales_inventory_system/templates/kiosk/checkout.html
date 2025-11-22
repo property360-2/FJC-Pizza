@@ -270,6 +270,113 @@
             }
         };
 
+        // Order Confirmation Dialog
+        function showOrderConfirmation(customerName, totalAmount) {
+            return new Promise((resolve) => {
+                const dialog = document.createElement('div');
+                dialog.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10001;
+                `;
+
+                dialog.innerHTML = `
+                    <div style="
+                        background: white;
+                        border-radius: 0.75rem;
+                        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                        max-width: 400px;
+                        width: 90%;
+                        padding: 2rem;
+                        text-align: center;
+                    ">
+                        <div style="
+                            width: 48px;
+                            height: 48px;
+                            background: #fef08a;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 24px;
+                            margin: 0 auto 1rem;
+                        ">
+                            🛒
+                        </div>
+
+                        <h2 style="
+                            font-size: 1.25rem;
+                            font-weight: 700;
+                            color: #111827;
+                            margin-bottom: 0.5rem;
+                        ">Confirm Your Order</h2>
+
+                        <p style="
+                            color: #6b7280;
+                            font-size: 0.875rem;
+                            margin-bottom: 1.5rem;
+                            line-height: 1.5;
+                        ">
+                            Order for <strong>${customerName}</strong><br>
+                            Total: <strong style="font-size: 1.25rem; color: #2563eb;">${totalAmount}</strong>
+                        </p>
+
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button onclick="this.closest('div[style*=fixed]').remove(); window.lastDialogResult = false;"
+                                    style="
+                                        flex: 1;
+                                        padding: 0.5rem 1rem;
+                                        border: 1px solid #d1d5db;
+                                        border-radius: 0.5rem;
+                                        background: white;
+                                        color: #374151;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: background 0.2s;
+                                    "
+                                    onmouseover="this.style.background='#f3f4f6'"
+                                    onmouseout="this.style.background='white'">
+                                Cancel
+                            </button>
+                            <button onclick="this.closest('div[style*=fixed]').remove(); window.lastDialogResult = true;"
+                                    style="
+                                        flex: 1;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: 0.5rem;
+                                        background: #f59e0b;
+                                        color: white;
+                                        font-weight: 600;
+                                        cursor: pointer;
+                                        transition: background 0.2s;
+                                    "
+                                    onmouseover="this.style.background='#d97706'"
+                                    onmouseout="this.style.background='#f59e0b'">
+                                Place Order
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(dialog);
+
+                // Wait for button click
+                const checkResult = setInterval(() => {
+                    if (window.lastDialogResult !== undefined) {
+                        clearInterval(checkResult);
+                        resolve(window.lastDialogResult);
+                        window.lastDialogResult = undefined;
+                    }
+                }, 50);
+            });
+        }
+
         // Handle takeout checkbox
         const takeoutCheckbox = document.getElementById('takeout_checkbox');
         const tableNumberInput = document.getElementById('table_number');
@@ -289,7 +396,7 @@
             });
         }
 
-        // Optimized: Faster checkout with instant feedback
+        // Optimized: Faster checkout with confirmation and instant feedback
         document.getElementById('checkout-form')?.addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -310,9 +417,17 @@
                 return;
             }
 
+            // Get order total for confirmation
+            const totalElement = document.querySelector('[class*="text-fjc-blue-600"][class*="text-2xl"]');
+            const totalText = totalElement ? totalElement.textContent : 'your order';
+
+            // Show confirmation dialog
+            const isConfirmed = await showOrderConfirmation(customerName, totalText);
+            if (!isConfirmed) return;
+
             // Disable submit button immediately
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Processing...';
+            submitBtn.textContent = '⏳ Processing...';
 
             // Show loading only after brief delay (prevent flashing)
             const loadingTimer = setTimeout(() => Loading.show(), 500);
@@ -347,9 +462,25 @@
             } catch (error) {
                 clearTimeout(loadingTimer);
                 Loading.hide();
-                Toast.error('Network error. Please try again.');
+
+                // Handle different error types
+                let errorMessage = 'An error occurred. Please try again.';
+                if (error.name === 'AbortError') {
+                    errorMessage = 'Request timed out. Please check your connection and try again.';
+                } else if (error instanceof TypeError) {
+                    errorMessage = 'Network error. Please check your connection.';
+                }
+
+                Toast.error(errorMessage);
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Place Order';
+                submitBtn.textContent = '❌ Try Again';
+
+                // Auto-reset button text after 3 seconds
+                setTimeout(() => {
+                    if (!submitBtn.disabled) {
+                        submitBtn.textContent = 'Place Order';
+                    }
+                }, 3000);
             }
         });
 
