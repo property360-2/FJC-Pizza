@@ -543,6 +543,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstError.focus();
             }
+        } else {
+            // Disable submit button and show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" style="opacity:0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...</span>';
+
+                // Restore if form submission is prevented (network error, etc.)
+                setTimeout(() => {
+                    if (submitBtn.disabled) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 10000);
+            }
         }
     });
 });
@@ -616,45 +632,57 @@ async function handleAddCategorySubmit(e) {
     const categoryName = newCategoryInput.value.trim();
     const modal = document.getElementById('addCategoryModal');
     const categorySelect = document.getElementById('category');
+    const submitBtn = document.querySelector('#addCategoryForm button[type="submit"]');
 
     if (!categoryName) {
         newCategoryInput.focus();
+        Toast.warning('Please enter a category name');
         return;
     }
 
-    try {
-        const formData = new FormData();
-        formData.append('category', categoryName);
+    // Disable submit button
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" style="opacity:0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Adding...</span>';
 
-        const response = await fetch('/products/api/categories/create/', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        try {
+            const formData = new FormData();
+            formData.append('category', categoryName);
+
+            const response = await fetch('/products/api/categories/create/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Close modal
+                modal.classList.add('hidden');
+
+                // Add new category to allCategories
+                allCategories.push({ name: categoryName });
+
+                // Repopulate dropdown and select the new category
+                populateCategoryDropdown();
+                categorySelect.value = categoryName;
+
+                // Show success message
+                Toast.success(`Category "${categoryName}" added successfully!`);
+            } else {
+                Toast.error(data.message || 'Error creating category');
             }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // Close modal
-            modal.classList.add('hidden');
-
-            // Add new category to allCategories
-            allCategories.push({ name: categoryName });
-
-            // Repopulate dropdown and select the new category
-            populateCategoryDropdown();
-            categorySelect.value = categoryName;
-
-            // Show success message
-            Toast.success(`Category "${categoryName}" added successfully!`);
-        } else {
-            Toast.error(`Error: ${data.message}`);
+        } catch (error) {
+            console.error('Error creating category:', error);
+            Toast.error('Error creating category. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
         }
-    } catch (error) {
-        console.error('Error creating category:', error);
-        Toast.error('Error creating category');
     }
 }
 
@@ -983,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addIngredientForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const submitBtn = addIngredientForm.querySelector('button[type="submit"]');
             const name = document.getElementById('newIngredientName').value.trim();
             const unit = document.getElementById('newIngredientUnit').value.trim();
             const costPerUnit = document.getElementById('newIngredientCost').value.trim();
@@ -997,54 +1026,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            try {
-                const formData = new FormData();
-                formData.append('name', name);
-                formData.append('unit', unit);
-                formData.append('cost_per_unit', costPerUnit);
-                formData.append('current_stock', currentStock);
+            // Disable submit button
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="inline-flex items-center gap-2"><svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" style="opacity:0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Creating...</span>';
 
-                const response = await fetch('/products/api/ingredients/create/', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    }
-                });
+                try {
+                    const formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('unit', unit);
+                    formData.append('cost_per_unit', costPerUnit);
+                    formData.append('current_stock', currentStock);
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // Add to allIngredients list
-                    allIngredients.push(data.ingredient);
-
-                    // Auto-add to selectedIngredients (user's choice = YES)
-                    selectedIngredients.set(data.ingredient.id, {
-                        id: data.ingredient.id,
-                        name: data.ingredient.name,
-                        unit: data.ingredient.unit,
-                        quantity: 1  // Default quantity of 1
+                    const response = await fetch('/products/api/ingredients/create/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
                     });
 
-                    // Update display
-                    renderIngredientsList();
+                    const data = await response.json();
 
-                    // Close modal
-                    addIngredientModal.classList.add('hidden');
+                    if (data.success) {
+                        // Add to allIngredients list
+                        allIngredients.push(data.ingredient);
 
-                    // Clear form
-                    addIngredientForm.reset();
+                        // Auto-add to selectedIngredients (user's choice = YES)
+                        selectedIngredients.set(data.ingredient.id, {
+                            id: data.ingredient.id,
+                            name: data.ingredient.name,
+                            unit: data.ingredient.unit,
+                            quantity: 1  // Default quantity of 1
+                        });
 
-                    // Show success message
-                    Toast.success(`Ingredient "${name}" created and added successfully!`);
-                } else {
-                    ingredientCreateError.textContent = data.message || 'Error creating ingredient';
+                        // Update display
+                        renderIngredientsList();
+
+                        // Close modal
+                        addIngredientModal.classList.add('hidden');
+
+                        // Clear form
+                        addIngredientForm.reset();
+
+                        // Show success message
+                        Toast.success(`Ingredient "${name}" created and added successfully!`);
+                    } else {
+                        Toast.error(data.message || 'Error creating ingredient');
+                        ingredientCreateError.textContent = data.message || 'Error creating ingredient';
+                        ingredientCreateError.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error creating ingredient:', error);
+                    Toast.error('Error creating ingredient. Please try again.');
+                    ingredientCreateError.textContent = 'Error creating ingredient. Please try again.';
                     ingredientCreateError.classList.remove('hidden');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
-            } catch (error) {
-                console.error('Error creating ingredient:', error);
-                ingredientCreateError.textContent = 'Error creating ingredient. Please try again.';
-                ingredientCreateError.classList.remove('hidden');
             }
         });
     }

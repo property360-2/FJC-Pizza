@@ -371,12 +371,14 @@ function updateStats(users) {
 
 // Confirm archive
 function confirmArchive(userId, username) {
-    ConfirmModal.show({
+    Confirm.show({
         title: 'Archive User',
         message: `Are you sure you want to archive ${username}? They will no longer be able to log in.`,
         confirmText: 'Archive',
+        cancelText: 'Cancel',
         type: 'danger',
         onConfirm: () => {
+            Loading.show();
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/accounts/users/${userId}/archive/`;
