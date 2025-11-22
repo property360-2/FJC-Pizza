@@ -48,8 +48,8 @@
         }
     </script>
 
-    <!-- Tailwind CSS (loaded after config is set) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (loaded after config is set) - using jsdelivr as backup -->
+    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3/cdn.min.js"></script>
 
     <!-- Alpine.js for interactivity (deferred) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -62,10 +62,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS -->
+    <!-- Custom CSS (baseline styling as fallback) -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Ensure nav has styling even if Tailwind fails */
+        nav {
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        main {
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 2rem 1rem;
         }
 
         /* Custom scrollbar */
