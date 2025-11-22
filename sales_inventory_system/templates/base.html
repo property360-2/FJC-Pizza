@@ -187,6 +187,17 @@
             background-image: linear-gradient(to bottom right, var(--tw-gradient-from, #f59e0b), var(--tw-gradient-to, #3b82f6));
         }
 
+        /* FJC Brand Gradient Utilities */
+        .bg-fjc-gradient {
+            background-image: linear-gradient(to bottom right, #f59e0b, #3b82f6) !important;
+            background-color: transparent;
+        }
+
+        .bg-fjc-avatar-gradient {
+            background-image: linear-gradient(to bottom right, #fbbf24, #3b82f6) !important;
+            background-color: transparent;
+        }
+
         .hover\:text-fjc-blue-600:hover { color: #2563eb; }
         .hover\:bg-fjc-blue-600:hover { background-color: #2563eb; }
     </style>
@@ -207,7 +218,7 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gradient-to-br from-fjc-yellow-500 to-fjc-blue-500 rounded-lg flex items-center justify-center shadow-md">
+                        <div class="w-10 h-10 bg-fjc-gradient rounded-lg flex items-center justify-center shadow-md">
                             <span class="text-white font-bold text-xl">FJC</span>
                         </div>
                         <div class="ml-3">
@@ -264,7 +275,7 @@
                                 class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100"
                                 aria-label="User menu"
                                 aria-haspopup="true">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-fjc-yellow-400 to-fjc-blue-500 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-full bg-fjc-avatar-gradient flex items-center justify-center">
                                 <span class="text-white font-semibold text-sm">{{ user.username|slice:":1"|upper }}</span>
                             </div>
                             <div class="text-left hidden sm:block">
