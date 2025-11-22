@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadAuditLogs(getCurrentFilters(), 1);
     });
 
-    userFilter.addEventListener('change', debouncedLoad);
+    userFilter.addEventListener('input', debouncedLoad);
     actionFilter.addEventListener('change', () => loadAuditLogs(getCurrentFilters(), 1));
     modelFilter.addEventListener('change', () => loadAuditLogs(getCurrentFilters(), 1));
     dateFromFilter.addEventListener('change', () => loadAuditLogs(getCurrentFilters(), 1));
