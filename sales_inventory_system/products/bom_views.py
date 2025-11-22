@@ -126,6 +126,64 @@ def ingredient_usage_report(request):
     top_cost_items = sorted_by_cost[:5]
     top_used_items = sorted_by_quantity[:5]
 
+    # Handle AJAX requests for async filtering
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Prepare data for JSON response
+        usage_data = []
+        total_cost_value = float(total_cost) if total_cost > 0 else 0
+
+        for item in sorted_by_cost:
+            percentage = (item['cost'] / total_cost_value * 100) if total_cost_value > 0 else 0
+            usage_data.append({
+                'ingredient_id': item['ingredient'].id,
+                'ingredient_name': item['ingredient'].name,
+                'ingredient_unit': item['ingredient'].unit,
+                'total_quantity': float(item['total_quantity']),
+                'cost': float(item['cost']),
+                'cost_per_unit': float(item['ingredient'].cost_per_unit),
+                'transactions_count': item['transactions_count'],
+                'percentage_of_total': percentage
+            })
+
+        # Prepare top cost items
+        top_cost_data = []
+        for item in top_cost_items:
+            percentage = (item['cost'] / total_cost_value * 100) if total_cost_value > 0 else 0
+            top_cost_data.append({
+                'ingredient_id': item['ingredient'].id,
+                'ingredient_name': item['ingredient'].name,
+                'total_quantity': float(item['total_quantity']),
+                'cost': float(item['cost']),
+                'percentage_of_total': percentage
+            })
+
+        # Prepare top used items
+        top_used_data = []
+        for item in top_used_items:
+            top_used_data.append({
+                'ingredient_id': item['ingredient'].id,
+                'ingredient_name': item['ingredient'].name,
+                'total_quantity': float(item['total_quantity']),
+                'cost_per_unit': float(item['ingredient'].cost_per_unit),
+                'unit': item['ingredient'].unit
+            })
+
+        return JsonResponse({
+            'success': True,
+            'days': days,
+            'period_start': start_date.strftime('%Y-%m-%d'),
+            'period_end': end_date.strftime('%Y-%m-%d'),
+            'summary_stats': {
+                'total_ingredients': len(usage_summary),
+                'total_used': float(total_used),
+                'total_cost': float(total_cost),
+                'avg_cost': float(avg_cost)
+            },
+            'usage_summary': usage_data,
+            'top_cost_items': top_cost_data,
+            'top_used_items': top_used_data
+        })
+
     # Handle downloads
     if download == 'csv':
         return generate_usage_csv_download(usage_summary, days)
