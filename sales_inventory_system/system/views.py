@@ -20,6 +20,7 @@ def audit_trail(request):
     action_filter = request.GET.get('action', '')
     model_filter = request.GET.get('model', '')
     user_filter = request.GET.get('user', '')
+    date_range = request.GET.get('date_range', '30days')  # Default to 30 days
     date_from_str = request.GET.get('date_from', '')
     date_to_str = request.GET.get('date_to', '')
 
@@ -37,19 +38,28 @@ def audit_trail(request):
         audit_logs = audit_logs.filter(user__username__icontains=user_filter)
 
     # Apply date range filters
-    if date_from_str:
-        try:
-            date_from = datetime.fromisoformat(date_from_str).replace(hour=0, minute=0, second=0, microsecond=0)
-            audit_logs = audit_logs.filter(created_at__gte=date_from)
-        except (ValueError, TypeError):
-            pass
+    end_date = timezone.now()
 
-    if date_to_str:
-        try:
-            date_to = datetime.fromisoformat(date_to_str).replace(hour=23, minute=59, second=59, microsecond=999999)
-            audit_logs = audit_logs.filter(created_at__lte=date_to)
-        except (ValueError, TypeError):
-            pass
+    if date_range in ['7days', '30days', '90days']:
+        # Handle preset date ranges
+        days = int(date_range.replace('days', ''))
+        start_date = end_date - timedelta(days=days)
+        audit_logs = audit_logs.filter(created_at__gte=start_date, created_at__lte=end_date)
+    elif date_range == 'custom':
+        # Handle custom date range
+        if date_from_str:
+            try:
+                date_from = datetime.fromisoformat(date_from_str).replace(hour=0, minute=0, second=0, microsecond=0)
+                audit_logs = audit_logs.filter(created_at__gte=date_from)
+            except (ValueError, TypeError):
+                pass
+
+        if date_to_str:
+            try:
+                date_to = datetime.fromisoformat(date_to_str).replace(hour=23, minute=59, second=59, microsecond=999999)
+                audit_logs = audit_logs.filter(created_at__lte=date_to)
+            except (ValueError, TypeError):
+                pass
 
     # Pagination
     paginator = Paginator(audit_logs, 50)  # 50 logs per page
@@ -82,6 +92,7 @@ def audit_trail(request):
                 'action': action_filter,
                 'model': model_filter,
                 'user': user_filter,
+                'date_range': date_range,
                 'date_from': date_from_str,
                 'date_to': date_to_str
             },
@@ -109,6 +120,7 @@ def audit_trail(request):
         'action_filter': action_filter,
         'model_filter': model_filter,
         'user_filter': user_filter,
+        'date_range': date_range,
         'date_from': date_from_str,
         'date_to': date_to_str,
     }

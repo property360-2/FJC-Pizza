@@ -41,13 +41,24 @@
                 </select>
             </div>
             <div>
-                <label for="date-from-filter" class="block text-sm font-medium text-gray-700 mb-2">Date From</label>
-                <input id="date-from-filter" type="date" value="{{ date_from }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                <label for="date-range-filter" class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                <select id="date-range-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+                    <option value="7days" {% if date_range == '7days' %}selected{% endif %}>Last 7 Days</option>
+                    <option value="30days" {% if date_range == '30days' %}selected{% endif %}>Last 30 Days</option>
+                    <option value="90days" {% if date_range == '90days' %}selected{% endif %}>Last 90 Days</option>
+                    <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+                </select>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+
+        <!-- Custom date range (shown only when custom is selected) -->
+        <div id="custom-date-range" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4" style="display: {% if date_range == 'custom' %}block{% else %}none{% endif %};">
             <div>
-                <label for="date-to-filter" class="block text-sm font-medium text-gray-700 mb-2">Date To</label>
+                <label for="date-from-filter" class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                <input id="date-from-filter" type="date" value="{{ date_from }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+            </div>
+            <div>
+                <label for="date-to-filter" class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
                 <input id="date-to-filter" type="date" value="{{ date_to }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
             </div>
         </div>
@@ -164,13 +175,21 @@
 <script>
 // Get current filter values
 function getCurrentFilters() {
-    return {
+    const dateRange = document.getElementById('date-range-filter').value;
+    const filters = {
         user: document.getElementById('user-filter').value,
         action: document.getElementById('action-filter').value,
         model: document.getElementById('model-filter').value,
-        date_from: document.getElementById('date-from-filter').value,
-        date_to: document.getElementById('date-to-filter').value
+        date_range: dateRange
     };
+
+    // Add custom date filters if custom range is selected
+    if (dateRange === 'custom') {
+        filters.date_from = document.getElementById('date-from-filter').value;
+        filters.date_to = document.getElementById('date-to-filter').value;
+    }
+
+    return filters;
 }
 
 // Load audit logs with async filtering
@@ -183,6 +202,7 @@ async function loadAuditLogs(filters, page = 1) {
         if (filters.user) params.append('user', filters.user);
         if (filters.action) params.append('action', filters.action);
         if (filters.model) params.append('model', filters.model);
+        if (filters.date_range) params.append('date_range', filters.date_range);
         if (filters.date_from) params.append('date_from', filters.date_from);
         if (filters.date_to) params.append('date_to', filters.date_to);
         params.append('page', page);
@@ -376,8 +396,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const userFilter = document.getElementById('user-filter');
     const actionFilter = document.getElementById('action-filter');
     const modelFilter = document.getElementById('model-filter');
+    const dateRangeFilter = document.getElementById('date-range-filter');
     const dateFromFilter = document.getElementById('date-from-filter');
     const dateToFilter = document.getElementById('date-to-filter');
+    const customDateRangeDiv = document.getElementById('custom-date-range');
 
     // Debounce function for user input
     function debounce(func, wait) {
@@ -391,6 +413,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const debouncedLoad = debounce(function() {
         loadAuditLogs(getCurrentFilters(), 1);
     }, 500);
+
+    // Handle date range dropdown change
+    dateRangeFilter.addEventListener('change', function() {
+        // Show/hide custom date inputs based on selection
+        if (this.value === 'custom') {
+            customDateRangeDiv.style.display = 'grid';
+        } else {
+            customDateRangeDiv.style.display = 'none';
+        }
+        // Load with new date range
+        loadAuditLogs(getCurrentFilters(), 1);
+    });
 
     userFilter.addEventListener('change', debouncedLoad);
     actionFilter.addEventListener('change', () => loadAuditLogs(getCurrentFilters(), 1));
