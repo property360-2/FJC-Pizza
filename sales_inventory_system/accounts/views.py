@@ -3,7 +3,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.urls import reverse
+from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.db.models import Q
 from .models import User
+from system.models import AuditTrail
 
 def login_view(request):
     """Handle user login"""
@@ -52,25 +56,82 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def user_list(request):
-    """List all users (admin only)"""
+    """List all users (admin only) with async filtering support"""
+    # Get filter parameters
+    role_filter = request.GET.get('role', '')
+    search_query = request.GET.get('search', '')
+
+    # Base query - exclude superuser
     users = User.objects.filter(is_superuser=False).order_by('-date_joined')
 
-    # Filter by status
-    status_filter = request.GET.get('status', 'all')
-    if status_filter == 'active':
-        users = users.filter(is_archived=False)
-    elif status_filter == 'archived':
-        users = users.filter(is_archived=True)
-
-    # Filter by role
-    role_filter = request.GET.get('role', 'all')
-    if role_filter != 'all':
+    # Apply role filter
+    if role_filter and role_filter != 'all':
         users = users.filter(role=role_filter)
 
+    # Apply search filter (search in username and email)
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query)
+        )
+
+    # Pagination
+    paginator = Paginator(users, 20)  # 20 users per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Get available roles
+    roles = User.objects.values_list('role', flat=True).distinct().order_by('role')
+
+    # Handle AJAX requests for async filtering
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Prepare users data for JSON response
+        users_data = []
+        for user in page_obj:
+            users_data.append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'role': user.get_role_display(),
+                'role_code': user.role,
+                'is_archived': user.is_archived,
+                'phone': user.phone or 'N/A',
+                'date_joined': user.date_joined.isoformat()
+            })
+
+        return JsonResponse({
+            'success': True,
+            'filters': {
+                'role': role_filter,
+                'search': search_query
+            },
+            'pagination': {
+                'page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'per_page': 20,
+                'total_count': paginator.count,
+                'start_index': page_obj.start_index() if page_obj else 0,
+                'end_index': page_obj.end_index() if page_obj else 0,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None
+            },
+            'users': users_data,
+            'available_roles': list(roles)
+        })
+
+    # Regular page load
     context = {
-        'users': users,
-        'status_filter': status_filter,
+        'page_obj': page_obj,
+        'users': page_obj,
         'role_filter': role_filter,
+        'search_query': search_query,
+        'roles': roles,
     }
     return render(request, 'accounts/user_list.html', context)
 
@@ -171,3 +232,25 @@ def user_archive(request, pk):
     action = 'archived' if user.is_archived else 'restored'
     messages.success(request, f'User {user.username} {action} successfully!')
     return redirect('accounts:user_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def user_audit_trail(request, pk):
+    """View audit trail for a specific user (admin only)"""
+    user = get_object_or_404(User, pk=pk)
+
+    # Get audit logs for this user
+    audit_logs = AuditTrail.objects.filter(user=user).select_related('user').order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(audit_logs, 50)  # 50 logs per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'user': user,
+        'audit_logs': page_obj,
+        'total_actions': paginator.count,
+    }
+    return render(request, 'accounts/user_audit_trail.html', context)
