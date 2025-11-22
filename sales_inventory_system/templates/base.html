@@ -283,6 +283,9 @@
     <!-- Confirmation Modal Component -->
     {% include 'components/confirm_modal.html' %}
 
+    <!-- UI Helpers - Common patterns for consistent UX -->
+    <script src="{% static 'js/ui-helpers.js' %}"></script>
+
     <!-- Convert Django messages to toasts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
