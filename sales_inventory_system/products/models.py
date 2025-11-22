@@ -87,6 +87,10 @@ class Ingredient(models.Model):
         help_text="Variance allowance percentage (e.g., 10% for portioning tolerance)"
     )
     is_active = models.BooleanField(default=True)
+    is_available = models.BooleanField(
+        default=True,
+        help_text="Temporarily toggleable by cashier (false = out of stock/unavailable)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

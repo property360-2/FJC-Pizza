@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import bom_views
+from . import cashier_views
 
 app_name = 'products'
 
@@ -27,6 +28,9 @@ urlpatterns = [
     path('bom/low-stock/', bom_views.low_stock_report, name='bom_low_stock'),
     path('bom/waste/', bom_views.waste_report, name='bom_waste'),
 
+    # Cashier routes
+    path('cashier/ingredients/', cashier_views.cashier_ingredients, name='cashier_ingredients'),
+
     # API routes
     path('api/ingredients/', views.api_list_ingredients, name='api_list_ingredients'),
     path('api/ingredients/create/', views.api_create_ingredient, name='api_create_ingredient'),
@@ -35,4 +39,8 @@ urlpatterns = [
     path('api/categories/', views.api_list_categories, name='api_list_categories'),
     path('api/categories/create/', views.api_create_category, name='api_create_category'),
     path('api/search-categories/', views.api_search_categories, name='api_search_categories'),
+
+    # Cashier API routes
+    path('api/cashier/ingredients/', cashier_views.api_get_ingredients, name='api_cashier_ingredients'),
+    path('api/cashier/ingredients/toggle/', cashier_views.api_toggle_ingredient_availability, name='api_toggle_ingredient'),
 ]

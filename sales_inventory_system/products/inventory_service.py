@@ -155,7 +155,18 @@ class BOMService:
             ingredient = recipe_ingredient.ingredient
             total_needed = recipe_ingredient.quantity * quantity
 
-            if ingredient.current_stock < total_needed:
+            # Check if ingredient is marked as unavailable by cashier
+            if not ingredient.is_available:
+                shortages.append({
+                    'ingredient': ingredient.name,
+                    'needed': total_needed,
+                    'available': 0,
+                    'shortage': total_needed,
+                    'unit': ingredient.unit,
+                    'reason': 'Marked as unavailable'
+                })
+            # Check if there's sufficient quantity
+            elif ingredient.current_stock < total_needed:
                 shortage = total_needed - ingredient.current_stock
                 shortages.append({
                     'ingredient': ingredient.name,

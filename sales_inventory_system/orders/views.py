@@ -381,6 +381,20 @@ def pos_create_order(request):
         except Exception as e:
             messages.error(request, f'Error creating order: {str(e)}')
 
+    # Check ingredient availability for each product
+    from products.inventory_service import BOMService
+
+    # Check availability for each product
+    unavailable_products = set()
+    for product in products:
+        availability = BOMService.check_ingredient_availability(product.id)
+        if not availability['available']:
+            unavailable_products.add(product.id)
+
+    # Add availability flag to products
+    for product in products:
+        product.is_available_for_order = product.id not in unavailable_products
+
     # Group products by category for display
     from itertools import groupby
     products_by_category = {}

@@ -47,18 +47,25 @@
                     <h2 class="text-xl font-bold text-gray-900 mb-4">{{ category }}</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {% for product in products_list %}
-                        <div class="border border-gray-200 rounded-lg p-4 hover:border-fjc-blue-500 transition">
+                        <div class="border {% if product.is_available_for_order %}border-gray-200 hover:border-fjc-blue-500{% else %}border-red-300 bg-red-50{% endif %} rounded-lg p-4 transition {% if not product.is_available_for_order %}opacity-60{% endif %}" {% if not product.is_available_for_order %}title="Out of Stock - Missing Ingredients"{% endif %}>
                             <div class="flex justify-between items-start mb-2">
                                 <div class="flex-1">
-                                    <h3 class="font-semibold text-gray-900">{{ product.name }}</h3>
-                                    <p class="text-lg font-bold text-fjc-blue-600 mt-1">₱<span class="product-price">{{ product.price }}</span></p>
-                                    <p class="text-xs text-gray-500">Stock: {{ product.stock }}</p>
+                                    <h3 class="font-semibold {% if product.is_available_for_order %}text-gray-900{% else %}text-red-700{% endif %}">{{ product.name }}</h3>
+                                    <p class="text-lg font-bold {% if product.is_available_for_order %}text-fjc-blue-600{% else %}text-red-600{% endif %} mt-1">₱<span class="product-price">{{ product.price }}</span></p>
+                                    <p class="text-xs {% if product.is_available_for_order %}text-gray-500{% else %}text-red-600 font-semibold{% endif %}">
+                                        {% if product.is_available_for_order %}
+                                        Stock: {{ product.stock }}
+                                        {% else %}
+                                        ❌ Out of Stock
+                                        {% endif %}
+                                    </p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 mt-3">
                                 <button type="button" onclick="decrementQty({{ product.id }})"
-                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation"
-                                        aria-label="Decrease quantity">
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation {% if not product.is_available_for_order %}opacity-50 cursor-not-allowed{% endif %}"
+                                        aria-label="Decrease quantity"
+                                        {% if not product.is_available_for_order %}disabled{% endif %}>
                                     -
                                 </button>
                                 <input type="number"
@@ -70,10 +77,13 @@
                                        onchange="updateCart()"
                                        data-price="{{ product.price }}"
                                        data-name="{{ product.name }}"
-                                       class="w-16 text-center border border-gray-300 rounded py-2 touch-manipulation">
+                                       data-available="{{ product.is_available_for_order|lower }}"
+                                       class="w-16 text-center border border-gray-300 rounded py-2 touch-manipulation {% if not product.is_available_for_order %}opacity-50 cursor-not-allowed{% endif %}"
+                                       {% if not product.is_available_for_order %}disabled{% endif %}>
                                 <button type="button" onclick="incrementQty({{ product.id }}, {{ product.stock }})"
-                                        class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation"
-                                        aria-label="Increase quantity">
+                                        class="{% if product.is_available_for_order %}bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white{% else %}bg-gray-300 text-gray-500 cursor-not-allowed{% endif %} font-bold w-11 h-11 rounded flex items-center justify-center touch-manipulation"
+                                        aria-label="Increase quantity"
+                                        {% if not product.is_available_for_order %}disabled{% endif %}>
                                     +
                                 </button>
                             </div>
@@ -167,6 +177,13 @@
 <script>
 function incrementQty(productId, maxStock) {
     const input = document.getElementById('qty_' + productId);
+
+    // Check if product is available
+    if (input.dataset.available === 'false') {
+        Toast.error('This product is currently unavailable - missing ingredients');
+        return;
+    }
+
     const currentVal = parseInt(input.value) || 0;
     if (currentVal < maxStock) {
         input.value = currentVal + 1;
