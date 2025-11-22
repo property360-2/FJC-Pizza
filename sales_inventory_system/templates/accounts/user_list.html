@@ -129,16 +129,26 @@ function loadStaff(page = 1) {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    })
     .then(data => {
+        console.log('Staff data loaded:', data);
         if (data.success) {
             renderStaffList(data.users);
             renderPagination(data.pagination);
             populateRoleFilter(data.available_roles);
             updateStats(data.users);
+        } else {
+            console.error('API returned error:', data);
+            Toast.error('Failed to load staff data');
         }
     })
-    .catch(error => console.error('Error loading staff:', error))
+    .catch(error => {
+        console.error('Error loading staff:', error);
+        Toast.error('Error loading staff: ' + error.message);
+    })
     .finally(() => {
         loadingSpinner.classList.add('hidden');
     });
@@ -146,6 +156,8 @@ function loadStaff(page = 1) {
 
 // Render staff list
 function renderStaffList(users) {
+    console.log('Rendering staff list with users:', users);
+
     if (users.length === 0) {
         staffTableBody.innerHTML = `
             <tr>
@@ -173,6 +185,7 @@ function renderStaffList(users) {
     // Render desktop table
     let tableHTML = '';
     users.forEach(user => {
+        console.log('Processing user:', user);
         const roleDisplay = user.role_code === 'ADMIN' ? '👑 Admin' : '👤 Cashier';
         const roleBadgeClass = user.role_code === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
         const statusDisplay = user.is_archived ? '📦 Archived' : '✅ Active';
