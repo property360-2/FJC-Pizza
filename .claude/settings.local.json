@@ -1,11 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3:*)",
-      "Bash(find:*)",
-      "Bash(test:*)",
-      "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(python manage.py check:*)",
+      "Bash(python test_ingredient_system.py:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

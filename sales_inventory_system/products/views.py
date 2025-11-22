@@ -320,7 +320,7 @@ def ingredient_create(request):
         try:
             name = request.POST.get('name')
             description = request.POST.get('description', '')
-            unit = request.POST.get('unit', 'kg')
+            unit = request.POST.get('unit', 'g')
             cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
             current_stock = Decimal(request.POST.get('current_stock', '0.00'))
             min_stock = Decimal(request.POST.get('min_stock', '10.00'))
@@ -348,7 +348,7 @@ def ingredient_create(request):
 
     context = {
         'action': 'Create',
-        'units': ['kg', 'g', 'L', 'ml', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
     }
     return render(request, 'products/ingredient_form.html', context)
 
@@ -380,7 +380,7 @@ def ingredient_edit(request, pk):
     context = {
         'ingredient': ingredient,
         'action': 'Edit',
-        'units': ['kg', 'g', 'L', 'ml', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
     }
     return render(request, 'products/ingredient_form.html', context)
 

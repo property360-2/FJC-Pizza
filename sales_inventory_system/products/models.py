@@ -60,6 +60,7 @@ class Ingredient(models.Model):
             ('tbsp', 'Tablespoons'),
             ('tsp', 'Teaspoons'),
         ],
+        default='g',
         help_text="Unit of measurement"
     )
     cost_per_unit = models.DecimalField(
