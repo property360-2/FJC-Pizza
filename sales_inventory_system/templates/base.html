@@ -8,7 +8,9 @@
 
     <!-- Custom Tailwind Config (must run before Tailwind loads) -->
     <script>
-        tailwind.config = {
+        // Safely initialize tailwind object if it doesn't exist yet
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
             theme: {
                 extend: {
                     colors: {
