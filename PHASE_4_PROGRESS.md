@@ -274,7 +274,52 @@ Phase 4 focuses on achieving WCAG 2.1 AA accessibility compliance and final perf
 
 ## Session Notes
 
-Will be updated as work progresses with detailed improvements made.
+### Session 1: Core Accessibility Improvements ✅
+
+**Duration:** ~1.5 hours
+**Commits:** 2
+
+**Improvements Made:**
+
+#### Base Template (db311d4)
+1. **Skip-to-Main-Content Link**
+   - Added accessible skip link for keyboard users
+   - Visible on focus with blue button styling
+   - Links to #main-content ID
+
+2. **Semantic HTML & ARIA Labels**
+   - Added `role="navigation"` to nav element
+   - Added `aria-label="Main navigation"` for context
+   - Added `id="main-content"` to main element
+   - Added `role="main"` to main element
+   - Added `role="contentinfo"` to footer
+   - Improved mobile menu button with `aria-expanded` state
+
+3. **Accessibility Styles**
+   - Added `.sr-only` class for screen-reader-only content
+   - Added `:focus-visible` styles (3px blue outline)
+   - Added `prefers-reduced-motion` media query
+   - Respects user's motion preferences
+
+#### Toast Component (b8e57b4)
+1. **ARIA Live Regions**
+   - Added `aria-live="polite"` to toast container
+   - Toast container announces changes to screen readers
+   - Added screen reader announcements area
+
+2. **Toast Accessibility**
+   - Each toast has `role="alert"`
+   - Each toast has `aria-label` with type and message
+   - Close button is semantic `<button>` element
+   - All decorative SVGs marked `aria-hidden="true"`
+   - Toast types labeled for screen readers
+
+**Impact:**
+- ✅ Keyboard users can skip to main content
+- ✅ Screen reader users notified of status changes
+- ✅ Navigation clearly labeled
+- ✅ Users with motion sensitivity respected
+- ✅ Better semantic structure throughout
 
 ---
 
