@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FJC Pizza{% endblock %} - Sales & Inventory</title>
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (non-blocking with defer) -->
+    <script defer src="https://cdn.tailwindcss.com"></script>
 
     <!-- Alpine.js for interactivity -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- HTMX for dynamic updates -->
-    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <!-- HTMX for dynamic updates (faster CDN with defer) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 
     <!-- Custom Tailwind Config -->
     <script>
@@ -334,7 +334,7 @@
     {% include 'components/confirm_modal.html' %}
 
     <!-- UI Helpers - Common patterns for consistent UX -->
-    <script src="{% static 'js/ui-helpers.js' %}"></script>
+    <script defer src="{% static 'js/ui-helpers.js' %}"></script>
 
     <!-- Convert Django messages to toasts -->
     <script>
