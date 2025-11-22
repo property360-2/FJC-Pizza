@@ -475,6 +475,81 @@ def api_list_ingredients(request):
 
 @login_required
 @user_passes_test(is_admin)
+def api_create_ingredient(request):
+    """API endpoint for creating a new ingredient"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'message': 'Only POST method is allowed'
+        }, status=405)
+
+    try:
+        name = request.POST.get('name', '').strip()
+        unit = request.POST.get('unit', '').strip()
+        cost_per_unit_str = request.POST.get('cost_per_unit', '0')
+        current_stock_str = request.POST.get('current_stock', '0')
+
+        # Validate required fields
+        if not name:
+            return JsonResponse({
+                'success': False,
+                'message': 'Ingredient name is required'
+            })
+
+        if not unit:
+            return JsonResponse({
+                'success': False,
+                'message': 'Unit of measurement is required'
+            })
+
+        try:
+            cost_per_unit = Decimal(cost_per_unit_str)
+            current_stock = Decimal(current_stock_str)
+        except (ValueError, TypeError):
+            return JsonResponse({
+                'success': False,
+                'message': 'Cost and stock must be valid numbers'
+            })
+
+        # Check if ingredient already exists
+        if Ingredient.objects.filter(name=name).exists():
+            return JsonResponse({
+                'success': False,
+                'message': f'Ingredient "{name}" already exists'
+            })
+
+        # Create the ingredient with defaults
+        ingredient = Ingredient.objects.create(
+            name=name,
+            unit=unit,
+            cost_per_unit=cost_per_unit,
+            current_stock=current_stock,
+            min_stock=Decimal('0'),  # Default min stock
+            variance_allowance=Decimal('10'),  # Default variance allowance
+            is_active=True
+        )
+
+        return JsonResponse({
+            'success': True,
+            'ingredient': {
+                'id': ingredient.id,
+                'name': ingredient.name,
+                'unit': ingredient.unit,
+                'cost_per_unit': float(ingredient.cost_per_unit),
+                'current_stock': float(ingredient.current_stock),
+            },
+            'message': f'Ingredient "{ingredient.name}" created successfully'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error creating ingredient: {str(e)}'
+        })
+
+
+@login_required
+@user_passes_test(is_admin)
 def api_search_ingredients(request):
     """API endpoint for searching ingredients (async search)"""
     query = request.GET.get('q', '').strip()

@@ -161,6 +161,17 @@
                             </button>
                         </div>
                         <p id="ingredient-error" class="mt-2 text-sm text-red-600 hidden"></p>
+
+                        <!-- Add New Ingredient Button -->
+                        <div class="mt-3">
+                            <button
+                                type="button"
+                                id="add-new-ingredient-btn"
+                                class="text-sm px-3 py-1.5 text-fjc-blue-600 hover:text-fjc-blue-700 hover:bg-blue-50 rounded-lg border border-fjc-blue-300 hover:border-fjc-blue-400 font-medium transition"
+                            >
+                                + Add New Ingredient to System
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Selected Ingredients List -->
@@ -313,6 +324,102 @@
                             class="flex-1 bg-fjc-blue-600 text-white px-4 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium shadow-sm transition"
                         >
                             Add Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Ingredient Modal -->
+        <div id="addIngredientModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Add New Ingredient</h3>
+
+                <form id="addIngredientForm" class="space-y-4">
+                    <!-- Ingredient Name -->
+                    <div>
+                        <label for="newIngredientName" class="block text-sm font-medium text-gray-700 mb-1">
+                            Ingredient Name <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="newIngredientName"
+                            placeholder="e.g., Flour, Tomato Sauce, Mozzarella"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
+
+                    <!-- Unit of Measurement -->
+                    <div>
+                        <label for="newIngredientUnit" class="block text-sm font-medium text-gray-700 mb-1">
+                            Unit <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                            id="newIngredientUnit"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            required
+                        >
+                            <option value="">-- Select Unit --</option>
+                            <option value="g">Grams (g)</option>
+                            <option value="kg">Kilograms (kg)</option>
+                            <option value="ml">Milliliters (ml)</option>
+                            <option value="l">Liters (L)</option>
+                            <option value="pcs">Pieces (pcs)</option>
+                            <option value="cup">Cups</option>
+                            <option value="tbsp">Tablespoons (tbsp)</option>
+                            <option value="tsp">Teaspoons (tsp)</option>
+                        </select>
+                    </div>
+
+                    <!-- Cost Per Unit -->
+                    <div>
+                        <label for="newIngredientCost" class="block text-sm font-medium text-gray-700 mb-1">
+                            Cost Per Unit <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="newIngredientCost"
+                            placeholder="e.g., 2.50"
+                            step="0.01"
+                            min="0"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <!-- Current Stock -->
+                    <div>
+                        <label for="newIngredientStock" class="block text-sm font-medium text-gray-700 mb-1">
+                            Current Stock <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="newIngredientStock"
+                            placeholder="e.g., 100"
+                            step="0.01"
+                            min="0"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div id="ingredientCreateError" class="text-sm text-red-600 hidden"></div>
+
+                    <div class="flex gap-3">
+                        <button
+                            type="button"
+                            id="cancelAddIngredientBtn"
+                            class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 font-medium shadow-sm transition"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="flex-1 bg-fjc-blue-600 text-white px-4 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium shadow-sm transition"
+                        >
+                            Add Ingredient
                         </button>
                     </div>
                 </form>
@@ -582,6 +689,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ========== UTILITY FUNCTIONS ==========
+// Debounce function for search input
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // ========== INGREDIENT MANAGEMENT ==========
 let allIngredients = []; // Store all ingredients for searching
 let selectedIngredients = new Map(); // Map of ingredient_id -> { name, unit, quantity }
@@ -840,6 +961,112 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedIngredients.set(id, { id, name, unit, quantity });
         });
         updateHiddenIngredientsInput();
+    }
+
+    // ========== ADD NEW INGREDIENT HANDLERS ==========
+    const addNewIngredientBtn = document.getElementById('add-new-ingredient-btn');
+    const addIngredientModal = document.getElementById('addIngredientModal');
+    const addIngredientForm = document.getElementById('addIngredientForm');
+    const cancelAddIngredientBtn = document.getElementById('cancelAddIngredientBtn');
+    const ingredientCreateError = document.getElementById('ingredientCreateError');
+
+    // Show modal
+    if (addNewIngredientBtn) {
+        addNewIngredientBtn.addEventListener('click', function() {
+            addIngredientModal.classList.remove('hidden');
+            document.getElementById('newIngredientName').focus();
+        });
+    }
+
+    // Handle form submission
+    if (addIngredientForm) {
+        addIngredientForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('newIngredientName').value.trim();
+            const unit = document.getElementById('newIngredientUnit').value.trim();
+            const costPerUnit = document.getElementById('newIngredientCost').value.trim();
+            const currentStock = document.getElementById('newIngredientStock').value.trim();
+
+            // Clear previous error
+            ingredientCreateError.classList.add('hidden');
+
+            if (!name || !unit || !costPerUnit || !currentStock) {
+                ingredientCreateError.textContent = 'Please fill in all required fields';
+                ingredientCreateError.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('name', name);
+                formData.append('unit', unit);
+                formData.append('cost_per_unit', costPerUnit);
+                formData.append('current_stock', currentStock);
+
+                const response = await fetch('/products/api/ingredients/create/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Add to allIngredients list
+                    allIngredients.push(data.ingredient);
+
+                    // Auto-add to selectedIngredients (user's choice = YES)
+                    selectedIngredients.set(data.ingredient.id, {
+                        id: data.ingredient.id,
+                        name: data.ingredient.name,
+                        unit: data.ingredient.unit,
+                        quantity: 1  // Default quantity of 1
+                    });
+
+                    // Update display
+                    renderIngredientsList();
+
+                    // Close modal
+                    addIngredientModal.classList.add('hidden');
+
+                    // Clear form
+                    addIngredientForm.reset();
+
+                    // Show success message
+                    Toast.success(`Ingredient "${name}" created and added successfully!`);
+                } else {
+                    ingredientCreateError.textContent = data.message || 'Error creating ingredient';
+                    ingredientCreateError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error creating ingredient:', error);
+                ingredientCreateError.textContent = 'Error creating ingredient. Please try again.';
+                ingredientCreateError.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Handle cancel button
+    if (cancelAddIngredientBtn) {
+        cancelAddIngredientBtn.addEventListener('click', function() {
+            addIngredientModal.classList.add('hidden');
+            addIngredientForm.reset();
+            ingredientCreateError.classList.add('hidden');
+        });
+    }
+
+    // Close modal when clicking outside
+    if (addIngredientModal) {
+        addIngredientModal.addEventListener('click', function(e) {
+            if (e.target === addIngredientModal) {
+                addIngredientModal.classList.add('hidden');
+                addIngredientForm.reset();
+                ingredientCreateError.classList.add('hidden');
+            }
+        });
     }
 });
 </script>

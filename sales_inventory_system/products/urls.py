@@ -29,6 +29,7 @@ urlpatterns = [
 
     # API routes
     path('api/ingredients/', views.api_list_ingredients, name='api_list_ingredients'),
+    path('api/ingredients/create/', views.api_create_ingredient, name='api_create_ingredient'),
     path('api/ingredient-availability/', bom_views.api_ingredient_availability, name='api_ingredient_availability'),
     path('api/search-ingredients/', views.api_search_ingredients, name='api_search_ingredients'),
     path('api/categories/', views.api_list_categories, name='api_list_categories'),
