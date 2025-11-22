@@ -17,6 +17,33 @@
         </div>
     </div>
 
+    <!-- Quick Action Links - Top Navigation -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md border border-blue-200 p-6">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">⚡ Quick Actions</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <a href="{% url 'products:bom_usage_report' %}" class="group block p-4 bg-white rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-md transition text-center">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
+                <span class="text-sm font-semibold text-blue-900">Usage Reports</span>
+                <p class="text-xs text-gray-500 mt-1">View consumption</p>
+            </a>
+            <a href="{% url 'products:bom_variance' %}" class="group block p-4 bg-white rounded-lg border-2 border-yellow-200 hover:border-yellow-400 hover:shadow-md transition text-center">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📈</span>
+                <span class="text-sm font-semibold text-yellow-900">Variance Analysis</span>
+                <p class="text-xs text-gray-500 mt-1">Check accuracy</p>
+            </a>
+            <a href="{% url 'products:bom_low_stock' %}" class="group block p-4 bg-white rounded-lg border-2 border-red-200 hover:border-red-400 hover:shadow-md transition text-center">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⚠️</span>
+                <span class="text-sm font-semibold text-red-900">Low Stock Report Engridients</span>
+                <p class="text-xs text-gray-500 mt-1">Restock items</p>
+            </a>
+            <a href="{% url 'products:bom_waste' %}" class="group block p-4 bg-white rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:shadow-md transition text-center">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🗑️</span>
+                <span class="text-sm font-semibold text-orange-900">Waste Report</span>
+                <p class="text-xs text-gray-500 mt-1">Track waste</p>
+            </a>
+        </div>
+    </div>
+
     <!-- Key Metrics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Total Ingredients -->
@@ -220,29 +247,6 @@
                 </div>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <!-- Quick Action Links -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="{% url 'products:bom_usage_report' %}" class="block p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition text-center">
-                <span class="text-3xl block mb-2">📊</span>
-                <span class="text-sm font-semibold text-blue-900">Usage Reports</span>
-            </a>
-            <a href="{% url 'products:bom_variance' %}" class="block p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition text-center">
-                <span class="text-3xl block mb-2">📈</span>
-                <span class="text-sm font-semibold text-yellow-900">Variance Analysis</span>
-            </a>
-            <a href="{% url 'products:bom_low_stock' %}" class="block p-4 bg-red-50 rounded-lg border border-red-200 hover:bg-red-100 transition text-center">
-                <span class="text-3xl block mb-2">⚠️</span>
-                <span class="text-sm font-semibold text-red-900">Low Stock Report</span>
-            </a>
-            <a href="{% url 'products:bom_waste' %}" class="block p-4 bg-orange-50 rounded-lg border border-orange-200 hover:bg-orange-100 transition text-center">
-                <span class="text-3xl block mb-2">🗑️</span>
-                <span class="text-sm font-semibold text-orange-900">Waste Report</span>
-            </a>
         </div>
     </div>
 </div>

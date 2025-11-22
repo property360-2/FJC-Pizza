@@ -74,74 +74,88 @@
         </div>
     </div>
 
-    <!-- Variance by Ingredient -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Variance by Ingredient</h2>
-            <p class="text-sm text-gray-600 mt-1">Detailed variance analysis for each ingredient</p>
+    <!-- Variance by Ingredient - Card Grid -->
+    <div>
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">All Ingredients</h2>
+            <p class="text-sm text-gray-600 mt-1">Variance analysis for each ingredient</p>
         </div>
 
         {% if variance_summary %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ingredient</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg Variance</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Max Variance</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Min Variance</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Within Tolerance</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Records</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for item in variance_summary %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <span class="font-medium text-gray-900">{{ item.ingredient.name }}</span>
-                            <div class="text-xs text-gray-500 mt-1">Tolerance: ±{{ item.ingredient.variance_allowance }}%</div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="inline-block px-2 py-1 rounded text-sm font-semibold {% if item.avg_variance <= item.ingredient.variance_allowance %}bg-green-100 text-green-800{% elif item.avg_variance <= item.ingredient.variance_allowance * 1.5 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
-                                {{ item.avg_variance|floatformat:2 }}%
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right text-gray-900 font-medium">{{ item.max_variance|floatformat:2 }}%</td>
-                        <td class="px-6 py-4 text-right text-gray-900">{{ item.min_variance|floatformat:2 }}%</td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="w-full bg-gray-200 rounded-full h-2 mr-2">
-                                <div class="bg-green-600 h-2 rounded-full transition-all" style="width: {{ item.within_tolerance_pct }}%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600">{{ item.within_tolerance_pct|floatformat:1 }}%</span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-gray-900">{{ item.records_count }}</td>
-                    </tr>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for item in variance_summary %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <!-- Header with ingredient name and status indicator -->
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">{{ item.ingredient.name }}</h3>
+                        <p class="text-xs text-gray-500">Tolerance: ±{{ item.ingredient.variance_allowance }}%</p>
+                    </div>
+                    <span class="inline-block px-2 py-1 rounded text-xs font-semibold {% if item.avg_variance <= item.ingredient.variance_allowance %}bg-green-100 text-green-800{% elif item.avg_variance <= item.tolerance_threshold_1_5x %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if item.avg_variance <= item.ingredient.variance_allowance %}✓ Good{% elif item.avg_variance <= item.tolerance_threshold_1_5x %}⚠ Fair{% else %}✗ Poor{% endif %}
+                    </span>
+                </div>
 
-                    <!-- Recent Records for this ingredient -->
-                    <tr class="bg-gray-50">
-                        <td colspan="6" class="px-6 py-3">
-                            <div class="text-xs font-semibold text-gray-700 mb-2">📋 Latest 5 Records</div>
-                            <div class="space-y-2">
-                                {% for record in item.variance_records %}
-                                <div class="flex justify-between text-xs text-gray-600 bg-white p-2 rounded border border-gray-200">
-                                    <span>{{ record.period_end|date:"M d, Y" }}</span>
-                                    <span>Theoretical: {{ record.theoretical_used|floatformat:2 }} | Actual: {{ record.actual_used|floatformat:2 }}</span>
-                                    <span class="font-medium">
-                                        <span class="{% if record.within_tolerance %}text-green-600{% else %}text-red-600{% endif %}">
-                                            {{ record.variance_percentage|floatformat:2 }}%
-                                        </span>
-                                    </span>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                <!-- Main Variance Metrics -->
+                <div class="space-y-2 mb-4 pb-4 border-b border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Avg Variance</span>
+                        <span class="font-bold text-lg text-gray-900">{{ item.avg_variance|floatformat:2 }}%</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Max</span>
+                        <span class="text-gray-900">{{ item.max_variance|floatformat:2 }}%</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Min</span>
+                        <span class="text-gray-900">{{ item.min_variance|floatformat:2 }}%</span>
+                    </div>
+                </div>
+
+                <!-- Within Tolerance Progress -->
+                <div class="mb-4">
+                    <div class="flex justify-between mb-2 text-sm">
+                        <span class="text-gray-600">Within Tolerance</span>
+                        <span class="font-semibold text-gray-900">{{ item.within_tolerance_pct|floatformat:1 }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full transition-all" style="width: {{ item.within_tolerance_pct|floatformat:1 }}%;"></div>
+                    </div>
+                </div>
+
+                <!-- Latest Records -->
+                {% if item.variance_records %}
+                <div class="bg-gray-50 rounded p-3 text-xs">
+                    <div class="font-semibold text-gray-700 mb-2">📋 Latest Record</div>
+                    {% with latest=item.variance_records|first %}
+                    <div class="space-y-1 text-gray-600">
+                        <div class="flex justify-between">
+                            <span>Date:</span>
+                            <span>{{ latest.period_end|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Variance:</span>
+                            <span class="font-semibold {% if latest.within_tolerance %}text-green-600{% else %}text-red-600{% endif %}">
+                                {{ latest.variance_percentage|floatformat:2 }}%
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200">
+                            <span>{{ latest.theoretical_used|floatformat:2 }} → {{ latest.actual_used|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+                {% endif %}
+
+                <!-- Footer -->
+                <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
+                    <span>{{ item.records_count }} records</span>
+                </div>
+            </div>
+            {% endfor %}
         </div>
         {% else %}
-        <div class="px-6 py-12 text-center">
+        <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
             <span class="text-5xl mb-4 block">📊</span>
             <p class="text-gray-600 text-lg">No variance data available for the selected period</p>
             <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some variance records</p>
@@ -158,10 +172,8 @@
                 <div>
                     <h3 class="font-semibold text-red-900 mb-2">Items Outside Tolerance</h3>
                     <ul class="text-sm text-red-800 space-y-1 list-disc list-inside">
-                        {% for item in variance_summary %}
-                            {% if item.avg_variance > item.ingredient.variance_allowance %}
-                            <li>{{ item.ingredient.name }}: {{ item.avg_variance|floatformat:2 }}% (max: {{ item.ingredient.variance_allowance }}%)</li>
-                            {% endif %}
+                        {% for item in outside_tolerance %}
+                        <li>{{ item.ingredient.name }}: {{ item.avg_variance|floatformat:2 }}% (max: {{ item.ingredient.variance_allowance }}%)</li>
                         {% empty %}
                         <li>All ingredients within tolerance!</li>
                         {% endfor %}
@@ -177,7 +189,7 @@
                 <div>
                     <h3 class="font-semibold text-green-900 mb-2">Best Performing Ingredients</h3>
                     <ul class="text-sm text-green-800 space-y-1 list-disc list-inside">
-                        {% for item in variance_summary|dictsort:"avg_variance"|slice:":3" %}
+                        {% for item in best_performing %}
                         <li>{{ item.ingredient.name }}: {{ item.avg_variance|floatformat:2 }}% variance</li>
                         {% empty %}
                         <li>No data available</li>

@@ -8,6 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, Sum, F, Avg, Max, Min, Count
 from django.utils import timezone
 from datetime import timedelta
+from decimal import Decimal
 from .models import (
     Ingredient, RecipeItem, StockTransaction, WasteLog,
     PhysicalCount, VarianceRecord
@@ -119,6 +120,12 @@ def ingredient_usage_report(request):
     # Calculate average cost per unit used
     avg_cost = total_cost / total_used if total_used > 0 else 0
 
+    # Sort data for insights (do this in view, not template)
+    sorted_by_cost = sorted(usage_summary, key=lambda x: x['cost'], reverse=True)
+    sorted_by_quantity = sorted(usage_summary, key=lambda x: x['total_quantity'], reverse=True)
+    top_cost_items = sorted_by_cost[:5]
+    top_used_items = sorted_by_quantity[:5]
+
     # Handle downloads
     if download == 'csv':
         return generate_usage_csv_download(usage_summary, days)
@@ -126,7 +133,9 @@ def ingredient_usage_report(request):
         return generate_usage_detailed_csv(usage_summary, days)
 
     context = {
-        'usage_summary': usage_summary,
+        'usage_summary': sorted_by_cost,  # Default sort by cost descending
+        'top_cost_items': top_cost_items,
+        'top_used_items': top_used_items,
         'days': days,
         'total_used': total_used,
         'total_cost': total_cost,
@@ -189,6 +198,7 @@ def variance_analysis_report(request):
     """
     Comprehensive variance analysis report for all active ingredients.
     Shows analytics directly on the page with download option.
+    Optimized with database queries to avoid N+1 problem.
     """
     days = int(request.GET.get('days', 30))
     download = request.GET.get('download', '').lower()
@@ -196,44 +206,76 @@ def variance_analysis_report(request):
     end_date = timezone.now()
     start_date = end_date - timedelta(days=days)
 
-    # Get all active ingredients
-    ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
+    # Get all variance records for the date range with related ingredient data
+    all_variance_records = VarianceRecord.objects.filter(
+        period_end__gte=start_date,
+        ingredient__is_active=True
+    ).select_related('ingredient').order_by('-period_end')
 
-    # Calculate variance for each ingredient
+    # If no records exist, return empty state
+    if not all_variance_records.exists():
+        context = {
+            'variance_summary': [],
+            'best_performing': [],
+            'outside_tolerance': [],
+            'days': days,
+            'total_records': 0,
+            'avg_of_avgs': 0,
+            'overall_within_tolerance': 0,
+            'period_start': start_date,
+            'period_end': end_date,
+        }
+        if download:
+            return render(request, 'products/variance_analysis_report.html', context)
+        return render(request, 'products/variance_analysis_report.html', context)
+
+    # Group variance records by ingredient and calculate statistics
     variance_summary = []
     total_records = 0
     within_tolerance_count = 0
+    ingredients_data = {}
 
-    for ingredient in ingredients:
-        variance_records = VarianceRecord.objects.filter(
-            ingredient=ingredient,
-            period_end__gte=start_date
-        ).order_by('-period_end')
+    # Aggregate data by ingredient
+    for record in all_variance_records:
+        ing_id = record.ingredient.id
+        if ing_id not in ingredients_data:
+            ingredients_data[ing_id] = {
+                'ingredient': record.ingredient,
+                'variances': [],
+                'within_tolerance_count': 0,
+                'variance_records': [],
+            }
 
-        if not variance_records.exists():
-            continue
+        ingredients_data[ing_id]['variances'].append(record.variance_percentage)
+        if record.within_tolerance:
+            ingredients_data[ing_id]['within_tolerance_count'] += 1
 
-        # Calculate statistics
-        variances = list(variance_records.values_list('variance_percentage', flat=True))
-        within_tolerance_records = variance_records.filter(within_tolerance=True).count()
+        # Keep only latest 5 records for display
+        if len(ingredients_data[ing_id]['variance_records']) < 5:
+            ingredients_data[ing_id]['variance_records'].append(record)
 
+    # Calculate statistics for each ingredient
+    for ing_id, data in ingredients_data.items():
+        variances = data['variances']
         if variances:
             avg_variance = sum(variances) / len(variances)
             max_variance = max(variances)
             min_variance = min(variances)
-            within_tolerance = (within_tolerance_records / len(variances)) * 100
-            total_records += len(variances)
-            within_tolerance_count += within_tolerance_records
+            within_tolerance = (data['within_tolerance_count'] / len(variances)) * 100
 
             variance_summary.append({
-                'ingredient': ingredient,
+                'ingredient': data['ingredient'],
                 'records_count': len(variances),
                 'avg_variance': avg_variance,
                 'max_variance': max_variance,
                 'min_variance': min_variance,
                 'within_tolerance_pct': within_tolerance,
-                'variance_records': variance_records[:5]  # Latest 5 records
+                'variance_records': data['variance_records'],
+                'tolerance_threshold_1_5x': float(data['ingredient'].variance_allowance) * 1.5
             })
+
+            total_records += len(variances)
+            within_tolerance_count += data['within_tolerance_count']
 
     # Calculate overall statistics
     if variance_summary:
@@ -243,6 +285,10 @@ def variance_analysis_report(request):
         avg_of_avgs = 0
         overall_within_tolerance = 0
 
+    # Sort by avg_variance for insights
+    best_performing = sorted(variance_summary, key=lambda x: x['avg_variance'])[:3]
+    outside_tolerance = [v for v in variance_summary if v['avg_variance'] > v['ingredient'].variance_allowance]
+
     # Handle download
     if download == 'csv':
         return generate_variance_csv_download(variance_summary, days)
@@ -251,6 +297,8 @@ def variance_analysis_report(request):
 
     context = {
         'variance_summary': variance_summary,
+        'best_performing': best_performing,
+        'outside_tolerance': outside_tolerance,
         'days': days,
         'total_records': total_records,
         'avg_of_avgs': avg_of_avgs,

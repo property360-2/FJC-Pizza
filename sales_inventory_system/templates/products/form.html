@@ -121,6 +121,85 @@
                 </div>
             </div>
 
+            <!-- Ingredients (Recipe) - REQUIRED -->
+            <div class="pt-4 border-t border-gray-200">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Ingredients <span class="text-red-500">*</span>
+                        <span class="text-xs text-gray-500 font-normal">Add the ingredients needed for this product</span>
+                    </label>
+
+                    <!-- Ingredient Search & Add -->
+                    <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <!-- Ingredient Search -->
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="ingredient-search"
+                                    placeholder="Search ingredients..."
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500"
+                                    autocomplete="off"
+                                />
+                                <div id="ingredient-suggestions" class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto"></div>
+                            </div>
+
+                            <!-- Quantity Input -->
+                            <input
+                                type="number"
+                                id="ingredient-quantity"
+                                placeholder="Quantity"
+                                step="0.01"
+                                min="0.01"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500"
+                            />
+
+                            <!-- Add Button -->
+                            <button
+                                type="button"
+                                id="add-ingredient-btn"
+                                class="px-4 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium transition"
+                            >
+                                ➕ Add Ingredient
+                            </button>
+                        </div>
+                        <p id="ingredient-error" class="mt-2 text-sm text-red-600 hidden"></p>
+                    </div>
+
+                    <!-- Selected Ingredients List -->
+                    <div id="ingredients-list" class="space-y-2 mb-4">
+                        {% if product.recipe.ingredients.all %}
+                            {% for item in product.recipe.ingredients.all %}
+                            <div class="ingredient-item flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200" data-ingredient-id="{{ item.ingredient.id }}">
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ item.ingredient.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ item.ingredient.unit }}</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <input
+                                        type="number"
+                                        value="{{ item.quantity }}"
+                                        step="0.01"
+                                        min="0.01"
+                                        class="ingredient-qty w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                                    />
+                                    <span class="text-sm text-gray-600">{{ item.ingredient.unit }}</span>
+                                    <button type="button" class="remove-ingredient px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm font-medium transition">Remove</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="ingredients-empty" class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                        <span class="text-3xl mb-2 block">📦</span>
+                        <p class="text-gray-600 mb-2">No ingredients added yet</p>
+                        <p class="text-xs text-gray-500">Search and add ingredients above</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Image Upload -->
             <div>
                 <label for="image" class="block text-sm font-medium text-gray-700 mb-1">
@@ -403,6 +482,267 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoryInput.parentElement.querySelector('.category-suggestions').classList.add('hidden');
             }, 200);
         });
+    }
+});
+
+// ========== INGREDIENT MANAGEMENT ==========
+let allIngredients = []; // Store all ingredients for searching
+let selectedIngredients = new Map(); // Map of ingredient_id -> { name, unit, quantity }
+
+// Fetch all ingredients on page load
+async function loadIngredients() {
+    try {
+        const response = await fetch('/products/api/ingredients/');
+        const data = await response.json();
+        allIngredients = data.results || data;
+    } catch (error) {
+        console.error('Error loading ingredients:', error);
+    }
+}
+
+// Search ingredients
+function searchIngredients(query) {
+    if (!query.trim()) return [];
+    const lowerQuery = query.toLowerCase();
+    return allIngredients.filter(ing =>
+        ing.name.toLowerCase().includes(lowerQuery) ||
+        ing.unit.toLowerCase().includes(lowerQuery)
+    );
+}
+
+// Display ingredient suggestions
+function displayIngredientSuggestions(query) {
+    const suggestionsDiv = document.getElementById('ingredient-suggestions');
+    const results = searchIngredients(query);
+
+    if (!query.trim() || results.length === 0) {
+        suggestionsDiv.classList.add('hidden');
+        return;
+    }
+
+    let html = '';
+    results.slice(0, 10).forEach(ingredient => {
+        html += `
+            <div class="ingredient-suggestion p-3 hover:bg-fjc-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
+                 data-id="${ingredient.id}" data-name="${ingredient.name}" data-unit="${ingredient.unit}">
+                <div class="font-medium text-gray-900">${ingredient.name}</div>
+                <div class="text-xs text-gray-500">Unit: ${ingredient.unit}</div>
+            </div>
+        `;
+    });
+
+    suggestionsDiv.innerHTML = html;
+    suggestionsDiv.classList.remove('hidden');
+
+    // Add click handlers
+    suggestionsDiv.querySelectorAll('.ingredient-suggestion').forEach(suggestion => {
+        suggestion.addEventListener('click', () => {
+            document.getElementById('ingredient-search').value = suggestion.dataset.name;
+            document.getElementById('ingredient-search').dataset.selectedId = suggestion.dataset.id;
+            document.getElementById('ingredient-search').dataset.selectedUnit = suggestion.dataset.unit;
+            suggestionsDiv.classList.add('hidden');
+        });
+    });
+}
+
+// Add ingredient to list
+function addIngredient() {
+    const searchInput = document.getElementById('ingredient-search');
+    const quantityInput = document.getElementById('ingredient-quantity');
+    const ingredientId = searchInput.dataset.selectedId;
+    const ingredientName = searchInput.value.trim();
+    const ingredientUnit = searchInput.dataset.selectedUnit;
+    const quantity = parseFloat(quantityInput.value);
+    const errorDiv = document.getElementById('ingredient-error');
+
+    // Validation
+    if (!ingredientId) {
+        errorDiv.textContent = 'Please select a valid ingredient from the suggestions';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    if (!quantity || quantity <= 0) {
+        errorDiv.textContent = 'Please enter a valid quantity greater than 0';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    if (selectedIngredients.has(ingredientId)) {
+        errorDiv.textContent = 'This ingredient is already added';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    // Add to map
+    selectedIngredients.set(ingredientId, {
+        id: ingredientId,
+        name: ingredientName,
+        unit: ingredientUnit,
+        quantity: quantity
+    });
+
+    // Clear inputs
+    searchInput.value = '';
+    searchInput.dataset.selectedId = '';
+    searchInput.dataset.selectedUnit = '';
+    quantityInput.value = '';
+    errorDiv.classList.add('hidden');
+    document.getElementById('ingredient-suggestions').classList.add('hidden');
+
+    // Refresh display
+    renderIngredientsList();
+}
+
+// Remove ingredient
+function removeIngredient(ingredientId) {
+    selectedIngredients.delete(ingredientId);
+    renderIngredientsList();
+}
+
+// Render ingredients list
+function renderIngredientsList() {
+    const listDiv = document.getElementById('ingredients-list');
+    const emptyDiv = document.getElementById('ingredients-empty');
+
+    if (selectedIngredients.size === 0) {
+        listDiv.innerHTML = '';
+        emptyDiv.classList.remove('hidden');
+        return;
+    }
+
+    emptyDiv.classList.add('hidden');
+
+    let html = '';
+    selectedIngredients.forEach((ing, id) => {
+        html += `
+            <div class="ingredient-item flex justify-between items-center p-3 bg-blue-50 rounded-lg border border-blue-200" data-ingredient-id="${id}">
+                <div>
+                    <p class="font-medium text-gray-900">${ing.name}</p>
+                    <p class="text-xs text-gray-500">${ing.unit}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input
+                        type="number"
+                        value="${ing.quantity}"
+                        step="0.01"
+                        min="0.01"
+                        class="ingredient-qty w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                        onchange="updateIngredientQty(${id}, this.value)"
+                    />
+                    <span class="text-sm text-gray-600">${ing.unit}</span>
+                    <button type="button" class="remove-ingredient px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm font-medium transition" onclick="removeIngredient(${id})">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    listDiv.innerHTML = html;
+
+    // Create hidden input for form submission
+    updateHiddenIngredientsInput();
+}
+
+// Update ingredient quantity
+function updateIngredientQty(ingredientId, newQty) {
+    const qty = parseFloat(newQty);
+    if (qty > 0) {
+        const ing = selectedIngredients.get(ingredientId);
+        ing.quantity = qty;
+        updateHiddenIngredientsInput();
+    }
+}
+
+// Create hidden input for form submission
+function updateHiddenIngredientsInput() {
+    let hiddenInput = document.getElementById('ingredients-data');
+    if (!hiddenInput) {
+        hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.id = 'ingredients-data';
+        hiddenInput.name = 'ingredients_json';
+        document.querySelector('form').appendChild(hiddenInput);
+    }
+
+    const ingredientsArray = Array.from(selectedIngredients.values());
+    hiddenInput.value = JSON.stringify(ingredientsArray);
+}
+
+// Validate ingredients before form submit
+function validateIngredients() {
+    const errorDiv = document.getElementById('ingredient-error');
+    if (selectedIngredients.size === 0) {
+        errorDiv.textContent = 'Please add at least one ingredient';
+        errorDiv.classList.remove('hidden');
+        return false;
+    }
+    errorDiv.classList.add('hidden');
+    return true;
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    loadIngredients();
+
+    const searchInput = document.getElementById('ingredient-search');
+    const quantityInput = document.getElementById('ingredient-quantity');
+    const addBtn = document.getElementById('add-ingredient-btn');
+    const suggestionsDiv = document.getElementById('ingredient-suggestions');
+    const form = document.querySelector('form');
+
+    // Search input
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(() => {
+            displayIngredientSuggestions(searchInput.value);
+        }, 300));
+
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                suggestionsDiv.classList.add('hidden');
+            }, 200);
+        });
+
+        // Add on Enter key
+        quantityInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addIngredient();
+            }
+        });
+    }
+
+    // Add button
+    if (addBtn) {
+        addBtn.addEventListener('click', addIngredient);
+    }
+
+    // Form validation
+    if (form) {
+        const originalSubmit = form.onsubmit;
+        form.addEventListener('submit', (e) => {
+            if (!validateIngredients()) {
+                e.preventDefault();
+                document.getElementById('ingredient-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    // Load existing ingredients if editing
+    const ingredientsList = document.getElementById('ingredients-list');
+    if (ingredientsList && ingredientsList.children.length > 0) {
+        const items = ingredientsList.querySelectorAll('.ingredient-item[data-ingredient-id]');
+        items.forEach(item => {
+            const id = parseInt(item.dataset.ingredientId);
+            const qtyInput = item.querySelector('.ingredient-qty');
+            const quantity = parseFloat(qtyInput.value);
+            const name = item.querySelector('p.font-medium').textContent;
+            const unit = item.querySelector('p.text-xs').textContent;
+
+            selectedIngredients.set(id, { id, name, unit, quantity });
+        });
+        updateHiddenIngredientsInput();
     }
 });
 </script>

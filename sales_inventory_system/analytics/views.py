@@ -121,14 +121,35 @@ def dashboard(request):
     if total_orders > 0:
         avg_order_value = total_revenue / total_orders
 
+    # Average daily revenue (week)
+    avg_daily_revenue = Decimal('0.00')
+    if week_revenue > 0:
+        avg_daily_revenue = week_revenue / 7
+
+    # Get max quantity for progress bar calculation (before limiting to 10)
+    max_product_result = OrderItem.objects.values(
+        'product__name'
+    ).annotate(
+        total_quantity=Sum('quantity')
+    ).order_by('-total_quantity').first()
+
+    max_product_quantity = int(max_product_result['total_quantity']) if max_product_result and max_product_result['total_quantity'] else 1
+
     # Top selling products
-    top_products = OrderItem.objects.values(
+    top_products_qs = OrderItem.objects.values(
         'product__name',
         'product__price'
     ).annotate(
         total_quantity=Sum('quantity'),
         total_revenue=Sum('subtotal')
     ).order_by('-total_quantity')[:10]
+
+    # Calculate width percentage for each product
+    top_products = []
+    for product in top_products_qs:
+        width_percent = (int(product['total_quantity'] or 0) / max_product_quantity * 100) if max_product_quantity > 0 else 0
+        product['width_percent'] = int(width_percent)
+        top_products.append(product)
 
     # Low stock products
     low_stock_products = Product.objects.filter(
@@ -145,6 +166,7 @@ def dashboard(request):
         'today_revenue': today_revenue,
         'week_revenue': week_revenue,
         'month_revenue': month_revenue,
+        'avg_daily_revenue': avg_daily_revenue,
 
         # Order metrics
         'total_orders': total_orders,
@@ -157,6 +179,7 @@ def dashboard(request):
 
         # Product metrics
         'top_products': top_products,
+        'max_product_quantity': max_product_quantity,
         'low_stock_products': low_stock_products,
 
         # Recent activity

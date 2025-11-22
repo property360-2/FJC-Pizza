@@ -125,36 +125,78 @@ def product_list(request):
 def product_create(request):
     """Create a new product"""
     if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description', '')
-        price = request.POST.get('price')
-        stock = request.POST.get('stock', 0)
-        threshold = request.POST.get('threshold', 10)
-        category = request.POST.get('category', '')
-        image = request.FILES.get('image')
+        from django.db import transaction
 
-        product = Product.objects.create(
-            name=name,
-            description=description,
-            price=price,
-            stock=stock,
-            threshold=threshold,
-            category=category,
-            image=image
-        )
+        try:
+            name = request.POST.get('name')
+            description = request.POST.get('description', '')
+            price = request.POST.get('price')
+            stock = request.POST.get('stock', 0)
+            threshold = request.POST.get('threshold', 10)
+            category = request.POST.get('category', '')
+            image = request.FILES.get('image')
+            ingredients_json_str = request.POST.get('ingredients_json', '[]')
 
-        # Create audit log
-        AuditTrail.objects.create(
-            user=request.user,
-            action='CREATE',
-            model_name='Product',
-            record_id=product.id,
-            description=f'Created product: {product.name}',
-            data_snapshot={'name': name, 'price': str(price), 'stock': stock}
-        )
+            # Parse ingredients JSON
+            try:
+                ingredients_data = json.loads(ingredients_json_str)
+            except json.JSONDecodeError:
+                ingredients_data = []
 
-        messages.success(request, f'Product "{product.name}" created successfully!')
-        return redirect('products:list')
+            # Validate ingredients are provided
+            if not ingredients_data:
+                messages.error(request, 'Product must have at least one ingredient in the recipe.')
+                return render(request, 'products/form.html', {'action': 'Create'})
+
+            with transaction.atomic():
+                # Create product
+                product = Product.objects.create(
+                    name=name,
+                    description=description,
+                    price=price,
+                    stock=stock,
+                    threshold=threshold,
+                    category=category,
+                    image=image
+                )
+
+                # Create recipe item for the product
+                recipe_item = RecipeItem.objects.create(product=product)
+
+                # Create recipe ingredients
+                for ing_data in ingredients_data:
+                    try:
+                        ingredient = Ingredient.objects.get(id=ing_data.get('id'))
+                        RecipeIngredient.objects.create(
+                            recipe=recipe_item,
+                            ingredient=ingredient,
+                            quantity=Decimal(str(ing_data.get('quantity', 0)))
+                        )
+                    except (Ingredient.DoesNotExist, ValueError, KeyError):
+                        # Skip invalid ingredients
+                        continue
+
+                # Create audit log
+                AuditTrail.objects.create(
+                    user=request.user,
+                    action='CREATE',
+                    model_name='Product',
+                    record_id=product.id,
+                    description=f'Created product: {product.name} with {len(ingredients_data)} ingredient(s)',
+                    data_snapshot={
+                        'name': name,
+                        'price': str(price),
+                        'stock': stock,
+                        'ingredients_count': len(ingredients_data)
+                    }
+                )
+
+                messages.success(request, f'Product "{product.name}" created successfully with recipe!')
+                return redirect('products:list')
+
+        except Exception as e:
+            messages.error(request, f'Error creating product: {str(e)}')
+            return render(request, 'products/form.html', {'action': 'Create'})
 
     return render(request, 'products/form.html', {'action': 'Create'})
 
@@ -409,6 +451,26 @@ def recipe_edit(request, pk):
         'all_ingredients': all_ingredients,
     }
     return render(request, 'products/recipe_form.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_list_ingredients(request):
+    """API endpoint for listing all ingredients (for product creation form)"""
+    # Get all active ingredients
+    ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
+
+    results = []
+    for ingredient in ingredients:
+        results.append({
+            'id': ingredient.id,
+            'name': ingredient.name,
+            'unit': ingredient.unit,
+            'cost_per_unit': float(ingredient.cost_per_unit),
+            'current_stock': float(ingredient.current_stock),
+        })
+
+    return JsonResponse(results, safe=False)
 
 
 @login_required

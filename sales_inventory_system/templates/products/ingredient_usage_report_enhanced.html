@@ -74,95 +74,49 @@
         </div>
     </div>
 
-    <!-- Usage by Ingredient -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">Usage by Ingredient</h2>
-            <p class="text-sm text-gray-600 mt-1">Detailed consumption and cost analysis</p>
+    <!-- Usage by Ingredient - Minimalist Grid -->
+    <div>
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">All Ingredients</h2>
+            <p class="text-sm text-gray-600 mt-1">Consumption and cost summary</p>
         </div>
 
         {% if usage_summary %}
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ingredient</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Used</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Cost Per Unit</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Cost</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">% of Total</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Transactions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for item in usage_summary|dictsort:"cost"|slice:"::-1" %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4">
-                            <span class="font-medium text-gray-900">{{ item.ingredient.name }}</span>
-                            <div class="text-xs text-gray-500 mt-1">{{ item.ingredient.unit }}</div>
-                        </td>
-                        <td class="px-6 py-4 text-right text-gray-900">{{ item.total_quantity|floatformat:2 }}</td>
-                        <td class="px-6 py-4 text-right text-gray-700">₱{{ item.ingredient.cost_per_unit|floatformat:2 }}</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="font-bold text-gray-900">₱{{ item.cost|floatformat:2 }}</span>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-fjc-blue-600 h-2 rounded-full transition-all" style="width: {% widthratio item.cost total_cost 100 %}%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600 mt-1 block">{% widthratio item.cost total_cost 100 %}%</span>
-                        </td>
-                        <td class="px-6 py-4 text-center text-gray-900">{{ item.transactions_count }}</td>
-                    </tr>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for item in usage_summary %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">{{ item.ingredient.name }}</h3>
+                        <p class="text-xs text-gray-500">{{ item.ingredient.unit }}</p>
+                    </div>
+                    <span class="text-2xl">📦</span>
+                </div>
 
-                    <!-- Transaction Details -->
-                    <tr class="bg-gray-50">
-                        <td colspan="6" class="px-6 py-3">
-                            <div class="text-xs font-semibold text-gray-700 mb-3">
-                                📋 Transaction Breakdown
-                            </div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                                {% for type_name, quantity in item.transaction_stats.items %}
-                                <div class="bg-white p-2 rounded border border-gray-200">
-                                    <div class="text-xs text-gray-600">{{ type_name }}</div>
-                                    <div class="text-sm font-bold text-gray-900">{{ quantity|floatformat:2 }}</div>
-                                </div>
-                                {% endfor %}
-                            </div>
+                <div class="space-y-2 mb-3 pb-3 border-b border-gray-100">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Used:</span>
+                        <span class="font-semibold text-gray-900">{{ item.total_quantity|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Cost/Unit:</span>
+                        <span class="font-semibold text-gray-900">₱{{ item.ingredient.cost_per_unit|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Total Cost:</span>
+                        <span class="font-bold text-blue-600">₱{{ item.cost|floatformat:2 }}</span>
+                    </div>
+                </div>
 
-                            <div class="text-xs font-semibold text-gray-700 mb-2">Latest Transactions</div>
-                            <div class="space-y-1 max-h-32 overflow-y-auto">
-                                {% for trans in item.transactions %}
-                                <div class="flex justify-between text-xs bg-white p-2 rounded border border-gray-200">
-                                    <span class="text-gray-600">{{ trans.created_at|date:"M d, H:i" }}</span>
-                                    <span class="font-medium">{{ trans.get_transaction_type_display }}</span>
-                                    <span class="text-gray-900">{{ trans.quantity|floatformat:3 }} {{ item.ingredient.unit }}</span>
-                                    {% if trans.notes %}
-                                    <span class="text-gray-500 italic">{{ trans.notes|truncatewords:3 }}</span>
-                                    {% endif %}
-                                </div>
-                                {% empty %}
-                                <div class="text-xs text-gray-500 p-2">No transactions</div>
-                                {% endfor %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot class="bg-gray-50 border-t-2 border-gray-200">
-                    <tr class="font-semibold">
-                        <td class="px-6 py-3 text-gray-900">TOTAL</td>
-                        <td class="px-6 py-3 text-right text-gray-900">{{ total_used|floatformat:2 }}</td>
-                        <td class="px-6 py-3 text-right text-gray-600">—</td>
-                        <td class="px-6 py-3 text-right text-lg text-blue-600">₱{{ total_cost|floatformat:2 }}</td>
-                        <td class="px-6 py-3 text-center text-gray-900">100%</td>
-                        <td class="px-6 py-3 text-center text-gray-900">—</td>
-                    </tr>
-                </tfoot>
-            </table>
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>{% widthratio item.cost total_cost 100 %}% of total</span>
+                    <span>{{ item.transactions_count }} transactions</span>
+                </div>
+            </div>
+            {% endfor %}
         </div>
         {% else %}
-        <div class="px-6 py-12 text-center">
+        <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
             <span class="text-5xl mb-4 block">📦</span>
             <p class="text-gray-600 text-lg">No ingredient usage data available</p>
             <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some stock transactions</p>
@@ -176,8 +130,8 @@
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Top Cost Items</h3>
             <div class="space-y-3">
-                {% for item in usage_summary|dictsort:"cost"|slice:"::-1"|slice:":5" %}
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                {% for item in top_cost_items %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                     <div>
                         <div class="font-medium text-gray-900">{{ item.ingredient.name }}</div>
                         <div class="text-xs text-gray-500">{{ item.total_quantity|floatformat:2 }} {{ item.ingredient.unit }}</div>
@@ -197,8 +151,8 @@
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 Most Used Items</h3>
             <div class="space-y-3">
-                {% for item in usage_summary|dictsort:"total_quantity"|slice:"::-1"|slice:":5" %}
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                {% for item in top_used_items %}
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                     <div>
                         <div class="font-medium text-gray-900">{{ item.ingredient.name }}</div>
                         <div class="text-xs text-gray-500">₱{{ item.ingredient.cost_per_unit|floatformat:2 }} per {{ item.ingredient.unit }}</div>

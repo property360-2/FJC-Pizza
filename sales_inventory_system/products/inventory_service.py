@@ -31,48 +31,56 @@ class BOMService:
     def deduct_ingredients_for_order(order, user=None):
         """
         Deduct ingredients from stock when an order is completed.
+        STRICT: All products must have recipes and sufficient ingredients must exist.
 
         Args:
             order: Order instance
             user: User who authorized the deduction
 
         Raises:
-            IngredientDeductionError: If insufficient ingredients
+            IngredientDeductionError: If product lacks recipe or insufficient ingredients
 
         Returns:
             dict: Transaction details
         """
         deductions = []
-        errors = []
 
         try:
             with transaction.atomic():
+                # FIRST PASS: Validate all products have recipes and ingredients are sufficient
                 for order_item in order.items.all():
                     product = order_item.product
                     quantity = order_item.quantity
 
-                    # Check if product has a recipe
+                    # STRICT: Product MUST have a recipe
                     try:
                         recipe = product.recipe
                     except RecipeItem.DoesNotExist:
-                        # Product doesn't have a recipe, skip deduction
-                        continue
+                        raise IngredientDeductionError(
+                            f"Product '{product.name}' does not have a recipe defined. "
+                            "All products must have recipes before orders can be placed."
+                        )
 
-                    # Deduct ingredients for each unit of product
+                    # STRICT: Check all ingredients are sufficient BEFORE any deductions
                     for recipe_ingredient in recipe.ingredients.all():
                         ingredient = recipe_ingredient.ingredient
                         total_needed = recipe_ingredient.quantity * quantity
 
-                        # Check if sufficient ingredient exists
                         if ingredient.current_stock < total_needed:
-                            errors.append({
-                                'product': product.name,
-                                'ingredient': ingredient.name,
-                                'available': ingredient.current_stock,
-                                'needed': total_needed,
-                                'unit': ingredient.unit
-                            })
-                            continue
+                            raise IngredientDeductionError(
+                                f"Insufficient '{ingredient.name}' for {product.name}. "
+                                f"Need {total_needed} {ingredient.unit}, but only {ingredient.current_stock} available."
+                            )
+
+                # SECOND PASS: Perform actual deductions (only if all validations passed)
+                for order_item in order.items.all():
+                    product = order_item.product
+                    quantity = order_item.quantity
+                    recipe = product.recipe  # Already validated to exist
+
+                    for recipe_ingredient in recipe.ingredients.all():
+                        ingredient = recipe_ingredient.ingredient
+                        total_needed = recipe_ingredient.quantity * quantity
 
                         # Deduct from ingredient stock
                         ingredient.current_stock -= total_needed
@@ -98,11 +106,6 @@ class BOMService:
                             'remaining_stock': ingredient.current_stock
                         })
 
-                if errors:
-                    raise IngredientDeductionError(
-                        f"Insufficient stock for {len(errors)} ingredient(s): {errors}"
-                    )
-
                 return {
                     'success': True,
                     'deductions': deductions,
@@ -119,6 +122,7 @@ class BOMService:
     def check_ingredient_availability(product_id, quantity=1):
         """
         Check if a product has sufficient ingredients available.
+        STRICT: Products MUST have recipes defined.
 
         Args:
             product_id: Product ID
@@ -130,10 +134,18 @@ class BOMService:
         try:
             recipe = RecipeItem.objects.get(product_id=product_id)
         except RecipeItem.DoesNotExist:
-            # Product has no recipe, always available
+            # STRICT: Product MUST have a recipe
+            from .models import Product
+            try:
+                product = Product.objects.get(id=product_id)
+                product_name = product.name
+            except Product.DoesNotExist:
+                product_name = f"Product #{product_id}"
+
             return {
-                'available': True,
+                'available': False,
                 'has_recipe': False,
+                'error': f"Product '{product_name}' does not have a recipe defined. All products must have recipes.",
                 'shortages': []
             }
 

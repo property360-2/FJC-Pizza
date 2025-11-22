@@ -14,6 +14,9 @@ from system.models import AuditTrail
 def order_list(request):
     """Display list of all orders with search, filter, and pagination"""
 
+    # Auto-expire pending orders older than 1 hour
+    Order.expire_old_pending_orders()
+
     # Get query parameters
     search = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '').strip()
@@ -93,6 +96,9 @@ def order_list(request):
 @login_required
 def order_detail(request, pk):
     """Display details of a specific order"""
+    # Auto-expire pending orders older than 1 hour
+    Order.expire_old_pending_orders()
+
     order = get_object_or_404(Order, pk=pk)
 
     context = {
@@ -105,6 +111,9 @@ def order_detail(request, pk):
 @login_required
 def update_order_status(request, pk):
     """Update the status of an order"""
+    # Auto-expire pending orders older than 1 hour
+    Order.expire_old_pending_orders()
+
     if request.method == 'POST':
         try:
             order = get_object_or_404(Order, pk=pk)
@@ -157,6 +166,8 @@ def process_payment(request, pk):
     """Process payment for an order (cashier confirms cash payment)"""
     if request.method == 'POST':
         try:
+            from products.inventory_service import BOMService, IngredientDeductionError
+
             order = get_object_or_404(Order, pk=pk)
 
             # Check if payment already exists
@@ -186,41 +197,11 @@ def process_payment(request, pk):
                 order.processed_by = request.user
                 order.save()
 
-                # Deduct stock for each item (optimized with bulk_update)
-                items = list(order.items.all().select_related('product'))
-                products_to_update = []
-                audit_trails = []
-
-                for item in items:
-                    product = item.product
-                    if product.stock < item.quantity:
-                        raise ValueError(f'Insufficient stock for {product.name}')
-
-                    product.stock -= item.quantity
-                    products_to_update.append(product)
-
-                    # Prepare audit log data
-                    audit_trails.append(AuditTrail(
-                        user=request.user,
-                        action='UPDATE',
-                        model_name='Product',
-                        record_id=product.id,
-                        description=f'Stock deducted for order {order.order_number}: {product.name} (-{item.quantity})',
-                        data_snapshot={
-                            'product': product.name,
-                            'order_number': order.order_number,
-                            'quantity_deducted': item.quantity,
-                            'remaining_stock': product.stock
-                        }
-                    ))
-
-                # Bulk update products (single query instead of N queries)
-                if products_to_update:
-                    Product.objects.bulk_update(products_to_update, ['stock'], batch_size=100)
-
-                # Bulk create audit trails
-                if audit_trails:
-                    AuditTrail.objects.bulk_create(audit_trails, batch_size=100)
+                # Deduct ingredients from order (strict validation via BOMService)
+                try:
+                    deduction_result = BOMService.deduct_ingredients_for_order(order, request.user)
+                except IngredientDeductionError as e:
+                    raise ValueError(f'Ingredient deduction failed: {str(e)}')
 
                 # Create audit log for payment
                 AuditTrail.objects.create(
@@ -232,7 +213,8 @@ def process_payment(request, pk):
                     data_snapshot={
                         'order_number': order.order_number,
                         'amount': str(payment.amount),
-                        'method': payment.method
+                        'method': payment.method,
+                        'ingredients_deducted': len(deduction_result['deductions'])
                     }
                 )
 
@@ -266,6 +248,8 @@ def pos_create_order(request):
 
     if request.method == 'POST':
         try:
+            from products.inventory_service import BOMService
+
             customer_name = request.POST.get('customer_name', 'Walk-in Customer')
             table_number = request.POST.get('table_number', '')
             notes = request.POST.get('notes', '')
@@ -282,6 +266,19 @@ def pos_create_order(request):
 
             if not cart_items:
                 messages.error(request, 'Please add at least one item to the order.')
+                return redirect('orders:pos_create_order')
+
+            # VALIDATE INGREDIENTS AVAILABILITY BEFORE CREATING ORDER
+            availability_check = BOMService.check_order_availability(cart_items)
+            if not availability_check['available']:
+                shortage_msg = 'Cannot create order due to ingredient shortages:\n'
+                for shortage in availability_check['shortages']:
+                    shortage_msg += (
+                        f"• {shortage['product']} - {shortage['ingredient']}: "
+                        f"Need {shortage['needed']} {shortage['unit']}, "
+                        f"Have {shortage['available']} {shortage['unit']}\n"
+                    )
+                messages.error(request, shortage_msg)
                 return redirect('orders:pos_create_order')
 
             with transaction.atomic():
@@ -303,17 +300,12 @@ def pos_create_order(request):
                 }
 
                 order_items = []
-                products_to_update = []
                 audit_trails = []
 
-                # Create order items and deduct stock
+                # Create order items and calculate total
                 for item_data in cart_items:
                     product = products_by_id[item_data['product_id']]
                     quantity = item_data['quantity']
-
-                    # Check stock
-                    if product.stock < quantity:
-                        raise ValueError(f'Insufficient stock for {product.name}. Available: {product.stock}')
 
                     # Prepare order item creation
                     order_items.append(OrderItem(
@@ -322,34 +314,33 @@ def pos_create_order(request):
                         quantity=quantity
                     ))
 
-                    # Deduct stock immediately
-                    product.stock -= quantity
-                    products_to_update.append(product)
-
                     total_amount += product.price * quantity
-
-                    # Prepare audit log
-                    audit_trails.append(AuditTrail(
-                        user=request.user,
-                        action='UPDATE',
-                        model_name='Product',
-                        record_id=product.id,
-                        description=f'Stock deducted for POS order {order.order_number}: {product.name} (-{quantity})',
-                        data_snapshot={
-                            'product': product.name,
-                            'order_number': order.order_number,
-                            'quantity_deducted': quantity,
-                            'remaining_stock': product.stock
-                        }
-                    ))
 
                 # Bulk create order items
                 if order_items:
                     OrderItem.objects.bulk_create(order_items, batch_size=100)
 
-                # Bulk update products (single query instead of N queries)
-                if products_to_update:
-                    Product.objects.bulk_update(products_to_update, ['stock'], batch_size=100)
+                # Deduct ingredients for the order (strict validation via BOMService)
+                from products.inventory_service import BOMService, IngredientDeductionError
+
+                try:
+                    deduction_result = BOMService.deduct_ingredients_for_order(order, request.user)
+
+                    # Create audit log for ingredient deductions
+                    audit_trails.append(AuditTrail(
+                        user=request.user,
+                        action='UPDATE',
+                        model_name='Order',
+                        record_id=order.id,
+                        description=f'Ingredients deducted for POS order {order.order_number}',
+                        data_snapshot={
+                            'order_number': order.order_number,
+                            'ingredients_deducted': len(deduction_result['deductions']),
+                            'total_ingredient_cost': float(deduction_result['total_cost'])
+                        }
+                    ))
+                except IngredientDeductionError as e:
+                    raise ValueError(f'Failed to deduct ingredients: {str(e)}')
 
                 # Bulk create audit trails
                 if audit_trails:

@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.utils import timezone
 from decimal import Decimal
+from datetime import timedelta
 import uuid
 
 class Order(models.Model):
@@ -12,6 +14,7 @@ class Order(models.Model):
         ('IN_PROGRESS', 'In Progress'),
         ('FINISHED', 'Finished'),
         ('CANCELLED', 'Cancelled'),
+        ('EXPIRED', 'Expired'),
     ]
 
     order_number = models.CharField(max_length=20, unique=True, editable=False)
@@ -52,6 +55,32 @@ class Order(models.Model):
         self.total_amount = total
         self.save()
         return total
+
+    def is_expired(self):
+        """Check if order is pending and older than 1 hour"""
+        if self.status != 'PENDING':
+            return False
+
+        time_elapsed = timezone.now() - self.created_at
+        return time_elapsed >= timedelta(hours=1)
+
+    def expire(self):
+        """Mark order as expired"""
+        if self.status == 'PENDING' and self.is_expired():
+            self.status = 'EXPIRED'
+            self.save()
+            return True
+        return False
+
+    @staticmethod
+    def expire_old_pending_orders():
+        """Expire all pending orders older than 1 hour"""
+        one_hour_ago = timezone.now() - timedelta(hours=1)
+        expired_count = Order.objects.filter(
+            status='PENDING',
+            created_at__lt=one_hour_ago
+        ).update(status='EXPIRED')
+        return expired_count
 
 
 class OrderItem(models.Model):
