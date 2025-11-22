@@ -26,8 +26,8 @@ services:
     healthCheckPath: /admin/
     previewPlan: free
 
-  - type: postgresql
+  - type: pgsql
     name: fjc-pizza-db
     ipAllowList: []
     plan: free
-    postgresSQLVersion: "15"
+    version: "15"
