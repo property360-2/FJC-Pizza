@@ -6,16 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FJC Pizza{% endblock %} - Sales & Inventory</title>
 
-    <!-- Tailwind CSS (non-blocking with defer) -->
-    <script defer src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js for interactivity -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- HTMX for dynamic updates (faster CDN with defer) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
-
-    <!-- Custom Tailwind Config -->
+    <!-- Custom Tailwind Config (must run before Tailwind loads) -->
     <script>
         tailwind.config = {
             theme: {
@@ -54,6 +45,15 @@
             }
         }
     </script>
+
+    <!-- Tailwind CSS (loaded after config is set) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js for interactivity (deferred) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- HTMX for dynamic updates (deferred, faster CDN) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
