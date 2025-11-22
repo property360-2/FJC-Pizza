@@ -507,6 +507,53 @@ def api_search_ingredients(request):
 
 @login_required
 @user_passes_test(is_admin)
+def api_list_categories(request):
+    """API endpoint for listing all product categories"""
+    # Get all unique categories from non-archived products
+    all_categories = Product.objects.filter(
+        is_archived=False
+    ).values_list('category', flat=True).distinct().order_by('category')
+    all_categories = [c for c in all_categories if c]  # Remove empty categories
+
+    results = [{'name': cat} for cat in all_categories]
+    return JsonResponse(results, safe=False)
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_create_category(request):
+    """API endpoint for creating a new product category"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'message': 'Only POST method is allowed'
+        }, status=405)
+
+    try:
+        category_name = request.POST.get('category', '').strip()
+
+        if not category_name:
+            return JsonResponse({
+                'success': False,
+                'message': 'Category name is required'
+            })
+
+        # Return the category name for immediate use
+        return JsonResponse({
+            'success': True,
+            'category': category_name,
+            'message': f'Category "{category_name}" created successfully'
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error creating category: {str(e)}'
+        })
+
+
+@login_required
+@user_passes_test(is_admin)
 def api_search_categories(request):
     """API endpoint for searching product categories (async search)"""
     query = request.GET.get('q', '').strip()

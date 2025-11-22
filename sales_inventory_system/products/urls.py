@@ -31,5 +31,7 @@ urlpatterns = [
     path('api/ingredients/', views.api_list_ingredients, name='api_list_ingredients'),
     path('api/ingredient-availability/', bom_views.api_ingredient_availability, name='api_ingredient_availability'),
     path('api/search-ingredients/', views.api_search_ingredients, name='api_search_ingredients'),
+    path('api/categories/', views.api_list_categories, name='api_list_categories'),
+    path('api/categories/create/', views.api_create_category, name='api_create_category'),
     path('api/search-categories/', views.api_search_categories, name='api_search_categories'),
 ]

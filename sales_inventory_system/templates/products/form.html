@@ -104,20 +104,17 @@
                     <p class="mt-1 text-xs text-gray-500">Alert when stock falls below this number</p>
                 </div>
 
-                <div class="relative">
+                <div>
                     <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
                         Category
                     </label>
-                    <input
-                        type="text"
+                    <select
                         id="category"
                         name="category"
-                        value="{{ product.category|default:'' }}"
-                        class="category-search w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
-                        placeholder="e.g., Pizza, Drinks, Desserts"
-                        autocomplete="off"
-                    />
-                    <div class="category-suggestions absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg hidden"></div>
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                    >
+                        <option value="">-- Select Category --</option>
+                    </select>
                 </div>
             </div>
 
@@ -283,6 +280,44 @@
                 </a>
             </div>
         </form>
+
+        <!-- Add Category Modal -->
+        <div id="addCategoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">Add New Category</h3>
+
+                <form id="addCategoryForm" class="space-y-4">
+                    <div>
+                        <label for="newCategoryInput" class="block text-sm font-medium text-gray-700 mb-1">
+                            Category Name
+                        </label>
+                        <input
+                            type="text"
+                            id="newCategoryInput"
+                            placeholder="e.g., Pizzas, Drinks, Desserts"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 focus:border-fjc-blue-500"
+                            autocomplete="off"
+                        />
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button
+                            type="button"
+                            id="cancelAddCategoryBtn"
+                            class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 font-medium shadow-sm transition"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="flex-1 bg-fjc-blue-600 text-white px-4 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium shadow-sm transition"
+                        >
+                            Add Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -405,84 +440,146 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ========== Category Async Search ==========
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+// ========== CATEGORY DROPDOWN MANAGEMENT ==========
+let allCategories = []; // Store all categories
+
+// Load categories on page load
+async function loadCategories() {
+    try {
+        const response = await fetch('/products/api/categories/');
+        allCategories = await response.json();
+        populateCategoryDropdown();
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
 }
 
-async function searchCategories(input) {
-    const query = input.value.trim();
-    const suggestionsDiv = input.parentElement.querySelector('.category-suggestions');
+// Populate category dropdown
+function populateCategoryDropdown() {
+    const categorySelect = document.getElementById('category');
+    const currentValue = categorySelect.value;
 
-    if (!query || query.length < 1) {
-        suggestionsDiv.classList.add('hidden');
+    // Clear existing options except the first one
+    while (categorySelect.options.length > 1) {
+        categorySelect.remove(1);
+    }
+
+    // Add categories
+    allCategories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.name;
+        option.textContent = category.name;
+        categorySelect.appendChild(option);
+    });
+
+    // Add "Add Category" option
+    const addCategoryOption = document.createElement('option');
+    addCategoryOption.value = '__ADD_NEW__';
+    addCategoryOption.textContent = '+ Add New Category';
+    addCategoryOption.style.fontWeight = 'bold';
+    addCategoryOption.style.color = '#2563eb';
+    categorySelect.appendChild(addCategoryOption);
+
+    // Restore previous selection if it exists
+    if (currentValue && currentValue !== '__ADD_NEW__') {
+        categorySelect.value = currentValue;
+    }
+}
+
+// Handle category dropdown change
+function handleCategoryChange() {
+    const categorySelect = document.getElementById('category');
+    const modal = document.getElementById('addCategoryModal');
+    const newCategoryInput = document.getElementById('newCategoryInput');
+
+    if (categorySelect.value === '__ADD_NEW__') {
+        // Show modal
+        modal.classList.remove('hidden');
+        // Reset input and focus
+        newCategoryInput.value = '';
+        newCategoryInput.focus();
+    }
+}
+
+// Handle add category form submission
+async function handleAddCategorySubmit(e) {
+    e.preventDefault();
+
+    const newCategoryInput = document.getElementById('newCategoryInput');
+    const categoryName = newCategoryInput.value.trim();
+    const modal = document.getElementById('addCategoryModal');
+    const categorySelect = document.getElementById('category');
+
+    if (!categoryName) {
+        newCategoryInput.focus();
         return;
     }
 
     try {
-        const response = await fetch(`/products/api/search-categories/?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
+        const formData = new FormData();
+        formData.append('category', categoryName);
 
-        if (data.results.length === 0) {
-            suggestionsDiv.innerHTML = '<div class="p-3 text-sm text-gray-500">No categories found</div>';
-            suggestionsDiv.classList.remove('hidden');
-            return;
-        }
-
-        let html = '';
-        data.results.forEach(category => {
-            html += `
-                <div class="category-suggestion p-3 hover:bg-fjc-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
-                     data-name="${category.name}">
-                    <div class="font-medium text-gray-900">${category.name}</div>
-                </div>
-            `;
-        });
-
-        suggestionsDiv.innerHTML = html;
-        suggestionsDiv.classList.remove('hidden');
-
-        // Add click handlers to suggestions
-        suggestionsDiv.querySelectorAll('.category-suggestion').forEach(suggestion => {
-            suggestion.addEventListener('click', () => {
-                input.value = suggestion.dataset.name;
-                suggestionsDiv.classList.add('hidden');
-            });
-        });
-
-    } catch (error) {
-        console.error('Error searching categories:', error);
-        suggestionsDiv.innerHTML = '<div class="p-3 text-sm text-red-500">Error searching categories</div>';
-        suggestionsDiv.classList.remove('hidden');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const categoryInput = document.querySelector('.category-search');
-
-    if (categoryInput) {
-        categoryInput.addEventListener('input', debounce(() => searchCategories(categoryInput), 300));
-        categoryInput.addEventListener('focus', () => {
-            if (categoryInput.value.trim().length > 0) {
-                searchCategories(categoryInput);
+        const response = await fetch('/products/api/categories/create/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             }
         });
 
-        // Hide suggestions when clicking outside
-        categoryInput.addEventListener('blur', () => {
-            setTimeout(() => {
-                categoryInput.parentElement.querySelector('.category-suggestions').classList.add('hidden');
-            }, 200);
-        });
+        const data = await response.json();
+
+        if (data.success) {
+            // Close modal
+            modal.classList.add('hidden');
+
+            // Add new category to allCategories
+            allCategories.push({ name: categoryName });
+
+            // Repopulate dropdown and select the new category
+            populateCategoryDropdown();
+            categorySelect.value = categoryName;
+
+            // Show success message
+            Toast.success(`Category "${categoryName}" added successfully!`);
+        } else {
+            Toast.error(`Error: ${data.message}`);
+        }
+    } catch (error) {
+        console.error('Error creating category:', error);
+        Toast.error('Error creating category');
     }
+}
+
+// Setup category handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Load categories on page load
+    loadCategories();
+
+    const categorySelect = document.getElementById('category');
+    const modal = document.getElementById('addCategoryModal');
+    const addCategoryForm = document.getElementById('addCategoryForm');
+    const cancelAddCategoryBtn = document.getElementById('cancelAddCategoryBtn');
+
+    // Handle dropdown change
+    categorySelect.addEventListener('change', handleCategoryChange);
+
+    // Handle form submission
+    addCategoryForm.addEventListener('submit', handleAddCategorySubmit);
+
+    // Handle cancel button
+    cancelAddCategoryBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+        categorySelect.value = ''; // Reset to default option
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+            categorySelect.value = '';
+        }
+    });
 });
 
 // ========== INGREDIENT MANAGEMENT ==========
