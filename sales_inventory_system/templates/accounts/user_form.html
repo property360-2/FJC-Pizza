@@ -118,11 +118,14 @@
             <a href="{% url 'accounts:user_list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg transition">
                 Cancel
             </a>
-            <button type="submit" class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-semibold px-6 py-2 rounded-lg transition">
-                {% if user %}Update User{% else %}Create User{% endif %}
+            <button type="submit" id="submitBtn" class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-semibold px-6 py-2 rounded-lg transition flex items-center gap-2">
+                <span id="submitBtnText">{% if user %}Update User{% else %}Create User{% endif %}</span>
             </button>
         </div>
     </form>
+
+<!-- Include Toast Component for feedback -->
+{% include 'components/toast.html' %}
 
     <!-- Information Notice -->
     <div class="bg-blue-50 border-l-4 border-fjc-blue-500 p-4 rounded-lg">
@@ -329,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (passwordConfirmInput.value) validatePasswordConfirm();
     });
 
-    // Validate on form submit
+    // Validate on form submit and show loading state
     form.addEventListener('submit', function(e) {
         const isUsernameValid = validateUsername();
         const isEmailValid = validateEmail();
@@ -346,6 +349,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 firstError.focus();
             }
+        } else {
+            // Show loading state on submit button
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            const originalText = submitBtnText.textContent;
+
+            submitBtn.disabled = true;
+            submitBtnText.textContent = '⏳ Saving...';
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Auto-restore button after 30 seconds (fallback in case of slow response)
+            setTimeout(() => {
+                if (submitBtn.disabled) {
+                    submitBtn.disabled = false;
+                    submitBtnText.textContent = originalText;
+                    submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
+            }, 30000);
         }
     });
 });

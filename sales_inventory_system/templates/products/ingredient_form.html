@@ -178,9 +178,10 @@
             <div class="flex space-x-3 pt-4 border-t border-gray-200">
                 <button
                     type="submit"
-                    class="flex-1 bg-fjc-blue-600 text-white px-6 py-3 rounded-lg hover:bg-fjc-blue-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fjc-blue-500"
+                    id="ingredientSubmitBtn"
+                    class="flex-1 bg-fjc-blue-600 text-white px-6 py-3 rounded-lg hover:bg-fjc-blue-700 font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fjc-blue-500 flex items-center justify-center gap-2"
                 >
-                    {{ action }} Ingredient
+                    <span id="ingredientSubmitBtnText">{{ action }} Ingredient</span>
                 </button>
                 <a
                     href="{% url 'products:ingredient_list' %}"
@@ -191,6 +192,9 @@
             </div>
         </form>
     </div>
+
+<!-- Include Toast Component for feedback -->
+{% include 'components/toast.html' %}
 
     <!-- Info Box -->
     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
@@ -203,4 +207,35 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add button loading states on form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('ingredientSubmitBtn');
+            if (submitBtn) {
+                const submitBtnText = document.getElementById('ingredientSubmitBtnText');
+                const originalText = submitBtnText.textContent;
+
+                submitBtn.disabled = true;
+                submitBtnText.textContent = '⏳ Saving...';
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                // Auto-restore button after 30 seconds (fallback)
+                setTimeout(() => {
+                    if (submitBtn.disabled) {
+                        submitBtn.disabled = false;
+                        submitBtnText.textContent = originalText;
+                        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    }
+                }, 30000);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
