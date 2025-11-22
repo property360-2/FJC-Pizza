@@ -143,6 +143,9 @@
                     <a href="{% url 'system:audit' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600">
                         Audit
                     </a>
+                    <a href="{% url 'accounts:user_list' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600">
+                        Staff
+                    </a>
                     {% elif user.is_cashier %}
                     <a href="{% url 'cashier_pos' %}" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600">
                         POS
@@ -225,6 +228,9 @@
                     </a>
                     <a href="{% url 'system:audit' %}" class="px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600 rounded-lg">
                         Audit
+                    </a>
+                    <a href="{% url 'accounts:user_list' %}" class="px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600 rounded-lg">
+                        Staff
                     </a>
                     {% elif user.is_cashier %}
                     <a href="{% url 'cashier_pos' %}" class="px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-fjc-blue-600 rounded-lg">
