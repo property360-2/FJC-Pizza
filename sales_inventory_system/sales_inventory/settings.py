@@ -45,11 +45,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Custom apps
-    "accounts",
-    "products",
-    "orders",
-    "analytics",
-    "system",
+    "sales_inventory_system.accounts",
+    "sales_inventory_system.products",
+    "sales_inventory_system.orders",
+    "sales_inventory_system.analytics",
+    "sales_inventory_system.system",
 ]
 
 MIDDLEWARE = [
