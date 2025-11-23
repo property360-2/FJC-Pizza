@@ -6,8 +6,8 @@ from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Order, OrderItem, Payment
-from products.models import Product
-from system.models import AuditTrail
+from sales_inventory_system.products.models import Product
+from sales_inventory_system.system.models import AuditTrail
 
 
 @login_required
@@ -166,7 +166,7 @@ def process_payment(request, pk):
     """Process payment for an order (cashier confirms cash payment)"""
     if request.method == 'POST':
         try:
-            from products.inventory_service import BOMService, IngredientDeductionError
+            from sales_inventory_system.products.inventory_service import BOMService, IngredientDeductionError
 
             order = get_object_or_404(Order, pk=pk)
 
@@ -248,7 +248,7 @@ def pos_create_order(request):
 
     if request.method == 'POST':
         try:
-            from products.inventory_service import BOMService
+            from sales_inventory_system.products.inventory_service import BOMService
 
             customer_name = request.POST.get('customer_name', 'Walk-in Customer')
             table_number = request.POST.get('table_number', '')
@@ -321,7 +321,7 @@ def pos_create_order(request):
                     OrderItem.objects.bulk_create(order_items, batch_size=100)
 
                 # Deduct ingredients for the order (strict validation via BOMService)
-                from products.inventory_service import BOMService, IngredientDeductionError
+                from sales_inventory_system.products.inventory_service import BOMService, IngredientDeductionError
 
                 try:
                     deduction_result = BOMService.deduct_ingredients_for_order(order, request.user)
@@ -382,7 +382,7 @@ def pos_create_order(request):
             messages.error(request, f'Error creating order: {str(e)}')
 
     # Check ingredient availability for each product
-    from products.inventory_service import BOMService
+    from sales_inventory_system.products.inventory_service import BOMService
 
     # Check availability for each product
     unavailable_products = set()

@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import User
-from system.models import AuditTrail
+from sales_inventory_system.system.models import AuditTrail
 
 def login_view(request):
     """Handle user login"""

@@ -5,7 +5,7 @@ Signals for BOM-related events
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import messages
-from orders.models import Payment
+from sales_inventory_system.orders.models import Payment
 from .inventory_service import BOMService, IngredientDeductionError
 import logging
 

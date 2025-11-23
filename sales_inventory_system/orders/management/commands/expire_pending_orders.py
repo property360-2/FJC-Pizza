@@ -3,7 +3,7 @@ Management command to expire pending orders that are older than 1 hour
 Run with: python manage.py expire_pending_orders
 """
 from django.core.management.base import BaseCommand
-from orders.models import Order
+from sales_inventory_system.orders.models import Order
 
 
 class Command(BaseCommand):

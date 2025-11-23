@@ -6,10 +6,10 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
-from accounts.models import User
-from products.models import Product
-from orders.models import Order, OrderItem, Payment
-from system.models import AuditTrail
+from sales_inventory_system.accounts.models import User
+from sales_inventory_system.products.models import Product
+from sales_inventory_system.orders.models import Order, OrderItem, Payment
+from sales_inventory_system.system.models import AuditTrail
 
 
 class Command(BaseCommand):

@@ -5,8 +5,8 @@ from django.db import transaction
 from django.views.decorators.http import require_http_methods
 import json
 from decimal import Decimal
-from products.models import Product
-from products.inventory_service import BOMService
+from sales_inventory_system.products.models import Product
+from sales_inventory_system.products.inventory_service import BOMService
 from .models import Order, OrderItem, Payment
 
 

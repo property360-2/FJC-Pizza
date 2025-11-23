@@ -4,14 +4,14 @@ from decimal import Decimal
 import random
 from datetime import timedelta
 
-from accounts.models import User
-from products.models import (
+from sales_inventory_system.accounts.models import User
+from sales_inventory_system.products.models import (
     Product, Ingredient, RecipeItem, RecipeIngredient,
     StockTransaction, PhysicalCount, VarianceRecord,
     WasteLog, PrepBatch
 )
-from orders.models import Order, OrderItem, Payment
-from system.models import AuditTrail, Archive
+from sales_inventory_system.orders.models import Order, OrderItem, Payment
+from sales_inventory_system.system.models import AuditTrail, Archive
 
 
 class Command(BaseCommand):

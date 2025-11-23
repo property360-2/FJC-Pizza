@@ -4,8 +4,8 @@ Dashboard views for different user roles
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import F, Sum, Count, Q
-from products.models import Product
-from orders.models import Order, Payment
+from sales_inventory_system.products.models import Product
+from sales_inventory_system.orders.models import Order, Payment
 from decimal import Decimal
 
 def is_admin(user):

@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from orders.models import Payment
+from sales_inventory_system.orders.models import Payment
 from decimal import Decimal
 
 

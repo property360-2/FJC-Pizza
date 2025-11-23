@@ -24,12 +24,12 @@ urlpatterns = [
     path('', home_redirect, name='home'),
     path('dashboard/', admin_dashboard, name='admin_dashboard'),
     path('pos/', cashier_pos, name='cashier_pos'),
-    path('accounts/', include('accounts.urls')),
-    path('products/', include('products.urls')),
-    path('orders/', include('orders.urls')),
-    path('analytics/', include('analytics.urls')),
-    path('system/', include('system.urls')),
-    path('kiosk/', include(('orders.kiosk_urls', 'kiosk'), namespace='kiosk')),
+    path('accounts/', include('sales_inventory_system.accounts.urls')),
+    path('products/', include('sales_inventory_system.products.urls')),
+    path('orders/', include('sales_inventory_system.orders.urls')),
+    path('analytics/', include('sales_inventory_system.analytics.urls')),
+    path('system/', include('sales_inventory_system.system.urls')),
+    path('kiosk/', include(('sales_inventory_system.orders.kiosk_urls', 'kiosk'), namespace='kiosk')),
 ]
 
 # Serve media files in development

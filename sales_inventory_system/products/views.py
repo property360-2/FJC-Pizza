@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
 from .models import Product, Ingredient, RecipeItem, RecipeIngredient
-from system.models import AuditTrail
+from sales_inventory_system.system.models import AuditTrail
 import json
 from decimal import Decimal
 

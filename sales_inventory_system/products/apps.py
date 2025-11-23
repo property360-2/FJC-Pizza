@@ -3,8 +3,8 @@ from django.apps import AppConfig
 
 class ProductsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "products"
+    name = "sales_inventory_system.products"
 
     def ready(self):
         """Register signals when app is ready"""
-        import products.signals  # noqa
+        import sales_inventory_system.products.signals  # noqa

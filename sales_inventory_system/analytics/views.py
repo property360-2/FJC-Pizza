@@ -8,8 +8,8 @@ from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 from datetime import timedelta, datetime
 from decimal import Decimal
-from orders.models import Order, Payment, OrderItem
-from products.models import Product
+from sales_inventory_system.orders.models import Order, Payment, OrderItem
+from sales_inventory_system.products.models import Product
 from .forecasting import forecast_sales
 
 
