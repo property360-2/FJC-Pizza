@@ -9,7 +9,8 @@
       "Bash(python -m json.tool:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
