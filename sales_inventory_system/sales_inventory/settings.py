@@ -88,21 +88,31 @@ WSGI_APPLICATION = "sales_inventory.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", "fcj_pizza"),
-        "USER": os.getenv("DB_USER", "fcj_pizza_user"),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-        # Connection pooling settings for better performance
-        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "600")),
-        "OPTIONS": {
-            "connect_timeout": 10,
+# Database configuration - Use DATABASE_URL if available (Render), otherwise use individual settings (local development)
+if os.getenv("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=int(os.getenv("DB_CONN_MAX_AGE", "600")),
+            conn_health_checks=True,
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME", "fcj_pizza"),
+            "USER": os.getenv("DB_USER", "fcj_pizza_user"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+            # Connection pooling settings for better performance
+            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "600")),
+            "OPTIONS": {
+                "connect_timeout": 10,
+            }
         }
     }
-}
 
 
 # Password validation
