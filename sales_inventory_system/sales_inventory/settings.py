@@ -32,7 +32,19 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-p5&2s-v4!nl0!lkqj!w3!_1%-e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,.onrender.com").split(",")
+# Parse ALLOWED_HOSTS - handle wildcards and Render domains
+_allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,*.onrender.com").split(",")
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts]
+# Handle *.onrender.com pattern by using a custom validation approach
+if not DEBUG and "*.onrender.com" in ALLOWED_HOSTS:
+    # For Render, also allow specific onrender.com domains
+    ALLOWED_HOSTS.remove("*.onrender.com")
+    # Get the actual domain if available
+    if os.getenv("RENDER_EXTERNAL_URL"):
+        ALLOWED_HOSTS.append(os.getenv("RENDER_EXTERNAL_URL").split("//")[1])
+    else:
+        # Fallback: allow any onrender.com domain
+        ALLOWED_HOSTS.append("fjc-pizza.onrender.com")
 
 
 # Application definition
