@@ -1,11 +1,17 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from pathlib import Path
+
+# Add parent directory to Python path so Django can find the full module path
+parent_dir = Path(__file__).parent.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
 
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sales_inventory.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "sales_inventory_system.sales_inventory.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
