@@ -200,32 +200,37 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
-        "file": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
-            "formatter": "verbose",
-        } if DEBUG else {},
-        "db_file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "queries.log",
-            "formatter": "verbose",
-        } if DEBUG else {},
     },
     "loggers": {
         "django": {
-            "handlers": ["console"] if not DEBUG else ["console", "file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["db_file"] if DEBUG else ["console"],
+            "handlers": ["console"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
     },
 }
+
+# Add file handlers only in development
+if DEBUG:
+    LOGGING["handlers"]["file"] = {
+        "level": "WARNING",
+        "class": "logging.FileHandler",
+        "filename": BASE_DIR / "logs" / "django.log",
+        "formatter": "verbose",
+    }
+    LOGGING["handlers"]["db_file"] = {
+        "level": "DEBUG",
+        "class": "logging.FileHandler",
+        "filename": BASE_DIR / "logs" / "queries.log",
+        "formatter": "verbose",
+    }
+    LOGGING["loggers"]["django"]["handlers"] = ["console", "file"]
+    LOGGING["loggers"]["django.db.backends"]["handlers"] = ["db_file"]
 
 # Performance optimizations
 # Session timeout (in seconds)
