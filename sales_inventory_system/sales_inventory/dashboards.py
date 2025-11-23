@@ -4,6 +4,7 @@ Dashboard views for different user roles
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import F, Sum, Count, Q
+from django.utils import timezone
 from sales_inventory_system.products.models import Product
 from sales_inventory_system.orders.models import Order, Payment
 from decimal import Decimal
@@ -89,6 +90,3 @@ def cashier_pos(request):
     }
 
     return render(request, 'dashboards/pos.html', context)
-
-
-from django.utils import timezone

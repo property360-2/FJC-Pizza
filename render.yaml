@@ -10,16 +10,24 @@ services:
     startCommand: |
       gunicorn sales_inventory_system.sales_inventory.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
+      # Development/Production control
       - key: DEBUG
         value: "False"
+
+      # Django security - MUST be set in Render dashboard (sync: false means Render won't overwrite it)
       - key: SECRET_KEY
         sync: false
-      - key: ALLOWED_HOSTS
-        value: "*.onrender.com"
+
+      # Database URL - MUST be set in Render dashboard
       - key: DATABASE_URL
         sync: false
+
+      # Python output buffering - needed for real-time logs
       - key: PYTHONUNBUFFERED
         value: "1"
+
+      # Note: ALLOWED_HOSTS and RENDER_EXTERNAL_URL are automatically detected
+      # by Django settings.py from Render environment variables
     autoDeploy: true
     healthCheckPath: /admin/
     plan: free

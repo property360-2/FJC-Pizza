@@ -27,21 +27,36 @@ load_dotenv(PROJECT_ROOT / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-p5&2s-v4!nl0!lkqj!w3!_1%-e+a%@%8703p6cu%p^wbqd+*7e")
+# SECURITY: SECRET_KEY must be set in environment - no insecure default for production
+if os.getenv("DEBUG") == "True":
+    # Local development only - insecure default
+    SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-not-for-production")
+else:
+    # Production - must have SECRET_KEY set in environment
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    if not SECRET_KEY:
+        raise ValueError(
+            "SECRET_KEY environment variable is not set. "
+            "Set it in Render environment variables or local .env file."
+        )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Parse ALLOWED_HOSTS - detect Render environment and use appropriate domain
 if os.getenv("RENDER"):
-    # Running on Render - extract domain from RENDER_EXTERNAL_URL
+    # Running on Render - extract domain from RENDER_EXTERNAL_URL (set automatically by Render)
     if os.getenv("RENDER_EXTERNAL_URL"):
         render_url = os.getenv("RENDER_EXTERNAL_URL")
         render_domain = render_url.split("//")[1] if "//" in render_url else render_url
-        ALLOWED_HOSTS = ["localhost", "127.0.0.1", render_domain]
+        # Production: only allow the actual Render domain, no localhost
+        ALLOWED_HOSTS = [render_domain]
     else:
-        # Fallback if RENDER_EXTERNAL_URL not available
-        ALLOWED_HOSTS = ["localhost", "127.0.0.1", "fjc-pizza.onrender.com"]
+        # Fallback if RENDER_EXTERNAL_URL somehow not available
+        raise ValueError(
+            "RENDER_EXTERNAL_URL environment variable is not set. "
+            "Render should set this automatically."
+        )
 else:
     # Local development - read from environment or use defaults
     _allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
