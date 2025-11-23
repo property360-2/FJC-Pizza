@@ -183,6 +183,7 @@ CACHES = {
 }
 
 # Logging configuration for performance monitoring
+# Use console-only logging to work in production environments like Render
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -194,14 +195,6 @@ LOGGING = {
         "simple": {
             "format": "{levelname} {asctime} {message}",
             "style": "{",
-        },
-    },
-    "filters": {
-        "require_debug_false": {
-            "()": "django.utils.log.RequireDebugFalse",
-        },
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
         },
     },
     "handlers": {
@@ -224,23 +217,6 @@ LOGGING = {
         },
     },
 }
-
-# Add file handlers only in development
-if DEBUG:
-    LOGGING["handlers"]["file"] = {
-        "level": "WARNING",
-        "class": "logging.FileHandler",
-        "filename": BASE_DIR / "logs" / "django.log",
-        "formatter": "verbose",
-    }
-    LOGGING["handlers"]["db_file"] = {
-        "level": "DEBUG",
-        "class": "logging.FileHandler",
-        "filename": BASE_DIR / "logs" / "queries.log",
-        "formatter": "verbose",
-    }
-    LOGGING["loggers"]["django"]["handlers"] = ["console", "file"]
-    LOGGING["loggers"]["django.db.backends"]["handlers"] = ["db_file"]
 
 # Performance optimizations
 # Session timeout (in seconds)
