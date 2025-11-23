@@ -205,22 +205,22 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "logs" / "django.log",
             "formatter": "verbose",
-        },
+        } if DEBUG else {},
         "db_file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "logs" / "queries.log",
             "formatter": "verbose",
-        },
+        } if DEBUG else {},
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"] if not DEBUG else ["console", "file"],
             "level": "INFO",
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["db_file"],
+            "handlers": ["db_file"] if DEBUG else ["console"],
             "level": "DEBUG" if DEBUG else "INFO",
             "propagate": False,
         },
