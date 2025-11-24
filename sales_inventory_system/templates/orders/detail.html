@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}Order #{{ order.order_number }} - FJC Pizza{% endblock %}
 
@@ -71,7 +72,7 @@
                                 <td class="px-6 py-4 font-medium text-gray-900">{{ item.product.name }}</td>
                                 <td class="px-6 py-4 text-gray-600">{{ item.quantity }}</td>
                                 <td class="px-6 py-4 text-gray-600">₱{{ item.product_price }}</td>
-                                <td class="px-6 py-4 font-semibold text-gray-900">₱{{ item.quantity|mul:item.product_price }}</td>
+                                <td class="px-6 py-4 font-semibold text-gray-900">₱{{ item.quantity|multiply:item.product_price }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

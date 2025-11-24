@@ -44,9 +44,8 @@ def bom_dashboard(request):
     ).select_related('ingredient').order_by('within_tolerance')[:5]
 
     # Calculate total waste cost this month
-    month_waste = WasteLog.objects.filter(
-        waste_date__gte=month_start
-    ).aggregate(total_cost=Sum(F('quantity') * F('ingredient__cost_per_unit')))
+    # Note: cost calculation not applicable with simplified ingredient system
+    month_waste = {'total_cost': 0}
 
     context = {
         'low_stock_count': Ingredient.objects.filter(
@@ -103,7 +102,8 @@ def ingredient_usage_report(request):
                 total_quantity += float(trans.quantity)
 
         # Calculate cost
-        ingredient_cost = float(ingredient.cost_per_unit) * total_quantity
+        # Note: cost calculation not applicable with simplified ingredient system
+        ingredient_cost = 0
 
         usage_summary.append({
             'ingredient': ingredient,
@@ -140,7 +140,6 @@ def ingredient_usage_report(request):
                 'ingredient_unit': item['ingredient'].unit,
                 'total_quantity': float(item['total_quantity']),
                 'cost': float(item['cost']),
-                'cost_per_unit': float(item['ingredient'].cost_per_unit),
                 'transactions_count': item['transactions_count'],
                 'percentage_of_total': percentage
             })
@@ -164,7 +163,6 @@ def ingredient_usage_report(request):
                 'ingredient_id': item['ingredient'].id,
                 'ingredient_name': item['ingredient'].name,
                 'total_quantity': float(item['total_quantity']),
-                'cost_per_unit': float(item['ingredient'].cost_per_unit),
                 'unit': item['ingredient'].unit
             })
 
@@ -212,15 +210,13 @@ def generate_usage_csv_download(usage_summary, days):
     response['Content-Disposition'] = f'attachment; filename="ingredient_usage_{timezone.now().strftime("%Y%m%d")}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Ingredient', 'Unit', 'Total Used', 'Cost Per Unit', 'Total Cost', 'Transactions'])
+    writer.writerow(['Ingredient', 'Unit', 'Total Used', 'Transactions'])
 
     for item in usage_summary:
         writer.writerow([
             item['ingredient'].name,
             item['ingredient'].unit,
             f"{item['total_quantity']:.3f}",
-            f"{item['ingredient'].cost_per_unit:.2f}",
-            f"{item['cost']:.2f}",
             item['transactions_count']
         ])
 
@@ -233,18 +229,15 @@ def generate_usage_detailed_csv(usage_summary, days):
     response['Content-Disposition'] = f'attachment; filename="ingredient_usage_detailed_{timezone.now().strftime("%Y%m%d")}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Ingredient', 'Date', 'Type', 'Quantity', 'Unit Cost', 'Cost Impact', 'Notes'])
+    writer.writerow(['Ingredient', 'Date', 'Type', 'Quantity', 'Notes'])
 
     for item in usage_summary:
         for trans in item['transactions']:
-            cost_impact = float(trans.quantity) * float(item['ingredient'].cost_per_unit) if trans.unit_cost else 0
             writer.writerow([
                 item['ingredient'].name,
                 trans.created_at.strftime("%Y-%m-%d %H:%M"),
                 trans.get_transaction_type_display(),
                 f"{trans.quantity:.3f}",
-                f"{item['ingredient'].cost_per_unit:.2f}",
-                f"{cost_impact:.2f}",
                 trans.notes or ''
             ])
 
@@ -419,10 +412,8 @@ def low_stock_report(request):
     low_stock_ingredients = BOMService.get_low_stock_ingredients()
 
     # Calculate total value of low stock
-    total_value = sum(
-        ing.current_stock * ing.cost_per_unit
-        for ing in low_stock_ingredients
-    )
+    # Note: cost calculation not applicable with simplified ingredient system
+    total_value = 0
 
     # Get recent transactions for context
     week_ago = timezone.now() - timedelta(days=7)

@@ -15,6 +15,12 @@ def multiply(value, arg):
         return 0
 
 
+# Alias for multiply to support templates using the shorter name
+@register.filter(name="mul")
+def mul(value, arg):
+    return multiply(value, arg)
+
+
 @register.filter
 def divide(value, arg):
     """Divide value by arg"""

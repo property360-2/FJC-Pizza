@@ -7,8 +7,8 @@ from .models import (
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'stock', 'threshold', 'category', 'is_low_stock', 'is_archived', 'created_at']
-    list_filter = ['is_archived', 'category', 'created_at']
+    list_display = ['name', 'price', 'stock', 'requires_bom', 'category', 'is_low_stock', 'is_archived', 'created_at']
+    list_filter = ['requires_bom', 'is_archived', 'category', 'created_at']
     search_fields = ['name', 'description', 'category']
     readonly_fields = ['created_at', 'updated_at']
 
@@ -20,7 +20,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ['name', 'unit', 'current_stock', 'min_stock', 'cost_per_unit', 'variance_allowance', 'is_low_stock', 'is_active']
+    list_display = ['name', 'unit', 'current_stock', 'min_stock', 'variance_allowance', 'is_low_stock', 'is_active']
     list_filter = ['unit', 'is_active', 'created_at']
     search_fields = ['name', 'description']
     readonly_fields = ['created_at', 'updated_at']
@@ -30,7 +30,7 @@ class IngredientAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'unit', 'is_active')
         }),
         ('Stock Information', {
-            'fields': ('current_stock', 'min_stock', 'cost_per_unit')
+            'fields': ('current_stock', 'min_stock')
         }),
         ('Variance Management', {
             'fields': ('variance_allowance',),

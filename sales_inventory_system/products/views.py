@@ -123,7 +123,7 @@ def product_list(request):
 @login_required
 @user_passes_test(is_admin)
 def product_create(request):
-    """Create a new product"""
+    """Create a new product (with or without BOM)"""
     if request.method == 'POST':
         from django.db import transaction
 
@@ -131,10 +131,9 @@ def product_create(request):
             name = request.POST.get('name')
             description = request.POST.get('description', '')
             price = request.POST.get('price')
-            stock = request.POST.get('stock', 0)
-            threshold = request.POST.get('threshold', 10)
             category = request.POST.get('category', '')
             image = request.FILES.get('image')
+            requires_bom = request.POST.get('requires_bom') == 'on'
             ingredients_json_str = request.POST.get('ingredients_json', '[]')
 
             # Parse ingredients JSON
@@ -143,10 +142,54 @@ def product_create(request):
             except json.JSONDecodeError:
                 ingredients_data = []
 
-            # Validate ingredients are provided
-            if not ingredients_data:
-                messages.error(request, 'Product must have at least one ingredient in the recipe.')
-                return render(request, 'products/form.html', {'action': 'Create'})
+            # Validate based on product type
+            if requires_bom:
+                # Manufactured product: requires BOM/ingredients
+                if not ingredients_data:
+                    messages.error(request, 'Manufactured products must have at least one ingredient in the recipe.')
+                    return render(request, 'products/form.html', {
+                        'action': 'Create',
+                        'form_data': {
+                            'name': name,
+                            'description': description,
+                            'price': price,
+                            'category': category,
+                        }
+                    })
+                stock = 0  # Stock for manufactured products starts at 0
+                threshold = request.POST.get('threshold', 10)
+            else:
+                # Simple product: requires stock
+                stock_str = request.POST.get('stock', '')
+                threshold = request.POST.get('threshold', 10)
+                try:
+                    stock = int(stock_str) if stock_str else 0
+                    if stock < 0:
+                        messages.error(request, 'Simple products must have a stock quantity >= 0.')
+                        return render(request, 'products/form.html', {
+                            'action': 'Create',
+                            'form_data': {
+                                'name': name,
+                                'description': description,
+                                'price': price,
+                                'stock': stock,
+                                'category': category,
+                                'threshold': threshold,
+                            }
+                        })
+                except (ValueError, TypeError):
+                    messages.error(request, 'Simple products must have a valid stock quantity.')
+                    return render(request, 'products/form.html', {
+                        'action': 'Create',
+                        'form_data': {
+                            'name': name,
+                            'description': description,
+                            'price': price,
+                            'stock': stock_str,
+                            'category': category,
+                            'threshold': threshold,
+                        }
+                    })
 
             with transaction.atomic():
                 # Create product
@@ -157,64 +200,96 @@ def product_create(request):
                     stock=stock,
                     threshold=threshold,
                     category=category,
-                    image=image
+                    image=image,
+                    requires_bom=requires_bom
                 )
 
-                # Create recipe item for the product
+                # Create recipe item for the product (always created)
                 recipe_item = RecipeItem.objects.create(product=product)
 
-                # Create recipe ingredients
-                for ing_data in ingredients_data:
-                    try:
-                        ingredient = Ingredient.objects.get(id=ing_data.get('id'))
-                        RecipeIngredient.objects.create(
-                            recipe=recipe_item,
-                            ingredient=ingredient,
-                            quantity=Decimal(str(ing_data.get('quantity', 0)))
-                        )
-                    except (Ingredient.DoesNotExist, ValueError, KeyError):
-                        # Skip invalid ingredients
-                        continue
+                # Create recipe ingredients only if BOM is required
+                ingredients_count = 0
+                if requires_bom and ingredients_data:
+                    for ing_data in ingredients_data:
+                        try:
+                            ingredient = Ingredient.objects.get(id=ing_data.get('id'))
+                            RecipeIngredient.objects.create(
+                                recipe=recipe_item,
+                                ingredient=ingredient,
+                                quantity=Decimal(str(ing_data.get('quantity', 0)))
+                            )
+                            ingredients_count += 1
+                        except (Ingredient.DoesNotExist, ValueError, KeyError):
+                            # Skip invalid ingredients
+                            continue
 
                 # Create audit log
+                product_type = 'Manufactured (with BOM)' if requires_bom else 'Simple stock item'
                 AuditTrail.objects.create(
                     user=request.user,
                     action='CREATE',
                     model_name='Product',
                     record_id=product.id,
-                    description=f'Created product: {product.name} with {len(ingredients_data)} ingredient(s)',
+                    description=f'Created {product_type}: {product.name}',
                     data_snapshot={
                         'name': name,
                         'price': str(price),
                         'stock': stock,
-                        'ingredients_count': len(ingredients_data)
+                        'requires_bom': requires_bom,
+                        'ingredients_count': ingredients_count
                     }
                 )
 
-                messages.success(request, f'Product "{product.name}" created successfully with recipe!')
+                success_msg = f'Product "{product.name}" created successfully!'
+                if requires_bom:
+                    success_msg += f' Recipe with {ingredients_count} ingredient(s) added.'
+                messages.success(request, success_msg)
                 return redirect('products:list')
 
         except Exception as e:
-            messages.error(request, f'Error creating product: {str(e)}')
-            return render(request, 'products/form.html', {'action': 'Create'})
+            import traceback
+            error_detail = str(e)
+            print(f"Product creation error: {error_detail}")
+            print(traceback.format_exc())
+            messages.error(request, f'Error creating product: {error_detail}')
+            return render(request, 'products/form.html', {
+                'action': 'Create',
+                'form_data': {
+                    'name': name,
+                    'description': description,
+                    'price': price,
+                    'stock': request.POST.get('stock', 0),
+                    'category': category,
+                    'threshold': request.POST.get('threshold', 10),
+                }
+            })
 
     return render(request, 'products/form.html', {'action': 'Create'})
 
 @login_required
 @user_passes_test(is_admin)
 def product_edit(request, pk):
-    """Edit an existing product"""
+    """Edit an existing product (simple or with BOM)"""
     product = get_object_or_404(Product, pk=pk)
 
     if request.method == 'POST':
         old_stock = product.stock
+        old_requires_bom = product.requires_bom
 
         product.name = request.POST.get('name')
         product.description = request.POST.get('description', '')
         product.price = request.POST.get('price')
-        product.stock = request.POST.get('stock', 0)
-        product.threshold = request.POST.get('threshold', 10)
         product.category = request.POST.get('category', '')
+        product.requires_bom = request.POST.get('requires_bom') == 'on'
+        product.threshold = request.POST.get('threshold', 10)
+
+        # Handle stock based on product type
+        if not product.requires_bom:
+            # Simple product: allow stock updates
+            product.stock = request.POST.get('stock', 0)
+        else:
+            # Manufactured product: keep stock at 0
+            product.stock = 0
 
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
@@ -223,8 +298,15 @@ def product_edit(request, pk):
 
         # Create audit log
         description = f'Updated product: {product.name}'
+        changes = []
         if old_stock != int(product.stock):
-            description += f' (Stock: {old_stock} → {product.stock})'
+            changes.append(f'Stock: {old_stock} → {product.stock}')
+        if old_requires_bom != product.requires_bom:
+            bom_status = 'with BOM' if product.requires_bom else 'without BOM'
+            changes.append(f'Type: {bom_status}')
+
+        if changes:
+            description += f' ({", ".join(changes)})'
 
         AuditTrail.objects.create(
             user=request.user,
@@ -236,7 +318,9 @@ def product_edit(request, pk):
                 'name': product.name,
                 'price': str(product.price),
                 'stock': product.stock,
-                'old_stock': old_stock
+                'requires_bom': product.requires_bom,
+                'old_stock': old_stock,
+                'old_requires_bom': old_requires_bom
             }
         )
 
@@ -321,7 +405,6 @@ def ingredient_create(request):
             name = request.POST.get('name')
             description = request.POST.get('description', '')
             unit = request.POST.get('unit', 'g')
-            cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
             current_stock = Decimal(request.POST.get('current_stock', '0.00'))
             min_stock = Decimal(request.POST.get('min_stock', '10.00'))
             variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
@@ -333,7 +416,6 @@ def ingredient_create(request):
                 name=name,
                 description=description,
                 unit=unit,
-                cost_per_unit=cost_per_unit,
                 current_stock=current_stock,
                 min_stock=min_stock,
                 variance_allowance=variance_allowance,
@@ -348,7 +430,7 @@ def ingredient_create(request):
 
     context = {
         'action': 'Create',
-        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'pcs']
     }
     return render(request, 'products/ingredient_form.html', context)
 
@@ -363,8 +445,7 @@ def ingredient_edit(request, pk):
         try:
             ingredient.name = request.POST.get('name')
             ingredient.description = request.POST.get('description', '')
-            ingredient.unit = request.POST.get('unit', 'kg')
-            ingredient.cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
+            ingredient.unit = request.POST.get('unit', 'g')
             ingredient.current_stock = Decimal(request.POST.get('current_stock', '0.00'))
             ingredient.min_stock = Decimal(request.POST.get('min_stock', '10.00'))
             ingredient.variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
@@ -380,7 +461,7 @@ def ingredient_edit(request, pk):
     context = {
         'ingredient': ingredient,
         'action': 'Edit',
-        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'pcs']
     }
     return render(request, 'products/ingredient_form.html', context)
 
@@ -466,7 +547,6 @@ def api_list_ingredients(request):
             'id': ingredient.id,
             'name': ingredient.name,
             'unit': ingredient.unit,
-            'cost_per_unit': float(ingredient.cost_per_unit),
             'current_stock': float(ingredient.current_stock),
         })
 
@@ -486,7 +566,6 @@ def api_create_ingredient(request):
     try:
         name = request.POST.get('name', '').strip()
         unit = request.POST.get('unit', '').strip()
-        cost_per_unit_str = request.POST.get('cost_per_unit', '0')
         current_stock_str = request.POST.get('current_stock', '0')
 
         # Validate required fields
@@ -503,12 +582,11 @@ def api_create_ingredient(request):
             })
 
         try:
-            cost_per_unit = Decimal(cost_per_unit_str)
             current_stock = Decimal(current_stock_str)
         except (ValueError, TypeError):
             return JsonResponse({
                 'success': False,
-                'message': 'Cost and stock must be valid numbers'
+                'message': 'Stock must be a valid number'
             })
 
         # Check if ingredient already exists
@@ -522,7 +600,6 @@ def api_create_ingredient(request):
         ingredient = Ingredient.objects.create(
             name=name,
             unit=unit,
-            cost_per_unit=cost_per_unit,
             current_stock=current_stock,
             min_stock=Decimal('0'),  # Default min stock
             variance_allowance=Decimal('10'),  # Default variance allowance
@@ -535,7 +612,6 @@ def api_create_ingredient(request):
                 'id': ingredient.id,
                 'name': ingredient.name,
                 'unit': ingredient.unit,
-                'cost_per_unit': float(ingredient.cost_per_unit),
                 'current_stock': float(ingredient.current_stock),
             },
             'message': f'Ingredient "{ingredient.name}" created successfully'

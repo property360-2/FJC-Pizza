@@ -22,6 +22,10 @@ class Product(models.Model):
     )
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     category = models.CharField(max_length=100, blank=True)
+    requires_bom = models.BooleanField(
+        default=False,
+        help_text="If True, this product requires a Bill of Materials (BOM). If False, it's a simple stock item."
+    )
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -52,21 +56,11 @@ class Ingredient(models.Model):
         max_length=50,
         choices=[
             ('g', 'Grams'),
-            ('kg', 'Kilograms'),
             ('ml', 'Milliliters'),
-            ('l', 'Liters'),
             ('pcs', 'Pieces'),
-            ('cup', 'Cups'),
-            ('tbsp', 'Tablespoons'),
-            ('tsp', 'Teaspoons'),
         ],
         default='g',
         help_text="Unit of measurement"
-    )
-    cost_per_unit = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
     )
     current_stock = models.DecimalField(
         max_digits=10,
@@ -128,10 +122,7 @@ class RecipeItem(models.Model):
     @property
     def total_cost(self):
         """Calculate total cost of all ingredients in recipe"""
-        return sum(
-            item.quantity * item.ingredient.cost_per_unit
-            for item in self.ingredients.all()
-        )
+        return 0  # Cost calculation not applicable with simplified ingredient system
 
 
 class RecipeIngredient(models.Model):
@@ -294,7 +285,7 @@ class WasteLog(models.Model):
     @property
     def cost_impact(self):
         """Calculate cost of wasted ingredient"""
-        return self.quantity * self.ingredient.cost_per_unit
+        return 0  # Cost calculation not applicable with simplified ingredient system
 
 
 class PrepBatch(models.Model):
