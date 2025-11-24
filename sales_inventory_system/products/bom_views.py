@@ -11,7 +11,7 @@ from datetime import timedelta
 from decimal import Decimal
 from .models import (
     Ingredient, RecipeItem, StockTransaction, WasteLog,
-    PhysicalCount, VarianceRecord
+    PhysicalCount, VarianceRecord, Product
 )
 from .inventory_service import BOMService
 import json
@@ -26,6 +26,10 @@ def bom_dashboard(request):
     """
     # Low stock ingredients
     low_stock = BOMService.get_low_stock_ingredients()[:5]
+
+    # Low stock products (calculated from ingredients)
+    all_active_products = Product.objects.filter(is_archived=False)
+    low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold][:5]
 
     # Recent waste
     recent_waste = WasteLog.objects.select_related('ingredient').order_by('-waste_date')[:5]
@@ -52,6 +56,7 @@ def bom_dashboard(request):
             Q(current_stock__lt=F('min_stock')) & Q(is_active=True)
         ).count(),
         'low_stock_ingredients': low_stock,
+        'low_stock_products': low_stock_products,
         'recent_waste': recent_waste,
         'recent_transactions': recent_transactions,
         'variance_issues': variance_records,

@@ -69,7 +69,9 @@ def product_list(request):
     categories = [c for c in categories if c]  # Remove empty categories
 
     # Calculate statistics
-    low_stock_products = Product.objects.filter(is_archived=False, stock__lt=F('threshold'), stock__gt=0)
+    # For low_stock_count, filter products where calculated_stock is below threshold
+    all_active_products = Product.objects.filter(is_archived=False)
+    low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold and p.calculated_stock > 0]
     total_count = products.count()
 
     # Pagination
@@ -87,6 +89,7 @@ def product_list(request):
                 'description': product.description or '',
                 'price': float(product.price),
                 'stock': product.stock,
+                'calculated_stock': product.calculated_stock,
                 'threshold': product.threshold,
                 'category': product.category or '',
                 'is_low_stock': product.is_low_stock,
@@ -112,7 +115,7 @@ def product_list(request):
         'page_obj': page_obj,
         'products': page_obj,  # For backward compatibility
         'categories': categories,
-        'low_stock_count': low_stock_products.count(),
+        'low_stock_count': len(low_stock_products),
         'total_count': total_count,
         'search': search,
         'selected_category': category,

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}Ingredients - FJC Pizza{% endblock %}
 
@@ -61,8 +62,6 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ingredient</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Current Stock</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Min Stock</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Cost/Unit</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Variance</th>
                         <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -73,19 +72,16 @@
                         <td class="px-6 py-4">
                             <div>
                                 <h3 class="font-semibold text-gray-900">{{ ingredient.name }}</h3>
-                                <p class="text-xs text-gray-600 mt-1">Unit: {{ ingredient.unit }}</p>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-right">
                             {% if ingredient.current_stock < ingredient.min_stock %}
-                            <span class="font-semibold text-red-600">{{ ingredient.current_stock|floatformat:2 }}</span>
+                            <span class="font-semibold text-red-600">{{ ingredient.current_stock|smart_unit_display:ingredient.unit }}</span>
                             {% else %}
-                            <span class="font-semibold text-green-600">{{ ingredient.current_stock|floatformat:2 }}</span>
+                            <span class="font-semibold text-green-600">{{ ingredient.current_stock|smart_unit_display:ingredient.unit }}</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-right text-gray-700">{{ ingredient.min_stock|floatformat:2 }}</td>
-                        <td class="px-6 py-4 text-right text-gray-700">₱{{ ingredient.cost_per_unit|floatformat:2 }}</td>
-                        <td class="px-6 py-4 text-center text-gray-700">±{{ ingredient.variance_allowance|floatformat:1 }}%</td>
+                        <td class="px-6 py-4 text-right text-gray-700">{{ ingredient.min_stock|smart_unit_display:ingredient.unit }}</td>
                         <td class="px-6 py-4 text-center">
                             {% if ingredient.is_active %}
                             <span class="inline-block px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">Active</span>

@@ -46,6 +46,50 @@ class Product(models.Model):
         """Check if product is available for ordering"""
         return not self.is_archived and self.stock > 0
 
+    @property
+    def calculated_stock(self):
+        """
+        Calculate available product stock based on recipe ingredients.
+        Returns the minimum number of units that can be produced with current ingredient stock.
+        If product has no recipe, returns the hardcoded stock value.
+
+        Formula: For each ingredient in recipe, calculate:
+            available_units = ingredient_stock / required_quantity_per_product
+        Return: min(available_units) for all ingredients (bottleneck ingredient)
+        """
+        # If product doesn't require a BOM or has no recipe, return hardcoded stock
+        if not self.requires_bom:
+            return self.stock
+
+        try:
+            recipe = self.recipe
+        except RecipeItem.DoesNotExist:
+            return self.stock
+
+        # Get all ingredients in the recipe
+        recipe_ingredients = recipe.ingredients.all()
+
+        if not recipe_ingredients.exists():
+            # Recipe exists but has no ingredients
+            return 0
+
+        # Calculate available units for each ingredient
+        available_units = []
+        for recipe_ingredient in recipe_ingredients:
+            ingredient = recipe_ingredient.ingredient
+            required_qty = recipe_ingredient.quantity
+
+            # Avoid division by zero
+            if required_qty == 0:
+                continue
+
+            # How many product units can we make with this ingredient?
+            units_possible = int(ingredient.current_stock / required_qty)
+            available_units.append(units_possible)
+
+        # Return the minimum (bottleneck ingredient determines max producible units)
+        return min(available_units) if available_units else 0
+
 
 class Ingredient(models.Model):
     """Raw material/ingredient used in recipes"""

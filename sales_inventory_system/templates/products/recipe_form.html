@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block title %}Recipe for {{ product.name }} - FJC Pizza{% endblock %}
 
@@ -163,6 +164,24 @@
 </div>
 
 <script>
+// Smart unit display function - converts large quantities to appropriate units
+function formatStockWithUnit(quantity, unit) {
+    quantity = parseFloat(quantity);
+
+    // Convert grams to kilograms if >= 1000
+    if (unit === 'g' && quantity >= 1000) {
+        return (quantity / 1000).toFixed(2) + 'kg';
+    }
+
+    // Convert milliliters to liters if >= 1000
+    if (unit === 'ml' && quantity >= 1000) {
+        return (quantity / 1000).toFixed(2) + 'L';
+    }
+
+    // Return as-is for other cases
+    return quantity.toFixed(2) + unit;
+}
+
 // Debounce function for search
 function debounce(func, wait) {
     let timeout;
@@ -199,15 +218,15 @@ async function searchIngredients(input) {
 
         let html = '';
         data.results.forEach(ingredient => {
+            const formattedStock = formatStockWithUnit(ingredient.current_stock, ingredient.unit);
             html += `
                 <div class="ingredient-suggestion p-3 hover:bg-fjc-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition"
                      data-id="${ingredient.id}"
                      data-name="${ingredient.name}"
                      data-unit="${ingredient.unit}"
-                     data-cost="${ingredient.cost_per_unit}"
                      data-stock="${ingredient.current_stock}">
                     <div class="font-medium text-gray-900">${ingredient.name}</div>
-                    <div class="text-sm text-gray-600">Unit: ${ingredient.unit} | Stock: ${ingredient.current_stock} | Cost: ₱${ingredient.cost_per_unit}</div>
+                    <div class="text-sm text-gray-600">Unit: ${ingredient.unit} | Stock: ${formattedStock}</div>
                 </div>
             `;
         });

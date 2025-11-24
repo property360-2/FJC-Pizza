@@ -20,26 +20,21 @@
     <!-- Quick Action Links - Top Navigation -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md border border-blue-200 p-6">
         <h2 class="text-lg font-bold text-gray-900 mb-4">⚡ Quick Actions</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <a href="{% url 'products:bom_usage_report' %}" class="group block p-4 bg-white rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-md transition text-center">
                 <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
                 <span class="text-sm font-semibold text-blue-900">Usage Reports</span>
                 <p class="text-xs text-gray-500 mt-1">View consumption</p>
             </a>
-            <a href="{% url 'products:bom_variance' %}" class="group block p-4 bg-white rounded-lg border-2 border-yellow-200 hover:border-yellow-400 hover:shadow-md transition text-center">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📈</span>
-                <span class="text-sm font-semibold text-yellow-900">Variance Analysis</span>
-                <p class="text-xs text-gray-500 mt-1">Check accuracy</p>
-            </a>
             <a href="{% url 'products:bom_low_stock' %}" class="group block p-4 bg-white rounded-lg border-2 border-red-200 hover:border-red-400 hover:shadow-md transition text-center">
                 <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⚠️</span>
-                <span class="text-sm font-semibold text-red-900">Low Stock Report Engridients</span>
+                <span class="text-sm font-semibold text-red-900">Low Stock Report</span>
                 <p class="text-xs text-gray-500 mt-1">Restock items</p>
             </a>
-            <a href="{% url 'products:bom_waste' %}" class="group block p-4 bg-white rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:shadow-md transition text-center">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">🗑️</span>
-                <span class="text-sm font-semibold text-orange-900">Waste Report</span>
-                <p class="text-xs text-gray-500 mt-1">Track waste</p>
+            <a href="{% url 'products:ingredient_list' %}" class="group block p-4 bg-white rounded-lg border-2 border-green-200 hover:border-green-400 hover:shadow-md transition text-center">
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
+                <span class="text-sm font-semibold text-green-900">Manage Ingredients</span>
+                <p class="text-xs text-gray-500 mt-1">Add/edit ingredients</p>
             </a>
         </div>
     </div>
@@ -141,38 +136,34 @@
             </div>
         </div>
 
-        <!-- Recent Waste Log -->
+        <!-- Low Stock Products -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">Recent Waste</h2>
-                <p class="text-sm text-gray-600 mt-1">Latest waste, spoilage, and freebie logs</p>
+                <h2 class="text-xl font-semibold text-gray-900">Low Stock Products</h2>
+                <p class="text-sm text-gray-600 mt-1">Products below minimum stock level</p>
             </div>
             <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                {% if recent_waste %}
-                    {% for waste in recent_waste %}
+                {% if low_stock_products %}
+                    {% for product in low_stock_products %}
                     <div class="px-6 py-4 hover:bg-gray-50 transition">
                         <div class="flex justify-between items-start mb-2">
                             <div>
-                                <h3 class="font-semibold text-gray-900">{{ waste.ingredient.name }}</h3>
-                                <p class="text-xs text-gray-600 mt-1">{{ waste.waste_date|date:"M d, Y H:i" }}</p>
+                                <h3 class="font-semibold text-gray-900">{{ product.name }}</h3>
+                                <p class="text-sm text-gray-600 mt-1">Min: {{ product.threshold }} units</p>
                             </div>
-                            <span class="inline-block px-2 py-1 rounded text-xs font-semibold {% if waste.waste_type == 'WASTE' %}bg-red-100 text-red-800{% elif waste.waste_type == 'SPOILAGE' %}bg-orange-100 text-orange-800{% else %}bg-blue-100 text-blue-800{% endif %}">
-                                {{ waste.get_waste_type_display }}
+                            <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">
+                                {{ product.calculated_stock }} units
                             </span>
                         </div>
-                        <div class="text-sm text-gray-700">
-                            <p><strong>Quantity:</strong> {{ waste.quantity }} {{ waste.ingredient.unit }}</p>
-                            <p><strong>Cost:</strong> ₱{{ waste.cost_impact|floatformat:2 }}</p>
-                            {% if waste.reason %}
-                            <p><strong>Reason:</strong> {{ waste.reason }}</p>
-                            {% endif %}
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-red-600 h-2 rounded-full" style="width: {% if product.threshold > 0 %}{{ product.calculated_stock|floatformat:0 }}%{% else %}0%{% endif %}"></div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
                 <div class="px-6 py-8 text-center">
-                    <span class="text-4xl mb-2 block">📭</span>
-                    <p class="text-gray-600 font-medium">No waste logs recorded</p>
+                    <span class="text-4xl mb-2 block">✅</span>
+                    <p class="text-gray-600 font-medium">All products are well stocked!</p>
                 </div>
                 {% endif %}
             </div>
@@ -211,39 +202,6 @@
                 <div class="px-6 py-8 text-center">
                     <span class="text-4xl mb-2 block">📭</span>
                     <p class="text-gray-600 font-medium">No transactions this week</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Variance Issues -->
-        <div class="bg-white rounded-lg shadow-md border border-gray-200">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">Variance Issues</h2>
-                <p class="text-sm text-gray-600 mt-1">Ingredients with usage variances</p>
-            </div>
-            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                {% if variance_issues %}
-                    {% for variance in variance_issues %}
-                    <div class="px-6 py-4 hover:bg-gray-50 transition">
-                        <div class="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 class="font-semibold text-gray-900">{{ variance.ingredient.name }}</h3>
-                                <p class="text-xs text-gray-600 mt-1">Period: {{ variance.period_end|date:"M d, Y" }}</p>
-                            </div>
-                            <span class="inline-block px-2 py-1 rounded text-xs font-semibold {% if variance.within_tolerance %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                {% if variance.within_tolerance %}Within Tolerance{% else %}Outside Tolerance{% endif %}
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-700">
-                            <p><strong>Variance:</strong> {{ variance.variance_percentage|floatformat:2 }}% (Tolerance: ±{{ variance.ingredient.variance_allowance }}%)</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                <div class="px-6 py-8 text-center">
-                    <span class="text-4xl mb-2 block">✅</span>
-                    <p class="text-gray-600 font-medium">No variance issues found</p>
                 </div>
                 {% endif %}
             </div>

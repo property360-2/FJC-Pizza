@@ -104,9 +104,9 @@
                 <div class="p-4">
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="text-lg font-semibold text-gray-900 flex-1">{{ product.name }}</h3>
-                        {% if product.is_low_stock %}
+                        {% if product.calculated_stock < product.threshold %}
                         {% include 'components/atoms/badge.html' with type='warning' text='Low' %}
-                        {% elif product.stock == 0 %}
+                        {% elif product.calculated_stock == 0 %}
                         {% include 'components/atoms/badge.html' with type='danger' text='Out' %}
                         {% endif %}
                     </div>
@@ -117,7 +117,7 @@
 
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-2xl font-bold text-fjc-blue-600">₱{{ product.price }}</span>
-                        <span class="text-sm text-gray-500">Stock: <span class="font-semibold">{{ product.stock }}</span></span>
+                        <span class="text-sm text-gray-500">Stock: <span class="font-semibold">{{ product.calculated_stock }}</span></span>
                     </div>
 
                     <div class="flex space-x-2">
@@ -259,9 +259,9 @@ function renderProducts(products, pagination) {
                    <span class="text-6xl">🍕</span>
                </div>`;
 
-        const badgeHtml = product.stock === 0
+        const badgeHtml = product.calculated_stock === 0
             ? '<span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">Out</span>'
-            : product.is_low_stock
+            : product.calculated_stock < product.threshold
             ? '<span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded">Low</span>'
             : '';
 
@@ -276,7 +276,7 @@ function renderProducts(products, pagination) {
                     ${product.description ? `<p class="text-sm text-gray-600 mb-3 line-clamp-2">${product.description}</p>` : ''}
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-2xl font-bold text-fjc-blue-600">₱${product.price}</span>
-                        <span class="text-sm text-gray-500">Stock: <span class="font-semibold">${product.stock}</span></span>
+                        <span class="text-sm text-gray-500">Stock: <span class="font-semibold">${product.calculated_stock}</span></span>
                     </div>
                     <div class="flex space-x-2">
                         <a href="/products/${product.id}/" class="flex-1 bg-fjc-blue-600 text-white px-3 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium text-sm text-center transition">
