@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Variance Analysis Report - FJC Pizza{% endblock %}
+{% block title %}Variance Analysis Report - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -34,10 +34,10 @@
 
             <div class="flex gap-2">
                 <a href="?days={{ days }}&download=csv" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm flex items-center gap-2">
-                    📊 Download Summary CSV
+                     Download Summary CSV
                 </a>
                 <a href="?days={{ days }}&download=detailed" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2">
-                    📈 Download Detailed CSV
+                     Download Detailed CSV
                 </a>
             </div>
         </div>
@@ -92,7 +92,7 @@
                         <p class="text-xs text-gray-500">Tolerance: ±{{ item.ingredient.variance_allowance }}%</p>
                     </div>
                     <span class="inline-block px-2 py-1 rounded text-xs font-semibold {% if item.avg_variance <= item.ingredient.variance_allowance %}bg-green-100 text-green-800{% elif item.avg_variance <= item.tolerance_threshold_1_5x %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
-                        {% if item.avg_variance <= item.ingredient.variance_allowance %}✓ Good{% elif item.avg_variance <= item.tolerance_threshold_1_5x %}⚠ Fair{% else %}✗ Poor{% endif %}
+                        {% if item.avg_variance <= item.ingredient.variance_allowance %}<span class="material-icons">check_circle</span> Good{% elif item.avg_variance <= item.tolerance_threshold_1_5x %}⚠ Fair{% else %}✗ Poor{% endif %}
                     </span>
                 </div>
 
@@ -126,7 +126,7 @@
                 <!-- Latest Records -->
                 {% if item.variance_records %}
                 <div class="bg-gray-50 rounded p-3 text-xs">
-                    <div class="font-semibold text-gray-700 mb-2">📋 Latest Record</div>
+                    <div class="font-semibold text-gray-700 mb-2"><span class="material-icons align-middle inline mr-1 text-base">assignment</span> Latest Record</div>
                     {% with latest=item.variance_records|first %}
                     <div class="space-y-1 text-gray-600">
                         <div class="flex justify-between">
@@ -156,7 +156,7 @@
         </div>
         {% else %}
         <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
-            <span class="text-5xl mb-4 block">📊</span>
+            <span class="material-icons text-7xl mb-4 block">bar_chart</span>
             <p class="text-gray-600 text-lg">No variance data available for the selected period</p>
             <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some variance records</p>
         </div>
@@ -168,7 +168,7 @@
         <!-- Issues Needing Attention -->
         <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
             <div class="flex items-start">
-                <span class="text-2xl mr-3">⚠️</span>
+                <span class="text-2xl mr-3"><span class="material-icons">warning</span></span>
                 <div>
                     <h3 class="font-semibold text-red-900 mb-2">Items Outside Tolerance</h3>
                     <ul class="text-sm text-red-800 space-y-1 list-disc list-inside">
@@ -185,7 +185,7 @@
         <!-- Best Performing -->
         <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
             <div class="flex items-start">
-                <span class="text-2xl mr-3">✓</span>
+                <span class="text-2xl mr-3"><span class="material-icons">check_circle</span></span>
                 <div>
                     <h3 class="font-semibold text-green-900 mb-2">Best Performing Ingredients</h3>
                     <ul class="text-sm text-green-800 space-y-1 list-disc list-inside">

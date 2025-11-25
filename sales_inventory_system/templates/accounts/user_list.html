@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}User Management - FJC Pizza{% endblock %}
+{% block title %}User Management - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -11,9 +11,25 @@
             <p class="mt-1 text-sm text-gray-500">Manage staff and cashier accounts</p>
         </div>
         <div>
-            <a href="{% url 'accounts:user_create' %}" class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-semibold px-4 py-2 rounded-lg transition">
-                ➕ Create New User
+            <a href="{% url 'accounts:user_create' %}" class="bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+                <span class="material-icons">person_add</span> Create New User
             </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Total Users</p>
+            <p id="totalUsersCount" class="text-4xl font-bold text-fjc-blue-600 mt-2">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Active Users</p>
+            <p id="activeUsersCount" class="text-4xl font-bold text-green-600 mt-2">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Admins</p>
+            <p id="adminCount" class="text-4xl font-bold text-purple-600 mt-2">0</p>
         </div>
     </div>
 
@@ -58,7 +74,7 @@
                 <tbody id="staffTableBody" class="bg-white divide-y divide-gray-200">
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                            <span class="text-4xl mb-2 block">👥</span>
+                            <span class="material-icons text-4xl mb-2 block">group</span>
                             <p class="text-lg">Loading users...</p>
                         </td>
                     </tr>
@@ -69,7 +85,7 @@
         <!-- Mobile Card View -->
         <div id="mobileView" class="md:hidden divide-y divide-gray-200">
             <div class="px-6 py-12 text-center text-gray-500">
-                <span class="text-4xl mb-2 block">👥</span>
+                <span class="material-icons text-4xl mb-2 block">group</span>
                 <p class="text-lg">Loading users...</p>
             </div>
         </div>
@@ -77,22 +93,6 @@
 
     <!-- Pagination -->
     <div id="paginationContainer" class="flex justify-center items-center gap-2">
-    </div>
-
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-gradient-to-br from-fjc-blue-500 to-fjc-blue-600 rounded-lg shadow-md p-6 text-white">
-            <p class="text-sm font-medium opacity-90">Total Users</p>
-            <p id="totalUsersCount" class="text-3xl font-bold mt-2">0</p>
-        </div>
-        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
-            <p class="text-sm font-medium opacity-90">Active Users</p>
-            <p id="activeUsersCount" class="text-3xl font-bold mt-2">0</p>
-        </div>
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
-            <p class="text-sm font-medium opacity-90">Admins</p>
-            <p id="adminCount" class="text-3xl font-bold mt-2">0</p>
-        </div>
     </div>
 </div>
 
@@ -162,7 +162,7 @@ function renderStaffList(users) {
         staffTableBody.innerHTML = `
             <tr>
                 <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                    <span class="text-4xl mb-2 block">👥</span>
+                    <span class="material-icons text-4xl mb-2 block">group</span>
                     <p class="text-lg">No users found</p>
                     <a href="{% url 'accounts:user_create' %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium mt-2 inline-block">
                         Create your first user
@@ -172,7 +172,7 @@ function renderStaffList(users) {
         `;
         mobileView.innerHTML = `
             <div class="px-6 py-12 text-center text-gray-500">
-                <span class="text-4xl mb-2 block">👥</span>
+                <span class="material-icons text-4xl mb-2 block">group</span>
                 <p class="text-lg">No users found</p>
                 <a href="{% url 'accounts:user_create' %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium mt-2 inline-block">
                     Create your first user
@@ -186,9 +186,9 @@ function renderStaffList(users) {
     let tableHTML = '';
     users.forEach(user => {
         console.log('Processing user:', user);
-        const roleDisplay = user.role_code === 'ADMIN' ? '👑 Admin' : '👤 Cashier';
+        const roleDisplay = user.role_code === 'ADMIN' ? ' Admin' : ' Cashier';
         const roleBadgeClass = user.role_code === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
-        const statusDisplay = user.is_archived ? '📦 Archived' : '✅ Active';
+        const statusDisplay = user.is_archived ? 'Archived' : ' Active';
         const statusBadgeClass = user.is_archived ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800';
         const joinedDate = new Date(user.date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -227,13 +227,13 @@ function renderStaffList(users) {
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div class="flex justify-end gap-2">
                         <a href="/accounts/users/${user.id}/edit/" class="text-fjc-blue-600 hover:text-fjc-blue-900 font-semibold">
-                            ✏️ Edit
+                            <span class="material-icons">edit</span> Edit
                         </a>
-                        <a href="/accounts/users/${user.id}/audit/" class="text-fjc-blue-600 hover:text-fjc-blue-900 font-semibold">
-                            📋 Audit
+                        <a href="/accounts/users/${user.id}/audit/" class="text-fjc-blue-600 hover:text-fjc-blue-900 font-semibold flex items-center gap-1">
+                            <span class="material-icons text-base">assignment</span> Audit
                         </a>
-                        <button onclick="confirmArchive(${user.id}, '${user.username}')" class="${user.is_archived ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'} font-semibold">
-                            ${user.is_archived ? '♻️ Restore' : '📦 Archive'}
+                        <button onclick="confirmArchive(${user.id}, '${user.username}')" class="${user.is_archived ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'} font-semibold flex items-center gap-1">
+                            ${user.is_archived ? '<span class="material-icons text-base">restore</span> Restore' : '<span class="material-icons text-base">archive</span> Archive'}
                         </button>
                     </div>
                 </td>
@@ -246,9 +246,9 @@ function renderStaffList(users) {
     // Render mobile view
     let mobileHTML = '';
     users.forEach(user => {
-        const roleDisplay = user.role_code === 'ADMIN' ? '👑 Admin' : '👤 Cashier';
+        const roleDisplay = user.role_code === 'ADMIN' ? ' Admin' : ' Cashier';
         const roleBadgeClass = user.role_code === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800';
-        const statusDisplay = user.is_archived ? '📦 Archived' : '✅ Active';
+        const statusDisplay = user.is_archived ? ' Archived' : ' Active';
         const statusBadgeClass = user.is_archived ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800';
         const joinedDate = new Date(user.date_joined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -290,14 +290,14 @@ function renderStaffList(users) {
                 </div>
 
                 <div class="flex gap-2">
-                    <a href="/accounts/users/${user.id}/edit/" class="flex-1 text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
-                        ✏️ Edit
+                    <a href="/accounts/users/${user.id}/edit/" class="flex-1 text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-1">
+                        <span class="material-icons text-base">edit</span> Edit
                     </a>
-                    <a href="/accounts/users/${user.id}/audit/" class="flex-1 text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm">
-                        📋 Audit
+                    <a href="/accounts/users/${user.id}/audit/" class="flex-1 text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-1">
+                        <span class="material-icons text-base">assignment</span> Audit
                     </a>
-                    <button onclick="confirmArchive(${user.id}, '${user.username}')" class="flex-1 ${user.is_archived ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-lg transition text-sm">
-                        ${user.is_archived ? '♻️ Restore' : '📦 Archive'}
+                    <button onclick="confirmArchive(${user.id}, '${user.username}')" class="flex-1 ${user.is_archived ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white font-medium py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-1">
+                        ${user.is_archived ? '<span class="material-icons text-base">restore</span> Restore' : '<span class="material-icons text-base">archive</span> Archive'}
                     </button>
                 </div>
             </div>
@@ -306,7 +306,7 @@ function renderStaffList(users) {
 
     mobileView.innerHTML = mobileHTML || `
         <div class="px-6 py-12 text-center text-gray-500">
-            <span class="text-4xl mb-2 block">👥</span>
+            <span class="material-icons text-4xl mb-2 block">group</span>
             <p class="text-lg">No users found</p>
         </div>
     `;

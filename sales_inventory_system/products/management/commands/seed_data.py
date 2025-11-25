@@ -15,7 +15,7 @@ from sales_inventory_system.system.models import AuditTrail, Archive
 
 
 class Command(BaseCommand):
-    help = 'Seed comprehensive test data for the FJC Pizza system'
+    help = 'Seed comprehensive test data for the FCJ Pizza system'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('Starting comprehensive data seeding...'))

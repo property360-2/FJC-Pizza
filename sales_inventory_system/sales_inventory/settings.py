@@ -22,13 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
+# Unified DEBUG flag (case-insensitive env)
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECURITY: SECRET_KEY must be set in environment - no insecure default for production
-if os.getenv("DEBUG") == "True":
+if DEBUG:
     # Local development only - insecure default
     SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key-not-for-production")
 else:
@@ -39,9 +42,6 @@ else:
             "SECRET_KEY environment variable is not set. "
             "Set it in Render environment variables or local .env file."
         )
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # Parse ALLOWED_HOSTS - detect Render environment and use appropriate domain
 if os.getenv("RENDER"):
@@ -167,7 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Manila"
 
 USE_I18N = True
 
@@ -177,12 +177,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+if DEBUG:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    WHITENOISE_USE_FINDERS = True  # allow serving from STATICFILES_DIRS without collectstatic
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Custom user model
@@ -260,6 +265,3 @@ if not DEBUG:
             "django.template.loaders.app_directories.Loader",
         ]),
     ]
-
-# WhiteNoise compression
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

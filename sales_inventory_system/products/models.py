@@ -22,6 +22,10 @@ class Product(models.Model):
     )
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     category = models.CharField(max_length=100, blank=True)
+    requires_bom = models.BooleanField(
+        default=False,
+        help_text="If True, this product requires a Bill of Materials (BOM). If False, it's a simple stock item."
+    )
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -42,6 +46,50 @@ class Product(models.Model):
         """Check if product is available for ordering"""
         return not self.is_archived and self.stock > 0
 
+    @property
+    def calculated_stock(self):
+        """
+        Calculate available product stock based on recipe ingredients.
+        Returns the minimum number of units that can be produced with current ingredient stock.
+        If product has no recipe, returns the hardcoded stock value.
+
+        Formula: For each ingredient in recipe, calculate:
+            available_units = ingredient_stock / required_quantity_per_product
+        Return: min(available_units) for all ingredients (bottleneck ingredient)
+        """
+        # If product doesn't require a BOM or has no recipe, return hardcoded stock
+        if not self.requires_bom:
+            return self.stock
+
+        try:
+            recipe = self.recipe
+        except RecipeItem.DoesNotExist:
+            return self.stock
+
+        # Get all ingredients in the recipe
+        recipe_ingredients = recipe.ingredients.all()
+
+        if not recipe_ingredients.exists():
+            # Recipe exists but has no ingredients
+            return 0
+
+        # Calculate available units for each ingredient
+        available_units = []
+        for recipe_ingredient in recipe_ingredients:
+            ingredient = recipe_ingredient.ingredient
+            required_qty = recipe_ingredient.quantity
+
+            # Avoid division by zero
+            if required_qty == 0:
+                continue
+
+            # How many product units can we make with this ingredient?
+            units_possible = int(ingredient.current_stock / required_qty)
+            available_units.append(units_possible)
+
+        # Return the minimum (bottleneck ingredient determines max producible units)
+        return min(available_units) if available_units else 0
+
 
 class Ingredient(models.Model):
     """Raw material/ingredient used in recipes"""
@@ -52,21 +100,11 @@ class Ingredient(models.Model):
         max_length=50,
         choices=[
             ('g', 'Grams'),
-            ('kg', 'Kilograms'),
             ('ml', 'Milliliters'),
-            ('l', 'Liters'),
             ('pcs', 'Pieces'),
-            ('cup', 'Cups'),
-            ('tbsp', 'Tablespoons'),
-            ('tsp', 'Teaspoons'),
         ],
         default='g',
         help_text="Unit of measurement"
-    )
-    cost_per_unit = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))]
     )
     current_stock = models.DecimalField(
         max_digits=10,
@@ -112,6 +150,7 @@ class RecipeItem(models.Model):
         Product,
         on_delete=models.CASCADE,
         related_name='recipe',
+        db_index=True,
         help_text="Product that this recipe creates"
     )
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
@@ -128,10 +167,7 @@ class RecipeItem(models.Model):
     @property
     def total_cost(self):
         """Calculate total cost of all ingredients in recipe"""
-        return sum(
-            item.quantity * item.ingredient.cost_per_unit
-            for item in self.ingredients.all()
-        )
+        return 0  # Cost calculation not applicable with simplified ingredient system
 
 
 class RecipeIngredient(models.Model):
@@ -294,7 +330,7 @@ class WasteLog(models.Model):
     @property
     def cost_impact(self):
         """Calculate cost of wasted ingredient"""
-        return self.quantity * self.ingredient.cost_per_unit
+        return 0  # Cost calculation not applicable with simplified ingredient system
 
 
 class PrepBatch(models.Model):

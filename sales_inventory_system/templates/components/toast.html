@@ -220,7 +220,8 @@
 
 <script>
 // Toast Notification System
-const Toast = {
+if (typeof window.Toast === 'undefined') {
+window.Toast = {
     show(message, type = 'info', duration = 4000) {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -283,9 +284,11 @@ const Toast = {
         return this.show(message, 'info', duration);
     }
 };
+}
 
 // Loading Overlay
-const Loading = {
+if (typeof window.Loading === 'undefined') {
+window.Loading = {
     show() {
         if (document.getElementById('loading-overlay')) return;
 
@@ -301,9 +304,11 @@ const Loading = {
         if (overlay) overlay.remove();
     }
 };
+}
 
 // Request Deduplication - prevents double submission
-const RequestDedup = {
+if (typeof window.RequestDedup === 'undefined') {
+window.RequestDedup = {
     _pending: new Map(),
 
     async execute(key, fn) {
@@ -325,9 +330,11 @@ const RequestDedup = {
         this._pending.delete(key);
     }
 };
+}
 
 // Form Helper - automatically disables submit button and shows loading
-const FormHelper = {
+if (typeof window.FormHelper === 'undefined') {
+window.FormHelper = {
     setupSubmit(formSelector, options = {}) {
         const form = typeof formSelector === 'string' ? document.querySelector(formSelector) : formSelector;
         if (!form) return;
@@ -398,9 +405,11 @@ const FormHelper = {
         });
     }
 };
+}
 
 // AJAX Helper
-const Ajax = {
+if (typeof window.Ajax === 'undefined') {
+window.Ajax = {
     async post(url, data, options = {}) {
         try {
             if (options.showLoading !== false) Loading.show();
@@ -474,6 +483,7 @@ const Ajax = {
         }
     }
 };
+}
 
 // Form Submission Helper
 function submitFormAsync(form, options = {}) {
@@ -495,7 +505,8 @@ function submitFormAsync(form, options = {}) {
 }
 
 // Custom Confirmation Modal
-const Confirm = {
+if (typeof window.Confirm === 'undefined') {
+window.Confirm = {
     show(options = {}) {
         const {
             title = 'Confirm Action',
@@ -593,6 +604,7 @@ const Confirm = {
         return modal;
     }
 };
+}
 
 // Legacy compatibility
 function confirmAction(message, onConfirm, onCancel) {

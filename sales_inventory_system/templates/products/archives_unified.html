@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+
+{% block title %}Archives - FCJ Pizza{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Archives</h1>
+            <p class="mt-1 text-sm text-gray-500">View and restore archived products, users, and orders</p>
+        </div>
+        <div>
+            <a href="{% url 'products:list' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-sm">
+                ← Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="space-y-4">
+            <div>
+                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Search Archives</label>
+                <input type="text" id="search-input" placeholder="Search products, users, or orders..." value=""
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500 text-lg">
+                <p class="text-xs text-gray-500 mt-2">Start typing to search across all archived items (products, staff, orders)</p>
+            </div>
+
+            <!-- Type Filter -->
+            <div class="flex gap-2 flex-wrap">
+                <button class="type-filter px-4 py-2 rounded-lg font-medium transition" data-type="all" style="background-color: #1e40af; color: white;">
+                    All Items
+                </button>
+                <button class="type-filter px-4 py-2 rounded-lg font-medium transition border border-gray-300 hover:bg-gray-50" data-type="products">
+                    📦 Products
+                </button>
+                <button class="type-filter px-4 py-2 rounded-lg font-medium transition border border-gray-300 hover:bg-gray-50" data-type="users">
+                    👥 Users/Staff
+                </button>
+                <button class="type-filter px-4 py-2 rounded-lg font-medium transition border border-gray-300 hover:bg-gray-50" data-type="orders">
+                    📋 Orders
+                </button>
+            </div>
+
+            <!-- Results Count -->
+            <div id="results-info" class="text-sm text-gray-600 hidden">
+                Found <span id="total-results" class="font-semibold">0</span> matching items
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-indicator" class="hidden flex items-center justify-center py-12">
+        <div class="flex flex-col items-center gap-3">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-fjc-blue-500"></div>
+            <p class="text-gray-600">Searching archives...</p>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="results-container" class="space-y-6">
+        <!-- Empty State -->
+        <div id="empty-state" class="bg-white rounded-lg shadow-md border border-gray-200 p-12 text-center">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Start Searching</h3>
+            <p class="text-gray-600">Type in the search box to find archived items</p>
+        </div>
+
+        <!-- Products Results Tab -->
+        <div id="products-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-50">
+                    <h3 class="text-lg font-semibold text-gray-900">📦 Archived Products</h3>
+                </div>
+                <div id="products-results" class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    <!-- Products will be injected here -->
+                </div>
+                <div id="products-empty" class="px-6 py-8 text-center text-gray-500 hidden">
+                    No archived products found
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Results Tab -->
+        <div id="users-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-purple-50">
+                    <h3 class="text-lg font-semibold text-gray-900">👥 Archived Users/Staff</h3>
+                </div>
+                <div id="users-results" class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    <!-- Users will be injected here -->
+                </div>
+                <div id="users-empty" class="px-6 py-8 text-center text-gray-500 hidden">
+                    No archived users found
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Results Tab -->
+        <div id="orders-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-green-50">
+                    <h3 class="text-lg font-semibold text-gray-900">📋 Archived Orders</h3>
+                </div>
+                <div id="orders-results" class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    <!-- Orders will be injected here -->
+                </div>
+                <div id="orders-empty" class="px-6 py-8 text-center text-gray-500 hidden">
+                    No archived orders found
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentType = 'all';
+    let searchTimeout;
+
+    // Type filter buttons
+    document.querySelectorAll('.type-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            document.querySelectorAll('.type-filter').forEach(b => {
+                b.style.backgroundColor = '';
+                b.style.color = '';
+                b.classList.remove('text-white');
+                b.classList.add('border', 'border-gray-300', 'hover:bg-gray-50');
+            });
+
+            this.style.backgroundColor = '#1e40af';
+            this.style.color = 'white';
+            this.classList.remove('border', 'border-gray-300', 'hover:bg-gray-50');
+
+            // Update current type
+            currentType = this.dataset.type;
+            performSearch();
+        });
+    });
+
+    // Search input with debouncing
+    document.getElementById('search-input').addEventListener('keyup', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+
+        if (query.length < 1) {
+            document.getElementById('empty-state').classList.remove('hidden');
+            document.getElementById('results-info').classList.add('hidden');
+            document.getElementById('products-section').classList.add('hidden');
+            document.getElementById('users-section').classList.add('hidden');
+            document.getElementById('orders-section').classList.add('hidden');
+            return;
+        }
+
+        searchTimeout = setTimeout(() => performSearch(), 300);
+    });
+
+    function performSearch() {
+        const query = document.getElementById('search-input').value.trim();
+
+        if (!query) {
+            return;
+        }
+
+        document.getElementById('loading-indicator').classList.remove('hidden');
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('results-info').classList.add('hidden');
+
+        // Make AJAX request
+        fetch(`/products/api/search-archives/?q=${encodeURIComponent(query)}&type=${currentType}`)
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+                document.getElementById('loading-indicator').classList.add('hidden');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading-indicator').classList.add('hidden');
+            });
+    }
+
+    function displayResults(data) {
+        const { products = [], users = [], orders = [] } = data;
+        let totalResults = 0;
+
+        // Clear previous results
+        document.getElementById('products-results').innerHTML = '';
+        document.getElementById('users-results').innerHTML = '';
+        document.getElementById('orders-results').innerHTML = '';
+
+        // Products Results
+        if (currentType === 'all' || currentType === 'products') {
+            if (products.length > 0) {
+                document.getElementById('products-section').classList.remove('hidden');
+                document.getElementById('products-empty').classList.add('hidden');
+
+                products.forEach(product => {
+                    const html = `
+                        <div class="px-6 py-4 hover:bg-blue-50 transition flex justify-between items-center">
+                            <div>
+                                <p class="font-medium text-gray-900">${escapeHtml(product.name)}</p>
+                                <p class="text-sm text-gray-600">
+                                    <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold mr-2">${escapeHtml(product.category)}</span>
+                                    <span class="text-gray-500">₱${parseFloat(product.price).toFixed(2)}</span>
+                                </p>
+                            </div>
+                            <button onclick="restoreProduct(${product.id}, '${escapeHtml(product.name)}')"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition">
+                                ↩️ Restore
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('products-results').insertAdjacentHTML('beforeend', html);
+                });
+                totalResults += products.length;
+            } else {
+                document.getElementById('products-section').classList.remove('hidden');
+                document.getElementById('products-empty').classList.remove('hidden');
+            }
+        }
+
+        // Users Results
+        if (currentType === 'all' || currentType === 'users') {
+            if (users.length > 0) {
+                document.getElementById('users-section').classList.remove('hidden');
+                document.getElementById('users-empty').classList.add('hidden');
+
+                users.forEach(user => {
+                    const html = `
+                        <div class="px-6 py-4 hover:bg-purple-50 transition flex justify-between items-center">
+                            <div>
+                                <p class="font-medium text-gray-900">${escapeHtml(user.full_name)}</p>
+                                <p class="text-sm text-gray-600">
+                                    <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold mr-2">${escapeHtml(user.role)}</span>
+                                    <span class="text-gray-500">@${escapeHtml(user.username)}</span>
+                                </p>
+                            </div>
+                            <button onclick="restoreUser(${user.id}, '${escapeHtml(user.full_name)}')"
+                                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium text-sm transition">
+                                ↩️ Restore
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('users-results').insertAdjacentHTML('beforeend', html);
+                });
+                totalResults += users.length;
+            } else {
+                document.getElementById('users-section').classList.remove('hidden');
+                document.getElementById('users-empty').classList.remove('hidden');
+            }
+        }
+
+        // Orders Results
+        if (currentType === 'all' || currentType === 'orders') {
+            if (orders.length > 0) {
+                document.getElementById('orders-section').classList.remove('hidden');
+                document.getElementById('orders-empty').classList.add('hidden');
+
+                orders.forEach(order => {
+                    const html = `
+                        <div class="px-6 py-4 hover:bg-green-50 transition flex justify-between items-center">
+                            <div>
+                                <p class="font-medium text-gray-900">${escapeHtml(order.order_number)}</p>
+                                <p class="text-sm text-gray-600">
+                                    <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold mr-2">${escapeHtml(order.status)}</span>
+                                    <span class="text-gray-500">${escapeHtml(order.customer_name)} • ₱${parseFloat(order.total_amount).toFixed(2)} • ${order.created_at}</span>
+                                </p>
+                            </div>
+                            <button onclick="restoreOrder(${order.id}, '${escapeHtml(order.order_number)}')"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition">
+                                ↩️ Restore
+                            </button>
+                        </div>
+                    `;
+                    document.getElementById('orders-results').insertAdjacentHTML('beforeend', html);
+                });
+                totalResults += orders.length;
+            } else {
+                document.getElementById('orders-section').classList.remove('hidden');
+                document.getElementById('orders-empty').classList.remove('hidden');
+            }
+        }
+
+        // Show results info if there are results
+        if (totalResults > 0) {
+            document.getElementById('results-info').classList.remove('hidden');
+            document.getElementById('total-results').textContent = totalResults;
+        } else if (currentType === 'all') {
+            document.getElementById('results-info').classList.remove('hidden');
+            document.getElementById('total-results').textContent = '0';
+        }
+    }
+
+    // Restore functions
+    function restoreProduct(productId, productName) {
+        Confirm.show({
+            title: 'Restore Product',
+            message: `Restore "${productName}" to active products?`,
+            confirmText: 'Restore',
+            cancelText: 'Cancel',
+            type: 'success',
+            onConfirm: () => {
+                Loading.show();
+                window.location.href = `/products/${productId}/unarchive/`;
+            }
+        });
+    }
+
+    function restoreUser(userId, userName) {
+        Confirm.show({
+            title: 'Restore User',
+            message: `Restore "${userName}" to active users?`,
+            confirmText: 'Restore',
+            cancelText: 'Cancel',
+            type: 'success',
+            onConfirm: () => {
+                Loading.show();
+                window.location.href = `/accounts/${userId}/unarchive/`;
+            }
+        });
+    }
+
+    function restoreOrder(orderId, orderNumber) {
+        Confirm.show({
+            title: 'Restore Order',
+            message: `Restore order "${orderNumber}" to active orders?`,
+            confirmText: 'Restore',
+            cancelText: 'Cancel',
+            type: 'success',
+            onConfirm: () => {
+                Loading.show();
+                window.location.href = `/orders/${orderId}/unarchive/`;
+            }
+        });
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Order - FJC Pizza{% endblock %}
+{% block title %}Create Order - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -56,7 +56,7 @@
                                         {% if product.is_available_for_order %}
                                         Stock: {{ product.stock }}
                                         {% else %}
-                                        ❌ Out of Stock
+                                        <span class="material-icons">close</span> Out of Stock
                                         {% endif %}
                                     </p>
                                 </div>

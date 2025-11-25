@@ -29,6 +29,8 @@ db.sqlite3-journal
 /media
 /staticfiles
 
+nul
+
 # Virtual Environment
 venv/
 ENV/

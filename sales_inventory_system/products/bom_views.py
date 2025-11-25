@@ -5,13 +5,14 @@ Views for Bill of Materials reports and management
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Q, Sum, F, Avg, Max, Min, Count
+from django.db.models import Q, Sum, F, Avg, Max, Min, Count, Case, When, DecimalField
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 from .models import (
     Ingredient, RecipeItem, StockTransaction, WasteLog,
-    PhysicalCount, VarianceRecord
+    PhysicalCount, VarianceRecord, Product
 )
 from .inventory_service import BOMService
 import json
@@ -27,8 +28,11 @@ def bom_dashboard(request):
     # Low stock ingredients
     low_stock = BOMService.get_low_stock_ingredients()[:5]
 
-    # Recent waste
-    recent_waste = WasteLog.objects.select_related('ingredient').order_by('-waste_date')[:5]
+    # Low stock products (calculated from ingredients) - optimized with prefetch_related
+    all_active_products = Product.objects.filter(
+        is_archived=False
+    ).prefetch_related('recipe__ingredients__ingredient')
+    low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold][:5]
 
     # Stock transactions this week
     week_ago = timezone.now() - timedelta(days=7)
@@ -43,21 +47,22 @@ def bom_dashboard(request):
         period_end__gte=month_start
     ).select_related('ingredient').order_by('within_tolerance')[:5]
 
-    # Calculate total waste cost this month
-    month_waste = WasteLog.objects.filter(
+    # Calculate total waste cost this month (actual from WasteLog)
+    month_waste_logs = WasteLog.objects.filter(
         waste_date__gte=month_start
-    ).aggregate(total_cost=Sum(F('quantity') * F('ingredient__cost_per_unit')))
+    )
+    month_waste_cost = sum(float(waste.cost_impact) for waste in month_waste_logs) if month_waste_logs.exists() else 0
 
     context = {
         'low_stock_count': Ingredient.objects.filter(
             Q(current_stock__lt=F('min_stock')) & Q(is_active=True)
         ).count(),
         'low_stock_ingredients': low_stock,
-        'recent_waste': recent_waste,
+        'low_stock_products': low_stock_products,
         'recent_transactions': recent_transactions,
         'variance_issues': variance_records,
         'total_ingredients': Ingredient.objects.filter(is_active=True).count(),
-        'month_waste_cost': month_waste['total_cost'] or 0,
+        'month_waste_cost': month_waste_cost,
     }
 
     return render(request, 'products/bom_dashboard.html', context)
@@ -68,6 +73,7 @@ def ingredient_usage_report(request):
     """
     Comprehensive ingredient usage report for all active ingredients.
     Shows usage analytics directly on the page.
+    Optimized to use single database query for all transactions.
     """
     days = int(request.GET.get('days', 30))
     download = request.GET.get('download', '').lower()
@@ -75,35 +81,48 @@ def ingredient_usage_report(request):
     end_date = timezone.now()
     start_date = end_date - timedelta(days=days)
 
-    # Get all active ingredients with usage data
-    ingredients = Ingredient.objects.filter(is_active=True).order_by('name')
+    # Get all transactions in a single database query - optimized for performance
+    all_transactions = StockTransaction.objects.filter(
+        created_at__gte=start_date,
+        created_at__lte=end_date,
+        ingredient__is_active=True
+    ).select_related('ingredient').order_by('ingredient', '-created_at')
 
+    # Group transactions by ingredient in Python
+    ingredients_transactions = {}
+    for trans in all_transactions:
+        ing_id = trans.ingredient.id
+        if ing_id not in ingredients_transactions:
+            ingredients_transactions[ing_id] = {
+                'ingredient': trans.ingredient,
+                'transactions': [],
+                'transaction_stats': {},
+                'total_quantity': 0,
+            }
+        ingredients_transactions[ing_id]['transactions'].append(trans)
+
+    # Calculate statistics for each ingredient
     usage_summary = []
     total_used = 0
     total_cost = 0
 
-    for ingredient in ingredients:
-        # Get stock transactions
-        transactions = StockTransaction.objects.filter(
-            ingredient=ingredient,
-            created_at__gte=start_date,
-            created_at__lte=end_date
-        ).order_by('-created_at')
+    for ing_id, data in ingredients_transactions.items():
+        ingredient = data['ingredient']
+        transactions = data['transactions']
 
-        if not transactions.exists():
-            continue
-
-        # Calculate totals by transaction type
-        total_quantity = 0
+        # Calculate totals by transaction type and total used
         transaction_stats = {}
+        total_quantity = 0
 
         for trans in transactions:
-            transaction_stats[trans.get_transaction_type_display()] = transaction_stats.get(trans.get_transaction_type_display(), 0) + float(trans.quantity)
+            trans_type = trans.get_transaction_type_display()
+            transaction_stats[trans_type] = transaction_stats.get(trans_type, 0) + float(trans.quantity)
             if trans.transaction_type in ['DEDUCTION', 'PREP']:
                 total_quantity += float(trans.quantity)
 
         # Calculate cost
-        ingredient_cost = float(ingredient.cost_per_unit) * total_quantity
+        # Note: cost calculation not applicable with simplified ingredient system
+        ingredient_cost = 0
 
         usage_summary.append({
             'ingredient': ingredient,
@@ -111,7 +130,7 @@ def ingredient_usage_report(request):
             'cost': ingredient_cost,
             'transaction_stats': transaction_stats,
             'transactions': transactions[:10],  # Latest 10 transactions
-            'transactions_count': transactions.count(),
+            'transactions_count': len(transactions),
         })
 
         total_used += total_quantity
@@ -140,7 +159,6 @@ def ingredient_usage_report(request):
                 'ingredient_unit': item['ingredient'].unit,
                 'total_quantity': float(item['total_quantity']),
                 'cost': float(item['cost']),
-                'cost_per_unit': float(item['ingredient'].cost_per_unit),
                 'transactions_count': item['transactions_count'],
                 'percentage_of_total': percentage
             })
@@ -164,7 +182,6 @@ def ingredient_usage_report(request):
                 'ingredient_id': item['ingredient'].id,
                 'ingredient_name': item['ingredient'].name,
                 'total_quantity': float(item['total_quantity']),
-                'cost_per_unit': float(item['ingredient'].cost_per_unit),
                 'unit': item['ingredient'].unit
             })
 
@@ -212,15 +229,13 @@ def generate_usage_csv_download(usage_summary, days):
     response['Content-Disposition'] = f'attachment; filename="ingredient_usage_{timezone.now().strftime("%Y%m%d")}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Ingredient', 'Unit', 'Total Used', 'Cost Per Unit', 'Total Cost', 'Transactions'])
+    writer.writerow(['Ingredient', 'Unit', 'Total Used', 'Transactions'])
 
     for item in usage_summary:
         writer.writerow([
             item['ingredient'].name,
             item['ingredient'].unit,
             f"{item['total_quantity']:.3f}",
-            f"{item['ingredient'].cost_per_unit:.2f}",
-            f"{item['cost']:.2f}",
             item['transactions_count']
         ])
 
@@ -233,18 +248,15 @@ def generate_usage_detailed_csv(usage_summary, days):
     response['Content-Disposition'] = f'attachment; filename="ingredient_usage_detailed_{timezone.now().strftime("%Y%m%d")}.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(['Ingredient', 'Date', 'Type', 'Quantity', 'Unit Cost', 'Cost Impact', 'Notes'])
+    writer.writerow(['Ingredient', 'Date', 'Type', 'Quantity', 'Notes'])
 
     for item in usage_summary:
         for trans in item['transactions']:
-            cost_impact = float(trans.quantity) * float(item['ingredient'].cost_per_unit) if trans.unit_cost else 0
             writer.writerow([
                 item['ingredient'].name,
                 trans.created_at.strftime("%Y-%m-%d %H:%M"),
                 trans.get_transaction_type_display(),
                 f"{trans.quantity:.3f}",
-                f"{item['ingredient'].cost_per_unit:.2f}",
-                f"{cost_impact:.2f}",
                 trans.notes or ''
             ])
 
@@ -256,7 +268,7 @@ def variance_analysis_report(request):
     """
     Comprehensive variance analysis report for all active ingredients.
     Shows analytics directly on the page with download option.
-    Optimized with database queries to avoid N+1 problem.
+    Optimized to use database aggregation for statistics.
     """
     days = int(request.GET.get('days', 30))
     download = request.GET.get('download', '').lower()
@@ -287,53 +299,73 @@ def variance_analysis_report(request):
             return render(request, 'products/variance_analysis_report.html', context)
         return render(request, 'products/variance_analysis_report.html', context)
 
-    # Group variance records by ingredient and calculate statistics
+    # Aggregate statistics by ingredient using database queries
+    variance_stats = VarianceRecord.objects.filter(
+        period_end__gte=start_date,
+        ingredient__is_active=True
+    ).values('ingredient').annotate(
+        records_count=Count('id'),
+        avg_variance=Avg('variance_percentage'),
+        max_variance=Max('variance_percentage'),
+        min_variance=Min('variance_percentage'),
+        within_tolerance_count=Count(
+            Case(When(within_tolerance=True, then=1))
+        ),
+        ingredient_name=F('ingredient__name'),
+        variance_allowance=F('ingredient__variance_allowance')
+    ).order_by('-avg_variance')
+
+    # Get latest 5 variance records per ingredient
     variance_summary = []
     total_records = 0
     within_tolerance_count = 0
     ingredients_data = {}
 
-    # Aggregate data by ingredient
-    for record in all_variance_records:
-        ing_id = record.ingredient.id
+    # First pass: get aggregated stats from database query
+    for stat in variance_stats:
+        ing_id = stat['ingredient']
         if ing_id not in ingredients_data:
             ingredients_data[ing_id] = {
-                'ingredient': record.ingredient,
-                'variances': [],
-                'within_tolerance_count': 0,
-                'variance_records': [],
+                'ingredient_id': ing_id,
+                'records_count': stat['records_count'],
+                'avg_variance': float(stat['avg_variance'] or 0),
+                'max_variance': float(stat['max_variance'] or 0),
+                'min_variance': float(stat['min_variance'] or 0),
+                'within_tolerance_count': stat['within_tolerance_count'],
+                'variance_allowance': float(stat['variance_allowance']),
             }
 
-        ingredients_data[ing_id]['variances'].append(record.variance_percentage)
-        if record.within_tolerance:
-            ingredients_data[ing_id]['within_tolerance_count'] += 1
+    # Second pass: get latest 5 records per ingredient and ingredient object
+    all_records_by_ing = {}
+    for record in all_variance_records:
+        ing_id = record.ingredient.id
+        if ing_id not in all_records_by_ing:
+            all_records_by_ing[ing_id] = {
+                'ingredient': record.ingredient,
+                'variance_records': []
+            }
+        # Keep only latest 5
+        if len(all_records_by_ing[ing_id]['variance_records']) < 5:
+            all_records_by_ing[ing_id]['variance_records'].append(record)
 
-        # Keep only latest 5 records for display
-        if len(ingredients_data[ing_id]['variance_records']) < 5:
-            ingredients_data[ing_id]['variance_records'].append(record)
-
-    # Calculate statistics for each ingredient
+    # Build final variance summary
     for ing_id, data in ingredients_data.items():
-        variances = data['variances']
-        if variances:
-            avg_variance = sum(variances) / len(variances)
-            max_variance = max(variances)
-            min_variance = min(variances)
-            within_tolerance = (data['within_tolerance_count'] / len(variances)) * 100
+        records_count = data['records_count']
+        within_tolerance = (data['within_tolerance_count'] / records_count * 100) if records_count > 0 else 0
 
-            variance_summary.append({
-                'ingredient': data['ingredient'],
-                'records_count': len(variances),
-                'avg_variance': avg_variance,
-                'max_variance': max_variance,
-                'min_variance': min_variance,
-                'within_tolerance_pct': within_tolerance,
-                'variance_records': data['variance_records'],
-                'tolerance_threshold_1_5x': float(data['ingredient'].variance_allowance) * 1.5
-            })
+        variance_summary.append({
+            'ingredient': all_records_by_ing[ing_id]['ingredient'],
+            'records_count': records_count,
+            'avg_variance': data['avg_variance'],
+            'max_variance': data['max_variance'],
+            'min_variance': data['min_variance'],
+            'within_tolerance_pct': within_tolerance,
+            'variance_records': all_records_by_ing[ing_id]['variance_records'],
+            'tolerance_threshold_1_5x': data['variance_allowance'] * 1.5
+        })
 
-            total_records += len(variances)
-            within_tolerance_count += data['within_tolerance_count']
+        total_records += records_count
+        within_tolerance_count += data['within_tolerance_count']
 
     # Calculate overall statistics
     if variance_summary:
@@ -419,10 +451,8 @@ def low_stock_report(request):
     low_stock_ingredients = BOMService.get_low_stock_ingredients()
 
     # Calculate total value of low stock
-    total_value = sum(
-        ing.current_stock * ing.cost_per_unit
-        for ing in low_stock_ingredients
-    )
+    # Note: cost calculation not applicable with simplified ingredient system
+    total_value = 0
 
     # Get recent transactions for context
     week_ago = timezone.now() - timedelta(days=7)
