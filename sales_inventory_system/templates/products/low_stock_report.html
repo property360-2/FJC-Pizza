@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
 
-{% block title %}Low Stock Report - FJC Pizza{% endblock %}
+{% block title %}Low Stock Report - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -20,7 +20,7 @@
     {% if total_count > 0 %}
     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
         <div class="flex items-start">
-            <span class="text-2xl mr-3">⚠️</span>
+            <span class="text-2xl mr-3"><span class="material-icons">warning</span></span>
             <div>
                 <p class="text-sm font-semibold text-red-800">{{ total_count }} ingredient{{ total_count|pluralize }} need{{ total_count|pluralize }} to be reordered</p>
                 <p class="text-sm text-red-700 mt-1">Total inventory value: <strong>₱{{ total_value|floatformat:2 }}</strong></p>
@@ -98,7 +98,7 @@
         </div>
         {% else %}
         <div class="px-6 py-12 text-center">
-            <span class="text-6xl mb-4 block">✅</span>
+            <span class="text-6xl mb-4 block"><span class="material-icons">check_circle</span></span>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">All Ingredients Well Stocked</h3>
             <p class="text-gray-600">No ingredients are currently below minimum stock level</p>
         </div>

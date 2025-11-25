@@ -14,7 +14,8 @@
       "Bash(git rm:*)",
       "Bash(cat:*)",
       "Bash(netstat:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash({} ;)"
     ],
     "deny": [],
     "ask": []

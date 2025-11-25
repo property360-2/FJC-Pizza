@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Analytics - FJC Pizza{% endblock %}
+{% block title %}Analytics - FCJ Pizza{% endblock %}
 
 {% block content %}
 <!-- Include Chart.js -->
@@ -15,7 +15,6 @@
         </div>
         <div class="flex items-center gap-3">
             <a href="{% url 'analytics:sales_forecast' %}" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition flex items-center gap-2">
-                <span>📈</span>
                 <span>Sales Forecast</span>
             </a>
             <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-gray-400 cursor-pointer">
@@ -32,7 +31,7 @@
         <!-- Today Revenue -->
         <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-4">
-                <div class="text-3xl">💰</div>
+                <span class="material-icons text-4xl">money</span>
                 <span class="text-xs bg-blue-500 bg-opacity-50 px-3 py-1 rounded-full">Today</span>
             </div>
             <p class="text-sm font-medium opacity-90 mb-1">Today Revenue</p>
@@ -43,7 +42,7 @@
         <!-- Week Revenue -->
         <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-4">
-                <div class="text-3xl">📈</div>
+                <span class="material-icons text-4xl">trending_up</span>
                 <span class="text-xs bg-emerald-500 bg-opacity-50 px-3 py-1 rounded-full">7 Days</span>
             </div>
             <p class="text-sm font-medium opacity-90 mb-1">Week Revenue</p>
@@ -54,7 +53,7 @@
         <!-- Active Orders -->
         <div class="bg-gradient-to-br from-amber-600 to-amber-700 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-4">
-                <div class="text-3xl">⚙️</div>
+                <span class="material-icons text-4xl">settings</span>
                 <span class="text-xs bg-amber-500 bg-opacity-50 px-3 py-1 rounded-full">Live</span>
             </div>
             <p class="text-sm font-medium opacity-90 mb-1">Active Orders</p>
@@ -65,7 +64,7 @@
         <!-- Avg Order Value -->
         <div class="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl shadow-lg p-6 text-white hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between mb-4">
-                <div class="text-3xl">💵</div>
+                <span class="material-icons text-4xl">attach_money</span>
                 <span class="text-xs bg-purple-500 bg-opacity-50 px-3 py-1 rounded-full">Average</span>
             </div>
             <p class="text-sm font-medium opacity-90 mb-1">Avg Order Value</p>
@@ -79,7 +78,7 @@
         <!-- Revenue Trend Chart -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
             <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-transparent">
-                <h3 class="text-lg font-bold text-gray-900">💹 Revenue Trend</h3>
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><span class="material-icons">show_chart</span> Revenue Trend</h3>
                 <p class="text-xs text-gray-500 mt-1">7-day daily revenue performance</p>
             </div>
             <div class="p-6">
@@ -92,7 +91,7 @@
         <!-- Top Products - Enhanced -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
             <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-transparent">
-                <h3 class="text-lg font-bold text-gray-900">🏆 Top Selling Products</h3>
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><span class="material-icons">emoji_events</span> Top Selling Products</h3>
                 <p class="text-xs text-gray-500 mt-1">Most popular items this period</p>
             </div>
             <div class="divide-y divide-gray-100 max-h-96 overflow-y-auto">
@@ -121,7 +120,7 @@
         <!-- Order Status Distribution - Pie Chart -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow lg:col-span-1">
             <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-transparent">
-                <h3 class="text-lg font-bold text-gray-900">📊 Order Status</h3>
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><span class="material-icons">bar_chart</span> Order Status</h3>
                 <p class="text-xs text-gray-500 mt-1">Current distribution</p>
             </div>
             <div class="p-6">
@@ -148,7 +147,7 @@
         <!-- Low Stock Alert -->
         <div class="bg-white rounded-xl shadow-lg border border-red-200 overflow-hidden hover:shadow-xl transition-shadow lg:col-span-2">
             <div class="px-6 py-4 border-b border-red-100 bg-gradient-to-r from-red-50 to-transparent">
-                <h3 class="text-lg font-bold text-gray-900">⚠️ Low Stock Items</h3>
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><span class="material-icons">warning</span> Low Stock Items</h3>
                 <p class="text-xs text-gray-500 mt-1">Products needing restock</p>
             </div>
             <div class="overflow-x-auto">
@@ -166,11 +165,11 @@
                         <tr class="hover:bg-red-50 transition">
                             <td class="px-6 py-3 font-medium text-gray-900">{{ product.name }}</td>
                             <td class="px-6 py-3 text-center">
-                                <span class="text-red-600 font-semibold">{{ product.stock }}</span>
+                                <span class="text-red-600 font-semibold">{{ product.calculated_stock }}</span>
                             </td>
                             <td class="px-6 py-3 text-center text-gray-600">{{ product.threshold }}</td>
                             <td class="px-6 py-3 text-center">
-                                {% if product.stock == 0 %}
+                                {% if product.calculated_stock == 0 %}
                                     <span class="px-2 py-1 rounded text-xs font-bold bg-red-100 text-red-700">OUT OF STOCK</span>
                                 {% else %}
                                     <span class="px-2 py-1 rounded text-xs font-bold bg-yellow-100 text-yellow-700">CRITICAL</span>
@@ -179,8 +178,8 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                ✓ All products in good stock
+                            <td colspan="4" class="px-6 py-8 text-center text-gray-500 flex items-center justify-center gap-2">
+                                <span class="material-icons text-green-600">check_circle</span> All products in good stock
                             </td>
                         </tr>
                         {% endfor %}
@@ -193,7 +192,7 @@
     <!-- Recent Orders Summary -->
     <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-transparent">
-            <h3 class="text-lg font-bold text-gray-900">📋 Recent Orders</h3>
+            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2"><span class="material-icons">assignment</span> Recent Orders</h3>
             <p class="text-xs text-gray-500 mt-1">Latest activity</p>
         </div>
         <div class="overflow-x-auto">
@@ -221,15 +220,15 @@
                         </td>
                         <td class="px-6 py-3 text-center">
                             {% if order.status == 'FINISHED' %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">✓ Done</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 flex items-center justify-center gap-1"><span class="material-icons text-sm">check_circle</span> Done</span>
                             {% elif order.status == 'IN_PROGRESS' %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">⚙️ Processing</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 flex items-center justify-center gap-1"><span class="material-icons text-sm">settings</span> Processing</span>
                             {% elif order.status == 'PENDING' %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">⏳ Pending</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 flex items-center justify-center gap-1"><span class="material-icons text-sm">schedule</span> Pending</span>
                             {% elif order.status == 'EXPIRED' %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700">⏱️ Expired</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 flex items-center justify-center gap-1"><span class="material-icons text-sm">schedule</span> Expired</span>
                             {% else %}
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">✕ Cancelled</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 flex items-center justify-center gap-1"><span class="material-icons text-sm">cancel</span> Cancelled</span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-3 text-center text-gray-500 text-xs">{{ order.created_at|date:"M d, H:i" }}</td>
@@ -248,59 +247,88 @@
 </div>
 
 <script>
-// Revenue Chart - Bar Chart
-const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-const revenueChart = new Chart(revenueCtx, {
-    type: 'bar',
-    data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-            label: 'Daily Revenue (₱)',
-            data: [6200, 7850, 5420, 8900, 7200, 8450, 5860],
-            backgroundColor: [
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(59, 130, 246, 0.8)'
-            ],
-            borderColor: 'rgba(59, 130, 246, 1)',
-            borderWidth: 0,
-            borderRadius: 8,
-            hoverBackgroundColor: 'rgba(29, 78, 216, 0.9)',
-            tension: 0.4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+// Revenue Chart - Bar Chart with dynamic data
+let revenueChart = null;
+
+async function loadRevenueChartData(period = 'week') {
+    try {
+        const response = await fetch(`{% url 'analytics:sales_data_api' %}?period=${period}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const labels = result.data.map(item => item.label);
+            const values = result.data.map(item => item.value);
+
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+
+            // Destroy previous chart if it exists
+            if (revenueChart) {
+                revenueChart.destroy();
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.05)',
-                    drawBorder: false
+
+            revenueChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Revenue (₱)',
+                        data: values,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 0,
+                        borderRadius: 8,
+                        hoverBackgroundColor: 'rgba(29, 78, 216, 0.9)',
+                        tension: 0.4
+                    }]
                 },
-                ticks: {
-                    callback: function(value) {
-                        return '₱' + value.toLocaleString();
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
                     }
                 }
-            },
-            x: {
-                grid: {
-                    display: false
-                }
-            }
+            });
         }
+    } catch (error) {
+        console.error('Error loading revenue chart data:', error);
     }
+}
+
+// Load initial chart with week period
+loadRevenueChartData('week');
+
+// Handle period selector change
+document.querySelector('select').addEventListener('change', function(e) {
+    const periodMap = {
+        'Last 7 Days': 'week',
+        'Last 30 Days': 'month',
+        'Last Quarter': 'month',
+        'Last Year': 'month'
+    };
+    const period = periodMap[e.target.value] || 'week';
+    loadRevenueChartData(period);
 });
 
 // Order Status Chart - Doughnut Chart

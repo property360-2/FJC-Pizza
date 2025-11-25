@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}BOM Dashboard - FJC Pizza{% endblock %}
+{% block title %}BOM Dashboard - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -19,20 +19,20 @@
 
     <!-- Quick Action Links - Top Navigation -->
     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-md border border-blue-200 p-6">
-        <h2 class="text-lg font-bold text-gray-900 mb-4">⚡ Quick Actions</h2>
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><span class="material-icons">flash_on</span> Quick Actions</h2>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <a href="{% url 'products:bom_usage_report' %}" class="group block p-4 bg-white rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-md transition text-center">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📊</span>
+                <span class="material-icons text-4xl block mb-2 group-hover:scale-110 transition-transform text-blue-600">bar_chart</span>
                 <span class="text-sm font-semibold text-blue-900">Usage Reports</span>
                 <p class="text-xs text-gray-500 mt-1">View consumption</p>
             </a>
             <a href="{% url 'products:bom_low_stock' %}" class="group block p-4 bg-white rounded-lg border-2 border-red-200 hover:border-red-400 hover:shadow-md transition text-center">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">⚠️</span>
+                <span class="material-icons text-4xl block mb-2 group-hover:scale-110 transition-transform text-red-600">warning</span>
                 <span class="text-sm font-semibold text-red-900">Low Stock Report</span>
                 <p class="text-xs text-gray-500 mt-1">Restock items</p>
             </a>
             <a href="{% url 'products:ingredient_list' %}" class="group block p-4 bg-white rounded-lg border-2 border-green-200 hover:border-green-400 hover:shadow-md transition text-center">
-                <span class="text-3xl block mb-2 group-hover:scale-110 transition-transform">📦</span>
+                <span class="material-icons text-4xl block mb-2 group-hover:scale-110 transition-transform text-green-600">inventory_2</span>
                 <span class="text-sm font-semibold text-green-900">Manage Ingredients</span>
                 <p class="text-xs text-gray-500 mt-1">Add/edit ingredients</p>
             </a>
@@ -48,7 +48,7 @@
                     <p class="text-sm font-medium text-gray-600">Total Ingredients</p>
                     <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_ingredients }}</p>
                 </div>
-                <span class="text-4xl">📦</span>
+                <span class="material-icons text-4xl text-gray-700">inventory_2</span>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
                     <p class="text-sm font-medium text-gray-600">Low Stock Items</p>
                     <p class="text-3xl font-bold {% if low_stock_count > 0 %}text-red-600{% else %}text-green-600{% endif %} mt-2">{{ low_stock_count }}</p>
                 </div>
-                <span class="text-4xl">⚠️</span>
+                <span class="material-icons text-4xl text-red-600">warning</span>
             </div>
         </div>
 
@@ -70,7 +70,7 @@
                     <p class="text-sm font-medium text-gray-600">Waste Cost (This Month)</p>
                     <p class="text-3xl font-bold text-red-600 mt-2">₱{{ month_waste_cost|floatformat:2 }}</p>
                 </div>
-                <span class="text-4xl">💸</span>
+                <span class="material-icons text-4xl text-red-600">money_off</span>
             </div>
         </div>
 
@@ -81,7 +81,7 @@
                     <p class="text-sm font-medium text-gray-600">Variance Issues</p>
                     <p class="text-3xl font-bold text-yellow-600 mt-2">{{ variance_issues|length }}</p>
                 </div>
-                <span class="text-4xl">📊</span>
+                <span class="material-icons text-4xl text-yellow-600">assessment</span>
             </div>
         </div>
     </div>
@@ -91,7 +91,7 @@
     <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <span class="text-2xl">⚠️</span>
+                <span class="text-2xl"><span class="material-icons">warning</span></span>
             </div>
             <div class="ml-3">
                 <p class="text-sm font-medium text-red-800">
@@ -129,7 +129,7 @@
                     {% endfor %}
                 {% else %}
                 <div class="px-6 py-8 text-center">
-                    <span class="text-4xl mb-2 block">✅</span>
+                    <span class="material-icons text-4xl mb-2 block text-green-600">check_circle</span>
                     <p class="text-gray-600 font-medium">All ingredients are well stocked!</p>
                 </div>
                 {% endif %}
@@ -162,7 +162,7 @@
                     {% endfor %}
                 {% else %}
                 <div class="px-6 py-8 text-center">
-                    <span class="text-4xl mb-2 block">✅</span>
+                    <span class="text-4xl mb-2 block"><span class="material-icons">check_circle</span></span>
                     <p class="text-gray-600 font-medium">All products are well stocked!</p>
                 </div>
                 {% endif %}

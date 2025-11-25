@@ -370,6 +370,7 @@ def archived_products_list(request):
 
     # Get query parameters
     search = request.GET.get('search', '').strip()
+    category = request.GET.get('category', '').strip()
     page_number = request.GET.get('page', 1)
 
     # Base queryset - only archived products
@@ -382,6 +383,16 @@ def archived_products_list(request):
             Q(description__icontains=search) |
             Q(category__icontains=search)
         )
+
+    # Apply category filter
+    if category:
+        archived_products = archived_products.filter(category=category)
+
+    # Distinct categories for filter dropdown (non-empty only)
+    categories = Product.objects.filter(
+        is_archived=True
+    ).values_list('category', flat=True).distinct().order_by('category')
+    categories = [c for c in categories if c]
 
     # Order by name
     archived_products = archived_products.order_by('name')
@@ -414,12 +425,55 @@ def archived_products_list(request):
                 'archived_at': 'Unknown date'
             }
 
+    # AJAX response for async filtering
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        products_data = []
+        for product in page_obj:
+            archived_at_val = product.archive_info.get('archived_at')
+            if hasattr(archived_at_val, 'strftime'):
+                archived_at_display = archived_at_val.strftime("%Y-%m-%d %H:%M")
+            else:
+                archived_at_display = archived_at_val or 'Unknown date'
+
+            products_data.append({
+                'id': product.id,
+                'name': product.name,
+                'description': product.description or '',
+                'category': product.category or 'N/A',
+                'price': float(product.price),
+                'archived_by': product.archive_info.get('archived_by', 'Unknown'),
+                'archived_at': archived_at_display,
+                'image_url': product.image.url if product.image else '',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'products': products_data,
+            'pagination': {
+                'page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_count': paginator.count,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+                'first_page': 1,
+                'last_page': paginator.num_pages,
+            },
+            'filters': {
+                'search': search,
+                'category': category,
+            }
+        })
+
     # Regular page load
     context = {
         'page_obj': page_obj,
         'products': page_obj,
         'total_count': paginator.count,
         'search': search,
+        'categories': categories,
+        'selected_category': category,
     }
     return render(request, 'products/archived_list.html', context)
 

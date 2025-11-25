@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Orders - FJC Pizza{% endblock %}
+{% block title %}Orders - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -96,7 +96,6 @@
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Table</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Items</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Total</th>
-                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Payment</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
@@ -119,14 +118,6 @@
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4 font-medium text-fjc-blue-600">₱{{ order.total_amount }}</td>
-                            <td class="px-6 py-4 text-sm">
-                                {% if order.payment %}
-                                    <div class="font-semibold text-green-600">✓ ₱{{ order.payment.amount|floatformat:2 }}</div>
-                                    <div class="text-xs text-gray-500">{{ order.payment.get_method_display }}</div>
-                                {% else %}
-                                    <div class="font-semibold text-red-600">✗ Pending</div>
-                                {% endif %}
-                            </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ order.created_at|date:"M d, Y g:i A" }}</td>
                             <td class="px-6 py-4">
                                 {% if order.status == 'PENDING' %}
@@ -141,20 +132,20 @@
                             </td>
                             <td class="px-6 py-4 space-x-2 flex">
                                 {% if order.status == 'PENDING' %}
-                                    <button onclick="openPaymentModal({{ order.pk }}, {{ order.total_amount }})" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
-                                        💰 Pay
+                                    <button onclick="openPaymentModal({{ order.pk }}, {{ order.total_amount }})" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition flex items-center gap-1">
+                                        <span class="material-icons text-sm">money</span> Pay
                                     </button>
                                 {% elif order.status == 'IN_PROGRESS' %}
-                                    <button onclick="markOrderCompleted({{ order.pk }})" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
-                                        ✓ Done
+                                    <button onclick="markOrderCompleted({{ order.pk }})" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition flex items-center gap-1">
+                                        <span class="material-icons text-sm">check_circle</span> Done
                                     </button>
                                 {% elif order.status == 'FINISHED' %}
-                                    <button onclick="archiveOrder({{ order.pk }})" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition">
-                                        📦 Archive
+                                    <button onclick="archiveOrder({{ order.pk }})" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition flex items-center gap-1">
+                                        <span class="material-icons text-sm">archive</span> Archive
                                     </button>
                                 {% endif %}
-                                <a href="{% url 'orders:detail' order.pk %}" class="bg-fjc-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-fjc-blue-700 transition">
-                                    View
+                                <a href="{% url 'orders:detail' order.pk %}" class="bg-fjc-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-fjc-blue-700 transition flex items-center gap-1">
+                                    <span class="material-icons text-sm">visibility</span> View
                                 </a>
                             </td>
                         </tr>
@@ -265,7 +256,7 @@
         <!-- Modal Header -->
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-3xl font-bold text-gray-900">💳 Process Payment</h2>
-            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition">✕</button>
+            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl transition"><span class="material-icons">cancel</span></button>
         </div>
 
         <input type="hidden" id="payment-order-id">
@@ -310,7 +301,7 @@
                 Cancel
             </button>
             <button id="confirm-payment-btn" onclick="processQuickPayment()" disabled class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition">
-                ✓ Confirm Payment
+                <span class="material-icons">check_circle</span> Confirm Payment
             </button>
         </div>
 
@@ -686,9 +677,9 @@ function closeConfirmationModal() {
 // Mark order as completed
 function markOrderCompleted(orderId) {
     openConfirmationModal(
-        '✓ Mark as Completed?',
+        '<span class="material-icons">check_circle</span> Mark as Completed?',
         'This will mark the order as finished and completed.',
-        '✓',
+        '<span class="material-icons">check_circle</span>',
         () => {
             fetch(`/orders/${orderId}/update-status/`, {
                 method: 'POST',
@@ -718,7 +709,7 @@ function markOrderCompleted(orderId) {
 // Archive order
 function archiveOrder(orderId) {
     openConfirmationModal(
-        '📦 Archive Order?',
+        ' Archive Order?',
         'This order will be moved to archives and hidden from the main list.',
         '📦',
         () => {

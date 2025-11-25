@@ -151,11 +151,18 @@ def dashboard(request):
         product['width_percent'] = int(width_percent)
         top_products.append(product)
 
-    # Low stock products
-    low_stock_products = Product.objects.filter(
-        is_archived=False,
-        stock__lt=F('threshold')
-    ).order_by('stock')[:10]
+    # Low stock products - uses calculated_stock which accounts for BOM products
+    all_products = Product.objects.filter(is_archived=False)
+    low_stock_products = []
+
+    for product in all_products:
+        # Use calculated_stock which properly handles both simple stock and BOM-based stock
+        if product.calculated_stock < product.threshold:
+            low_stock_products.append(product)
+
+    # Sort by calculated stock and limit to 10
+    low_stock_products.sort(key=lambda p: p.calculated_stock)
+    low_stock_products = low_stock_products[:10]
 
     # Recent orders
     recent_orders = Order.objects.select_related('payment').order_by('-created_at')[:10]

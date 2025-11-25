@@ -171,7 +171,8 @@ def user_create(request):
             messages.success(request, f'User {username} created successfully!')
             return redirect('accounts:user_list')
 
-    return render(request, 'accounts/user_form.html', {'action': 'Create'})
+    # Explicitly pass user=None so the template does not use request.user defaults
+    return render(request, 'accounts/user_form.html', {'action': 'Create', 'user': None})
 
 
 @login_required

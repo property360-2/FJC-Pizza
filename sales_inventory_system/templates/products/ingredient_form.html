@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ action }} Ingredient - FJC Pizza{% endblock %}
+{% block title %}{{ action }} Ingredient - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto space-y-6">
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const originalText = submitBtnText.textContent;
 
                 submitBtn.disabled = true;
-                submitBtnText.textContent = '⏳ Saving...';
+                submitBtnText.textContent = '<span class="material-icons">schedule</span> Saving...';
                 submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
                 // Auto-restore button after 30 seconds (fallback)

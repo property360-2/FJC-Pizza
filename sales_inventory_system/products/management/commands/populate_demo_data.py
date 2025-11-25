@@ -1,5 +1,5 @@
 """
-Management command to populate the database with comprehensive demo data for FJC Pizza
+Management command to populate the database with comprehensive demo data for FCJ Pizza
 """
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -13,7 +13,7 @@ from sales_inventory_system.system.models import AuditTrail
 
 
 class Command(BaseCommand):
-    help = 'Populate database with comprehensive demo data for FJC Pizza'
+    help = 'Populate database with comprehensive demo data for FCJ Pizza'
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.SUCCESS('Starting demo data population...'))

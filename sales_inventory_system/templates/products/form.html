@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ action }} Product - FJC Pizza{% endblock %}
+{% block title %}{{ action }} Product - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto space-y-6">
@@ -53,7 +53,7 @@
                 <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div>
                         <label for="requires-bom-toggle" class="block text-sm font-semibold text-gray-900 mb-1">
-                            📦 Requires Bill of Materials (BOM)?
+                            <span class="material-icons align-middle inline mr-1">inventory_2</span> Requires Bill of Materials (BOM)?
                         </label>
                         <p class="text-xs text-gray-600">
                             <span class="requires-bom-off">Simple stock item (e.g., Coca-Cola, bottled water)</span>
@@ -183,9 +183,9 @@
                             <button
                                 type="button"
                                 id="add-ingredient-btn"
-                                class="px-4 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium transition"
+                                class="px-4 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium transition flex items-center justify-center gap-1"
                             >
-                                ➕ Add Ingredient
+                                <span class="material-icons text-base">add_circle</span> Add Ingredient
                             </button>
                         </div>
                         <p id="ingredient-error" class="mt-2 text-sm text-red-600 hidden"></p>
@@ -229,7 +229,7 @@
 
                     <!-- Empty State -->
                     <div id="ingredients-empty" class="text-center py-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                        <span class="text-3xl mb-2 block">📦</span>
+                        <span class="material-icons text-5xl mb-2 block">inventory_2</span>
                         <p class="text-gray-600 mb-2">No ingredients added yet</p>
                         <p class="text-xs text-gray-500">Search and add ingredients above</p>
                     </div>
@@ -264,8 +264,8 @@
                         <h3 class="text-lg font-semibold text-gray-900">Recipe (Bill of Materials)</h3>
                         <p class="text-sm text-gray-500 mt-1">Define ingredients and quantities for this product</p>
                     </div>
-                    <a href="{% url 'products:recipe_edit' product.id %}" class="px-4 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium text-sm">
-                        ➕ Manage Recipe
+                    <a href="{% url 'products:recipe_edit' product.id %}" class="px-4 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium text-sm flex items-center gap-1">
+                        <span class="material-icons text-base">add_circle</span> Manage Recipe
                     </a>
                 </div>
 
@@ -292,7 +292,7 @@
                     </div>
                     {% else %}
                     <div class="text-center py-6">
-                        <span class="text-3xl mb-2 block">📋</span>
+                        <span class="material-icons text-5xl mb-2 block">assignment</span>
                         <p class="text-gray-600 mb-4">No recipe defined yet</p>
                         <a href="{% url 'products:recipe_edit' product.id %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium">
                             Create Recipe
