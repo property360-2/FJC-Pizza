@@ -150,6 +150,7 @@ class RecipeItem(models.Model):
         Product,
         on_delete=models.CASCADE,
         related_name='recipe',
+        db_index=True,
         help_text="Product that this recipe creates"
     )
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)

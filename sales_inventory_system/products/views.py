@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import F, Q
+from django.db.models import F, Q, Prefetch
 from django.core.paginator import Paginator
 from .models import Product, Ingredient, RecipeItem, RecipeIngredient
 from sales_inventory_system.system.models import AuditTrail
@@ -39,8 +39,12 @@ def product_list(request):
     stock_status = request.GET.get('stock_status', '').strip()
     page_number = request.GET.get('page', 1)
 
-    # Base queryset
-    products = Product.objects.filter(is_archived=False)
+    # Base queryset with optimizations to reduce N+1 queries
+    products = Product.objects.filter(is_archived=False).select_related(
+        'recipe'
+    ).prefetch_related(
+        'recipe__ingredients__ingredient'
+    )
 
     # Apply search filter
     if search:
@@ -70,7 +74,11 @@ def product_list(request):
 
     # Calculate statistics
     # For low_stock_count, filter products where calculated_stock is below threshold
-    all_active_products = Product.objects.filter(is_archived=False)
+    all_active_products = Product.objects.filter(is_archived=False).select_related(
+        'recipe'
+    ).prefetch_related(
+        'recipe__ingredients__ingredient'
+    )
     low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold and p.calculated_stock > 0]
     total_count = products.count()
 
@@ -353,6 +361,89 @@ def product_archive(request, pk):
 
     messages.success(request, f'Product "{product.name}" archived successfully!')
     return redirect('products:list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def archived_products_list(request):
+    """List all archived products with search and filtering"""
+
+    # Get query parameters
+    search = request.GET.get('search', '').strip()
+    page_number = request.GET.get('page', 1)
+
+    # Base queryset - only archived products
+    archived_products = Product.objects.filter(is_archived=True).select_related('recipe').prefetch_related('recipe__ingredients__ingredient')
+
+    # Apply search filter
+    if search:
+        archived_products = archived_products.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(category__icontains=search)
+        )
+
+    # Order by name
+    archived_products = archived_products.order_by('name')
+
+    # Get archive info from AuditTrail
+    archive_info = {}
+    audit_records = AuditTrail.objects.filter(
+        action='ARCHIVE',
+        model_name='Product'
+    ).order_by('-created_at')
+
+    for record in audit_records:
+        if record.record_id not in archive_info:
+            archive_info[record.record_id] = {
+                'archived_by': record.user.username if record.user else 'Unknown',
+                'archived_at': record.created_at,
+            }
+
+    # Pagination
+    paginator = Paginator(archived_products, 12)  # 12 products per page
+    page_obj = paginator.get_page(page_number)
+
+    # Attach archive info to each product
+    for product in page_obj:
+        if product.id in archive_info:
+            product.archive_info = archive_info[product.id]
+        else:
+            product.archive_info = {
+                'archived_by': 'Unknown',
+                'archived_at': 'Unknown date'
+            }
+
+    # Regular page load
+    context = {
+        'page_obj': page_obj,
+        'products': page_obj,
+        'total_count': paginator.count,
+        'search': search,
+    }
+    return render(request, 'products/archived_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def product_unarchive(request, pk):
+    """Restore an archived product"""
+    product = get_object_or_404(Product, pk=pk, is_archived=True)
+    product.is_archived = False
+    product.save()
+
+    # Create audit log
+    AuditTrail.objects.create(
+        user=request.user,
+        action='RESTORE',
+        model_name='Product',
+        record_id=product.id,
+        description=f'Restored product: {product.name}',
+        data_snapshot={'name': product.name, 'price': str(product.price)}
+    )
+
+    messages.success(request, f'Product "{product.name}" restored successfully!')
+    return redirect('products:archived_list')
 
 
 # ==================== Ingredient Management Views ====================
@@ -651,7 +742,7 @@ def api_search_ingredients(request):
             'id': ingredient.id,
             'name': ingredient.name,
             'unit': ingredient.unit,
-            'cost_per_unit': float(ingredient.cost_per_unit),
+            'cost_per_unit': 0,
             'current_stock': float(ingredient.current_stock),
             'display': f"{ingredient.name} ({ingredient.unit})"
         })
@@ -729,3 +820,80 @@ def api_search_categories(request):
 
     results = [{'name': cat} for cat in matching_categories]
     return JsonResponse({'results': results})
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_search_archives(request):
+    """API endpoint for searching all archived items (products, users, orders)"""
+    from accounts.models import User
+    from orders.models import Order
+
+    query = request.GET.get('q', '').strip()
+    archive_type = request.GET.get('type', 'all').strip().lower()
+
+    results = {
+        'products': [],
+        'users': [],
+        'orders': [],
+        'query': query
+    }
+
+    if not query:
+        return JsonResponse(results)
+
+    # Search archived products
+    if archive_type in ['all', 'products']:
+        archived_products = Product.objects.filter(is_archived=True).filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__icontains=query)
+        ).order_by('name')[:10]
+
+        for product in archived_products:
+            results['products'].append({
+                'id': product.id,
+                'name': product.name,
+                'category': product.category or 'N/A',
+                'price': float(product.price),
+                'type': 'product'
+            })
+
+    # Search archived users/staff
+    if archive_type in ['all', 'users']:
+        archived_users = User.objects.filter(is_archived=True).filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        ).order_by('username')[:10]
+
+        for user in archived_users:
+            results['users'].append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'role': user.get_role_display(),
+                'type': 'user'
+            })
+
+    # Search archived orders
+    if archive_type in ['all', 'orders']:
+        archived_orders = Order.objects.filter(is_archived=True).filter(
+            Q(order_number__icontains=query) |
+            Q(customer_name__icontains=query)
+        ).order_by('-created_at')[:10]
+
+        for order in archived_orders:
+            results['orders'].append({
+                'id': order.id,
+                'order_number': order.order_number,
+                'customer_name': order.customer_name or 'N/A',
+                'status': order.get_status_display(),
+                'total_amount': float(order.total_amount),
+                'created_at': order.created_at.strftime("%Y-%m-%d %H:%M"),
+                'type': 'order'
+            })
+
+    return JsonResponse(results)

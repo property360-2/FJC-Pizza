@@ -122,7 +122,7 @@
 
                     <div class="flex space-x-2">
                         <a href="{% url 'products:detail' product.id %}" class="flex-1 bg-fjc-blue-600 text-white px-3 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium text-sm text-center transition">
-                            ✏️ Edit
+                            👁️ View
                         </a>
                         <button onclick="archiveProduct({{ product.id }}, '{{ product.name|escapejs }}')" class="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 font-medium text-sm transition">
                             📦 Archive
@@ -280,7 +280,7 @@ function renderProducts(products, pagination) {
                     </div>
                     <div class="flex space-x-2">
                         <a href="/products/${product.id}/" class="flex-1 bg-fjc-blue-600 text-white px-3 py-2 rounded-lg hover:bg-fjc-blue-700 font-medium text-sm text-center transition">
-                            ✏️ Edit
+                            👁️ View
                         </a>
                         <button onclick="archiveProduct(${product.id}, '${product.name}')"
                                 class="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 font-medium text-sm transition">
