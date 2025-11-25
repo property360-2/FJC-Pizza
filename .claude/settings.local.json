@@ -12,7 +12,9 @@
       "Bash(find:*)",
       "Bash(python:*)",
       "Bash(git rm:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(netstat:*)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []

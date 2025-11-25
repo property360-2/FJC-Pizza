@@ -254,3 +254,54 @@ def user_audit_trail(request, pk):
         'total_actions': paginator.count,
     }
     return render(request, 'accounts/user_audit_trail.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def user_archive(request, pk):
+    """Archive a user/staff member"""
+    user = get_object_or_404(User, pk=pk)
+
+    # Prevent archiving yourself
+    if user.id == request.user.id:
+        messages.error(request, 'You cannot archive yourself!')
+        return redirect('accounts:user_list')
+
+    user.is_archived = True
+    user.save()
+
+    # Create audit log
+    AuditTrail.objects.create(
+        user=request.user,
+        action='ARCHIVE',
+        model_name='User',
+        record_id=user.id,
+        description=f'Archived user: {user.username}',
+        data_snapshot={'username': user.username, 'email': user.email, 'role': user.get_role_display()}
+    )
+
+    messages.success(request, f'User "{user.username}" archived successfully!')
+    return redirect('accounts:user_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def user_unarchive(request, pk):
+    """Restore an archived user/staff member"""
+    user = get_object_or_404(User, pk=pk, is_archived=True)
+
+    user.is_archived = False
+    user.save()
+
+    # Create audit log
+    AuditTrail.objects.create(
+        user=request.user,
+        action='RESTORE',
+        model_name='User',
+        record_id=user.id,
+        description=f'Restored user: {user.username}',
+        data_snapshot={'username': user.username, 'email': user.email, 'role': user.get_role_display()}
+    )
+
+    messages.success(request, f'User "{user.username}" restored successfully!')
+    return redirect('accounts:archived_list')

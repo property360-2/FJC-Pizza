@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Archived Products - FJC Pizza{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Archived Products</h1>
+            <p class="mt-1 text-sm text-gray-500">View and restore archived products</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'products:list' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium text-sm">
+                ← Back to Products
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div class="md:col-span-2">
+                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-2">Search Archived Products</label>
+                <input type="text" id="search-input" placeholder="Search by name, description, or category..." value="{{ search }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
+            </div>
+
+            <!-- Clear Filters -->
+            <div class="flex items-end">
+                <button id="clear-filters-btn" class="w-full px-4 py-2 text-sm text-fjc-blue-600 hover:text-fjc-blue-700 font-medium border border-fjc-blue-300 rounded-lg hover:bg-fjc-blue-50 {% if not search %}hidden{% endif %}">
+                    Clear Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Info -->
+        <div class="mt-4">
+            <p class="text-sm text-gray-600">
+                Showing <span id="results-count" class="font-semibold">{{ total_count }}</span> archived product{{ total_count|pluralize }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    {% if not products %}
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-12 text-center">
+        <div class="text-6xl mb-4">📦</div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No Archived Products</h3>
+        <p class="text-gray-600 mb-6">You don't have any archived products yet.</p>
+        <a href="{% url 'products:list' %}" class="inline-block px-6 py-2 bg-fjc-blue-600 text-white rounded-lg hover:bg-fjc-blue-700 font-medium">
+            View Active Products
+        </a>
+    </div>
+    {% else %}
+
+    <!-- Archived Products Table -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Product</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Price</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Archived By</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Archived Date</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for product in products %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                {% if product.image %}
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                                </div>
+                                {% else %}
+                                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 text-lg">
+                                    🍕
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ product.name }}</p>
+                                    {% if product.description %}
+                                    <p class="text-sm text-gray-500">{{ product.description|truncatewords:5 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ product.category|default:"N/A" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            ₱{{ product.price|floatformat:2 }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {{ product.archive_info.archived_by }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {% if product.archive_info.archived_at %}
+                                {{ product.archive_info.archived_at|date:"M d, Y H:i" }}
+                            {% else %}
+                                Unknown date
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="restoreProduct({{ product.id }}, '{{ product.name|escapejs }}')"
+                                        class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm transition">
+                                    ↩️ Restore
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="flex items-center justify-between">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if search %}&search={{ search }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                First
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Last
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Page <span class="font-semibold">{{ page_obj.number }}</span> of <span class="font-semibold">{{ page_obj.paginator.num_pages }}</span>
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1{% if search %}&search={{ search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        First
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Previous
+                    </a>
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Next
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Last
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% endif %}
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('search-input').addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+            const search = this.value.trim();
+            if (search) {
+                window.location.href = '{% url "products:archived_list" %}?search=' + encodeURIComponent(search);
+            } else {
+                window.location.href = '{% url "products:archived_list" %}';
+            }
+        }
+    });
+
+    // Clear filters
+    document.getElementById('clear-filters-btn').addEventListener('click', function() {
+        window.location.href = '{% url "products:archived_list" %}';
+    });
+
+    // Restore product
+    function restoreProduct(productId, productName) {
+        Confirm.show({
+            title: 'Restore Product',
+            message: `Restore "${productName}" to active products?`,
+            confirmText: 'Restore',
+            cancelText: 'Cancel',
+            type: 'success',
+            onConfirm: () => {
+                Loading.show();
+                window.location.href = `/products/${productId}/unarchive/`;
+            }
+        });
+    }
+</script>
+{% endblock %}
