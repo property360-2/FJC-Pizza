@@ -31,9 +31,6 @@ def bom_dashboard(request):
     all_active_products = Product.objects.filter(is_archived=False)
     low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold][:5]
 
-    # Recent waste
-    recent_waste = WasteLog.objects.select_related('ingredient').order_by('-waste_date')[:5]
-
     # Stock transactions this week
     week_ago = timezone.now() - timedelta(days=7)
     recent_transactions = StockTransaction.objects.filter(
@@ -47,9 +44,11 @@ def bom_dashboard(request):
         period_end__gte=month_start
     ).select_related('ingredient').order_by('within_tolerance')[:5]
 
-    # Calculate total waste cost this month
-    # Note: cost calculation not applicable with simplified ingredient system
-    month_waste = {'total_cost': 0}
+    # Calculate total waste cost this month (actual from WasteLog)
+    month_waste_logs = WasteLog.objects.filter(
+        waste_date__gte=month_start
+    )
+    month_waste_cost = sum(float(waste.cost_impact) for waste in month_waste_logs) if month_waste_logs.exists() else 0
 
     context = {
         'low_stock_count': Ingredient.objects.filter(
@@ -57,11 +56,10 @@ def bom_dashboard(request):
         ).count(),
         'low_stock_ingredients': low_stock,
         'low_stock_products': low_stock_products,
-        'recent_waste': recent_waste,
         'recent_transactions': recent_transactions,
         'variance_issues': variance_records,
         'total_ingredients': Ingredient.objects.filter(is_active=True).count(),
-        'month_waste_cost': month_waste['total_cost'] or 0,
+        'month_waste_cost': month_waste_cost,
     }
 
     return render(request, 'products/bom_dashboard.html', context)
