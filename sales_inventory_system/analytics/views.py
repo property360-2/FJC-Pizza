@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
-from django.db.models import Sum, Count, F, Q, Case, When, Value, DecimalField
+from django.db.models import Sum, Count, F, Q, Case, When, Value, DecimalField, Prefetch
 from django.db.models.functions import Cast, Coalesce, TruncDate
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
@@ -151,12 +151,15 @@ def dashboard(request):
         product['width_percent'] = int(width_percent)
         top_products.append(product)
 
-    # Low stock products - uses calculated_stock which accounts for BOM products
-    all_products = Product.objects.filter(is_archived=False)
-    low_stock_products = []
+    # Low stock products - optimized with prefetch_related to avoid N+1 queries
+    # Prefetch recipe and ingredients data upfront to avoid multiple database queries
+    low_stock_products_qs = Product.objects.filter(
+        is_archived=False
+    ).prefetch_related('recipe__ingredients__ingredient')
 
-    for product in all_products:
-        # Use calculated_stock which properly handles both simple stock and BOM-based stock
+    low_stock_products = []
+    for product in low_stock_products_qs:
+        # Use calculated_stock which now uses prefetched data instead of making new queries
         if product.calculated_stock < product.threshold:
             low_stock_products.append(product)
 
@@ -164,8 +167,10 @@ def dashboard(request):
     low_stock_products.sort(key=lambda p: p.calculated_stock)
     low_stock_products = low_stock_products[:10]
 
-    # Recent orders
-    recent_orders = Order.objects.select_related('payment').order_by('-created_at')[:10]
+    # Recent orders - optimized with prefetch_related for order items
+    recent_orders = Order.objects.select_related('payment').prefetch_related(
+        'items__product'
+    ).order_by('-created_at')[:10]
 
     context = {
         # Revenue metrics

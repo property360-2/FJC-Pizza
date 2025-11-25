@@ -3,8 +3,11 @@
 {% block title %}Analytics - FCJ Pizza{% endblock %}
 
 {% block content %}
-<!-- Include Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<!-- Include Chart.js (deferred for better performance) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js" defer></script>
+
+<!-- Chart data in JSON format for better performance -->
+{{ chart_data|json_script:"dashboard-chart-data" }}
 
 <div class="space-y-6">
     <!-- Header -->

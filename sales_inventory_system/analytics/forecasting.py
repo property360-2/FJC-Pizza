@@ -7,6 +7,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum
+from django.db.models.functions import TruncDate
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from sales_inventory_system.orders.models import Payment
 from decimal import Decimal
@@ -25,17 +26,30 @@ def prepare_sales_data(days=30):
     end_date = timezone.now().date()
     start_date = end_date - timedelta(days=days)
 
-    # Get daily revenue data
+    # Get daily revenue data - optimized to single database query
+    # Instead of querying per date, use TruncDate to group all in one query
+    daily_data = Payment.objects.filter(
+        status='SUCCESS',
+        created_at__date__gte=start_date
+    ).annotate(
+        date=TruncDate('created_at')
+    ).values('date').annotate(
+        total=Sum('amount')
+    ).order_by('date')
+
+    # Create lookup dictionary for fast access
+    data_dict = {
+        item['date']: float(item['total'] or 0)
+        for item in daily_data
+    }
+
+    # Build sales data, filling in zeros for days with no sales
     date_range = pd.date_range(start=start_date, end=end_date, freq='D')
     sales_data = []
 
     for date in date_range:
-        daily_revenue = Payment.objects.filter(
-            status='SUCCESS',
-            created_at__date=date.date()
-        ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-
-        sales_data.append(float(daily_revenue))
+        daily_revenue = data_dict.get(date.date(), 0.0)
+        sales_data.append(daily_revenue)
 
     # Create time series
     ts = pd.Series(sales_data, index=date_range)
