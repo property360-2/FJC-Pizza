@@ -11,7 +11,10 @@
       "Bash(git push:*)",
       "Bash(find:*)",
       "Bash(python:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(timeout 60 python manage.py:*)",
+      "Bash(timeout 120 python:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Create comprehensive 90-day data seeder and fix database schema issues\n\n- Created seed_comprehensive_90days.py management command to generate realistic 90-day historical data across all models\n- Generates ~15,000+ records including orders, items, payments, stock transactions, waste logs, physical counts, and prep batches\n- Implements realistic business patterns: weekday/weekend order variations, multiple user roles, recipe-based inventory tracking\n- Fixed database schema mismatches:\n  - Added cost_per_unit to Ingredient model via migration\n  - Removed requires_bom column from Product model\n  - Removed is_archived column from Order model\n- Updated seed_data.py to use proper field names and work with corrected schema\n- All seeders now run without errors and generate comprehensive test data\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

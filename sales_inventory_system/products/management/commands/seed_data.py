@@ -65,7 +65,7 @@ class Command(BaseCommand):
             self.stdout.write('Creating audit trails...')
             self.create_audit_trails(admin_user, cashier_users)
 
-            self.stdout.write(self.style.SUCCESS('✓ Data seeding completed successfully!'))
+            self.stdout.write(self.style.SUCCESS('[OK] Data seeding completed successfully!'))
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error during seeding: {str(e)}'))
