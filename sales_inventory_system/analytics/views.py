@@ -285,25 +285,25 @@ def sales_data_api(request):
 @login_required
 @user_passes_test(is_admin)
 def sales_forecast(request):
-    """Display sales forecasting using Holt-Winters Exponential Smoothing"""
+    """Display sales forecasting using enhanced Holt-Winters Exponential Smoothing"""
 
-    # Get parameters from request (with defaults)
-    days_back = int(request.GET.get('days_back', 30))
+    # Get parameters from request (with improved defaults)
+    days_back = int(request.GET.get('days_back', 60))  # Increased default for better accuracy
     days_ahead = int(request.GET.get('days_ahead', 7))
 
     # Validate parameters
-    days_back = max(7, min(days_back, 90))  # Between 7 and 90 days
+    days_back = max(14, min(days_back, 180))  # Between 14 and 180 days
     days_ahead = max(1, min(days_ahead, 30))  # Between 1 and 30 days
 
     # Check cache first (expensive operation)
-    cache_key = f'forecast_{days_back}_{days_ahead}'
+    cache_key = f'forecast_v2_{days_back}_{days_ahead}'  # v2 to invalidate old cache
     forecast_result = cache.get(cache_key)
 
     if forecast_result is None:
         # Generate forecast only if not cached
         forecast_result = forecast_sales(days_back=days_back, days_ahead=days_ahead)
-        # Cache for 30 minutes
-        cache.set(cache_key, forecast_result, 1800)
+        # Cache for 15 minutes (shorter due to simulation overhead)
+        cache.set(cache_key, forecast_result, 900)
 
     context = {
         'forecast_result': forecast_result,
