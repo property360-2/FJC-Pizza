@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Ingredient Usage Report - FJC Pizza{% endblock %}
+{% block title %}Ingredient Usage Report - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -34,10 +34,10 @@
 
             <div class="flex gap-2">
                 <a href="?days={{ days }}&download=csv" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm flex items-center gap-2">
-                    📊 Download Summary CSV
+                     Download Summary CSV
                 </a>
                 <a href="?days={{ days }}&download=detailed" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm flex items-center gap-2">
-                    📈 Download Detailed CSV
+                     Download Detailed CSV
                 </a>
             </div>
         </div>
@@ -96,7 +96,7 @@
                             <h3 class="font-semibold text-gray-900">{{ item.ingredient.name }}</h3>
                             <p class="text-xs text-gray-500">{{ item.ingredient.unit }}</p>
                         </div>
-                        <span class="text-2xl">📦</span>
+                        <span class="material-icons text-3xl">inventory_2</span>
                     </div>
 
                     <div class="space-y-2 mb-3 pb-3 border-b border-gray-100">
@@ -123,7 +123,7 @@
             </div>
             {% else %}
             <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
-                <span class="text-5xl mb-4 block">📦</span>
+                <span class="material-icons text-7xl mb-4 block">inventory_2</span>
                 <p class="text-gray-600 text-lg">No ingredient usage data available</p>
                 <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some stock transactions</p>
             </div>
@@ -135,7 +135,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Most Costly Items -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Top Cost Items</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4"><span class="material-icons align-middle inline mr-1">attach_money</span> Top Cost Items</h3>
             <div id="top-cost-items" class="space-y-3">
                 {% for item in top_cost_items %}
                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
@@ -156,7 +156,7 @@
 
         <!-- Most Used Items -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 Most Used Items</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4"><span class="material-icons align-middle inline mr-1">trending_up</span> Most Used Items</h3>
             <div id="top-used-items" class="space-y-3">
                 {% for item in top_used_items %}
                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
@@ -179,7 +179,7 @@
     <!-- Recommendations -->
     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
         <div class="flex items-start">
-            <span class="text-2xl mr-3">💡</span>
+            <span class="material-icons text-2xl mr-3 text-blue-700">lightbulb</span>
             <div>
                 <h3 class="font-semibold text-blue-900 mb-2">Usage Insights & Recommendations</h3>
                 <ul class="text-sm text-blue-800 space-y-2 list-disc list-inside">
@@ -259,7 +259,7 @@ function renderIngredientsGrid(items, totalCost) {
     if (!items || items.length === 0) {
         container.innerHTML = `
             <div class="bg-gray-50 rounded-lg p-8 text-center border border-gray-200">
-                <span class="text-5xl mb-4 block">📦</span>
+                <span class="material-icons text-7xl mb-4 block">inventory_2</span>
                 <p class="text-gray-600 text-lg">No ingredient usage data available</p>
                 <p class="text-gray-500 text-sm mt-2">Try selecting a longer time period or create some stock transactions</p>
             </div>
@@ -278,7 +278,7 @@ function renderIngredientsGrid(items, totalCost) {
                         <h3 class="font-semibold text-gray-900">${item.ingredient_name}</h3>
                         <p class="text-xs text-gray-500">${item.ingredient_unit}</p>
                     </div>
-                    <span class="text-2xl">📦</span>
+                    <span class="material-icons text-3xl">inventory_2</span>
                 </div>
 
                 <div class="space-y-2 mb-3 pb-3 border-b border-gray-100">

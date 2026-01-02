@@ -91,7 +91,7 @@ class BOMService:
                             ingredient=ingredient,
                             transaction_type='DEDUCTION',
                             quantity=total_needed,
-                            unit_cost=ingredient.cost_per_unit,
+                            unit_cost=0,
                             reference_type='order',
                             reference_id=order.id,
                             notes=f"Deduction for {product.name} (Order: {order.order_number})",
@@ -102,7 +102,7 @@ class BOMService:
                             'ingredient': ingredient.name,
                             'quantity_deducted': total_needed,
                             'unit': ingredient.unit,
-                            'cost': total_needed * ingredient.cost_per_unit,
+                            'cost': 0,
                             'remaining_stock': ingredient.current_stock
                         })
 
@@ -132,7 +132,9 @@ class BOMService:
             dict: Availability status with shortage details
         """
         try:
-            recipe = RecipeItem.objects.get(product_id=product_id)
+            recipe = RecipeItem.objects.prefetch_related(
+                'ingredients__ingredient'
+            ).get(product_id=product_id)
         except RecipeItem.DoesNotExist:
             # STRICT: Product MUST have a recipe
             from .models import Product
@@ -381,7 +383,7 @@ class BOMService:
                     'count': 0
                 }
             by_type[trans_type]['quantity'] += t.quantity
-            by_type[trans_type]['cost'] += (t.quantity * (t.unit_cost or ingredient.cost_per_unit))
+            by_type[trans_type]['cost'] += (t.quantity * (t.unit_cost or 0))
             by_type[trans_type]['count'] += 1
 
         # Waste logs
@@ -414,7 +416,7 @@ class BOMService:
             'waste_by_type': by_waste_type,
             'total_transactions': transactions.count(),
             'current_stock': ingredient.current_stock,
-            'cost_per_unit': ingredient.cost_per_unit
+            'cost_per_unit': 0
         }
 
     @staticmethod

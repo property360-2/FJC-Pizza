@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import F, Q
+from django.db.models import F, Q, Prefetch
 from django.core.paginator import Paginator
 from .models import Product, Ingredient, RecipeItem, RecipeIngredient
 from sales_inventory_system.system.models import AuditTrail
@@ -39,8 +39,12 @@ def product_list(request):
     stock_status = request.GET.get('stock_status', '').strip()
     page_number = request.GET.get('page', 1)
 
-    # Base queryset
-    products = Product.objects.filter(is_archived=False)
+    # Base queryset with optimizations to reduce N+1 queries
+    products = Product.objects.filter(is_archived=False).select_related(
+        'recipe'
+    ).prefetch_related(
+        'recipe__ingredients__ingredient'
+    )
 
     # Apply search filter
     if search:
@@ -69,7 +73,13 @@ def product_list(request):
     categories = [c for c in categories if c]  # Remove empty categories
 
     # Calculate statistics
-    low_stock_products = Product.objects.filter(is_archived=False, stock__lt=F('threshold'), stock__gt=0)
+    # For low_stock_count, filter products where calculated_stock is below threshold
+    all_active_products = Product.objects.filter(is_archived=False).select_related(
+        'recipe'
+    ).prefetch_related(
+        'recipe__ingredients__ingredient'
+    )
+    low_stock_products = [p for p in all_active_products if p.calculated_stock < p.threshold and p.calculated_stock > 0]
     total_count = products.count()
 
     # Pagination
@@ -87,6 +97,7 @@ def product_list(request):
                 'description': product.description or '',
                 'price': float(product.price),
                 'stock': product.stock,
+                'calculated_stock': product.calculated_stock,
                 'threshold': product.threshold,
                 'category': product.category or '',
                 'is_low_stock': product.is_low_stock,
@@ -112,7 +123,7 @@ def product_list(request):
         'page_obj': page_obj,
         'products': page_obj,  # For backward compatibility
         'categories': categories,
-        'low_stock_count': low_stock_products.count(),
+        'low_stock_count': len(low_stock_products),
         'total_count': total_count,
         'search': search,
         'selected_category': category,
@@ -123,7 +134,7 @@ def product_list(request):
 @login_required
 @user_passes_test(is_admin)
 def product_create(request):
-    """Create a new product"""
+    """Create a new product (with or without BOM)"""
     if request.method == 'POST':
         from django.db import transaction
 
@@ -131,10 +142,9 @@ def product_create(request):
             name = request.POST.get('name')
             description = request.POST.get('description', '')
             price = request.POST.get('price')
-            stock = request.POST.get('stock', 0)
-            threshold = request.POST.get('threshold', 10)
             category = request.POST.get('category', '')
             image = request.FILES.get('image')
+            requires_bom = request.POST.get('requires_bom') == 'on'
             ingredients_json_str = request.POST.get('ingredients_json', '[]')
 
             # Parse ingredients JSON
@@ -143,10 +153,54 @@ def product_create(request):
             except json.JSONDecodeError:
                 ingredients_data = []
 
-            # Validate ingredients are provided
-            if not ingredients_data:
-                messages.error(request, 'Product must have at least one ingredient in the recipe.')
-                return render(request, 'products/form.html', {'action': 'Create'})
+            # Validate based on product type
+            if requires_bom:
+                # Manufactured product: requires BOM/ingredients
+                if not ingredients_data:
+                    messages.error(request, 'Manufactured products must have at least one ingredient in the recipe.')
+                    return render(request, 'products/form.html', {
+                        'action': 'Create',
+                        'form_data': {
+                            'name': name,
+                            'description': description,
+                            'price': price,
+                            'category': category,
+                        }
+                    })
+                stock = 0  # Stock for manufactured products starts at 0
+                threshold = request.POST.get('threshold', 10)
+            else:
+                # Simple product: requires stock
+                stock_str = request.POST.get('stock', '')
+                threshold = request.POST.get('threshold', 10)
+                try:
+                    stock = int(stock_str) if stock_str else 0
+                    if stock < 0:
+                        messages.error(request, 'Simple products must have a stock quantity >= 0.')
+                        return render(request, 'products/form.html', {
+                            'action': 'Create',
+                            'form_data': {
+                                'name': name,
+                                'description': description,
+                                'price': price,
+                                'stock': stock,
+                                'category': category,
+                                'threshold': threshold,
+                            }
+                        })
+                except (ValueError, TypeError):
+                    messages.error(request, 'Simple products must have a valid stock quantity.')
+                    return render(request, 'products/form.html', {
+                        'action': 'Create',
+                        'form_data': {
+                            'name': name,
+                            'description': description,
+                            'price': price,
+                            'stock': stock_str,
+                            'category': category,
+                            'threshold': threshold,
+                        }
+                    })
 
             with transaction.atomic():
                 # Create product
@@ -157,64 +211,96 @@ def product_create(request):
                     stock=stock,
                     threshold=threshold,
                     category=category,
-                    image=image
+                    image=image,
+                    requires_bom=requires_bom
                 )
 
-                # Create recipe item for the product
+                # Create recipe item for the product (always created)
                 recipe_item = RecipeItem.objects.create(product=product)
 
-                # Create recipe ingredients
-                for ing_data in ingredients_data:
-                    try:
-                        ingredient = Ingredient.objects.get(id=ing_data.get('id'))
-                        RecipeIngredient.objects.create(
-                            recipe=recipe_item,
-                            ingredient=ingredient,
-                            quantity=Decimal(str(ing_data.get('quantity', 0)))
-                        )
-                    except (Ingredient.DoesNotExist, ValueError, KeyError):
-                        # Skip invalid ingredients
-                        continue
+                # Create recipe ingredients only if BOM is required
+                ingredients_count = 0
+                if requires_bom and ingredients_data:
+                    for ing_data in ingredients_data:
+                        try:
+                            ingredient = Ingredient.objects.get(id=ing_data.get('id'))
+                            RecipeIngredient.objects.create(
+                                recipe=recipe_item,
+                                ingredient=ingredient,
+                                quantity=Decimal(str(ing_data.get('quantity', 0)))
+                            )
+                            ingredients_count += 1
+                        except (Ingredient.DoesNotExist, ValueError, KeyError):
+                            # Skip invalid ingredients
+                            continue
 
                 # Create audit log
+                product_type = 'Manufactured (with BOM)' if requires_bom else 'Simple stock item'
                 AuditTrail.objects.create(
                     user=request.user,
                     action='CREATE',
                     model_name='Product',
                     record_id=product.id,
-                    description=f'Created product: {product.name} with {len(ingredients_data)} ingredient(s)',
+                    description=f'Created {product_type}: {product.name}',
                     data_snapshot={
                         'name': name,
                         'price': str(price),
                         'stock': stock,
-                        'ingredients_count': len(ingredients_data)
+                        'requires_bom': requires_bom,
+                        'ingredients_count': ingredients_count
                     }
                 )
 
-                messages.success(request, f'Product "{product.name}" created successfully with recipe!')
+                success_msg = f'Product "{product.name}" created successfully!'
+                if requires_bom:
+                    success_msg += f' Recipe with {ingredients_count} ingredient(s) added.'
+                messages.success(request, success_msg)
                 return redirect('products:list')
 
         except Exception as e:
-            messages.error(request, f'Error creating product: {str(e)}')
-            return render(request, 'products/form.html', {'action': 'Create'})
+            import traceback
+            error_detail = str(e)
+            print(f"Product creation error: {error_detail}")
+            print(traceback.format_exc())
+            messages.error(request, f'Error creating product: {error_detail}')
+            return render(request, 'products/form.html', {
+                'action': 'Create',
+                'form_data': {
+                    'name': name,
+                    'description': description,
+                    'price': price,
+                    'stock': request.POST.get('stock', 0),
+                    'category': category,
+                    'threshold': request.POST.get('threshold', 10),
+                }
+            })
 
     return render(request, 'products/form.html', {'action': 'Create'})
 
 @login_required
 @user_passes_test(is_admin)
 def product_edit(request, pk):
-    """Edit an existing product"""
+    """Edit an existing product (simple or with BOM)"""
     product = get_object_or_404(Product, pk=pk)
 
     if request.method == 'POST':
         old_stock = product.stock
+        old_requires_bom = product.requires_bom
 
         product.name = request.POST.get('name')
         product.description = request.POST.get('description', '')
         product.price = request.POST.get('price')
-        product.stock = request.POST.get('stock', 0)
-        product.threshold = request.POST.get('threshold', 10)
         product.category = request.POST.get('category', '')
+        product.requires_bom = request.POST.get('requires_bom') == 'on'
+        product.threshold = request.POST.get('threshold', 10)
+
+        # Handle stock based on product type
+        if not product.requires_bom:
+            # Simple product: allow stock updates
+            product.stock = request.POST.get('stock', 0)
+        else:
+            # Manufactured product: keep stock at 0
+            product.stock = 0
 
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
@@ -223,8 +309,15 @@ def product_edit(request, pk):
 
         # Create audit log
         description = f'Updated product: {product.name}'
+        changes = []
         if old_stock != int(product.stock):
-            description += f' (Stock: {old_stock} → {product.stock})'
+            changes.append(f'Stock: {old_stock} → {product.stock}')
+        if old_requires_bom != product.requires_bom:
+            bom_status = 'with BOM' if product.requires_bom else 'without BOM'
+            changes.append(f'Type: {bom_status}')
+
+        if changes:
+            description += f' ({", ".join(changes)})'
 
         AuditTrail.objects.create(
             user=request.user,
@@ -236,7 +329,9 @@ def product_edit(request, pk):
                 'name': product.name,
                 'price': str(product.price),
                 'stock': product.stock,
-                'old_stock': old_stock
+                'requires_bom': product.requires_bom,
+                'old_stock': old_stock,
+                'old_requires_bom': old_requires_bom
             }
         )
 
@@ -266,6 +361,143 @@ def product_archive(request, pk):
 
     messages.success(request, f'Product "{product.name}" archived successfully!')
     return redirect('products:list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def archived_products_list(request):
+    """List all archived products with search and filtering"""
+
+    # Get query parameters
+    search = request.GET.get('search', '').strip()
+    category = request.GET.get('category', '').strip()
+    page_number = request.GET.get('page', 1)
+
+    # Base queryset - only archived products
+    archived_products = Product.objects.filter(is_archived=True).select_related('recipe').prefetch_related('recipe__ingredients__ingredient')
+
+    # Apply search filter
+    if search:
+        archived_products = archived_products.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(category__icontains=search)
+        )
+
+    # Apply category filter
+    if category:
+        archived_products = archived_products.filter(category=category)
+
+    # Distinct categories for filter dropdown (non-empty only)
+    categories = Product.objects.filter(
+        is_archived=True
+    ).values_list('category', flat=True).distinct().order_by('category')
+    categories = [c for c in categories if c]
+
+    # Order by name
+    archived_products = archived_products.order_by('name')
+
+    # Get archive info from AuditTrail
+    archive_info = {}
+    audit_records = AuditTrail.objects.filter(
+        action='ARCHIVE',
+        model_name='Product'
+    ).order_by('-created_at')
+
+    for record in audit_records:
+        if record.record_id not in archive_info:
+            archive_info[record.record_id] = {
+                'archived_by': record.user.username if record.user else 'Unknown',
+                'archived_at': record.created_at,
+            }
+
+    # Pagination
+    paginator = Paginator(archived_products, 12)  # 12 products per page
+    page_obj = paginator.get_page(page_number)
+
+    # Attach archive info to each product
+    for product in page_obj:
+        if product.id in archive_info:
+            product.archive_info = archive_info[product.id]
+        else:
+            product.archive_info = {
+                'archived_by': 'Unknown',
+                'archived_at': 'Unknown date'
+            }
+
+    # AJAX response for async filtering
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        products_data = []
+        for product in page_obj:
+            archived_at_val = product.archive_info.get('archived_at')
+            if hasattr(archived_at_val, 'strftime'):
+                archived_at_display = archived_at_val.strftime("%Y-%m-%d %H:%M")
+            else:
+                archived_at_display = archived_at_val or 'Unknown date'
+
+            products_data.append({
+                'id': product.id,
+                'name': product.name,
+                'description': product.description or '',
+                'category': product.category or 'N/A',
+                'price': float(product.price),
+                'archived_by': product.archive_info.get('archived_by', 'Unknown'),
+                'archived_at': archived_at_display,
+                'image_url': product.image.url if product.image else '',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'products': products_data,
+            'pagination': {
+                'page': page_obj.number,
+                'total_pages': paginator.num_pages,
+                'total_count': paginator.count,
+                'has_previous': page_obj.has_previous(),
+                'has_next': page_obj.has_next(),
+                'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+                'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+                'first_page': 1,
+                'last_page': paginator.num_pages,
+            },
+            'filters': {
+                'search': search,
+                'category': category,
+            }
+        })
+
+    # Regular page load
+    context = {
+        'page_obj': page_obj,
+        'products': page_obj,
+        'total_count': paginator.count,
+        'search': search,
+        'categories': categories,
+        'selected_category': category,
+    }
+    return render(request, 'products/archived_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def product_unarchive(request, pk):
+    """Restore an archived product"""
+    product = get_object_or_404(Product, pk=pk, is_archived=True)
+    product.is_archived = False
+    product.save()
+
+    # Create audit log
+    AuditTrail.objects.create(
+        user=request.user,
+        action='RESTORE',
+        model_name='Product',
+        record_id=product.id,
+        description=f'Restored product: {product.name}',
+        data_snapshot={'name': product.name, 'price': str(product.price)}
+    )
+
+    messages.success(request, f'Product "{product.name}" restored successfully!')
+    return redirect('products:archived_list')
 
 
 # ==================== Ingredient Management Views ====================
@@ -321,7 +553,6 @@ def ingredient_create(request):
             name = request.POST.get('name')
             description = request.POST.get('description', '')
             unit = request.POST.get('unit', 'g')
-            cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
             current_stock = Decimal(request.POST.get('current_stock', '0.00'))
             min_stock = Decimal(request.POST.get('min_stock', '10.00'))
             variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
@@ -333,7 +564,6 @@ def ingredient_create(request):
                 name=name,
                 description=description,
                 unit=unit,
-                cost_per_unit=cost_per_unit,
                 current_stock=current_stock,
                 min_stock=min_stock,
                 variance_allowance=variance_allowance,
@@ -348,7 +578,7 @@ def ingredient_create(request):
 
     context = {
         'action': 'Create',
-        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'pcs']
     }
     return render(request, 'products/ingredient_form.html', context)
 
@@ -363,8 +593,7 @@ def ingredient_edit(request, pk):
         try:
             ingredient.name = request.POST.get('name')
             ingredient.description = request.POST.get('description', '')
-            ingredient.unit = request.POST.get('unit', 'kg')
-            ingredient.cost_per_unit = Decimal(request.POST.get('cost_per_unit', '0.00'))
+            ingredient.unit = request.POST.get('unit', 'g')
             ingredient.current_stock = Decimal(request.POST.get('current_stock', '0.00'))
             ingredient.min_stock = Decimal(request.POST.get('min_stock', '10.00'))
             ingredient.variance_allowance = Decimal(request.POST.get('variance_allowance', '10.00'))
@@ -380,7 +609,7 @@ def ingredient_edit(request, pk):
     context = {
         'ingredient': ingredient,
         'action': 'Edit',
-        'units': ['g', 'ml', 'kg', 'L', 'pcs', 'box', 'dozen']
+        'units': ['g', 'ml', 'pcs']
     }
     return render(request, 'products/ingredient_form.html', context)
 
@@ -466,7 +695,6 @@ def api_list_ingredients(request):
             'id': ingredient.id,
             'name': ingredient.name,
             'unit': ingredient.unit,
-            'cost_per_unit': float(ingredient.cost_per_unit),
             'current_stock': float(ingredient.current_stock),
         })
 
@@ -486,7 +714,6 @@ def api_create_ingredient(request):
     try:
         name = request.POST.get('name', '').strip()
         unit = request.POST.get('unit', '').strip()
-        cost_per_unit_str = request.POST.get('cost_per_unit', '0')
         current_stock_str = request.POST.get('current_stock', '0')
 
         # Validate required fields
@@ -503,12 +730,11 @@ def api_create_ingredient(request):
             })
 
         try:
-            cost_per_unit = Decimal(cost_per_unit_str)
             current_stock = Decimal(current_stock_str)
         except (ValueError, TypeError):
             return JsonResponse({
                 'success': False,
-                'message': 'Cost and stock must be valid numbers'
+                'message': 'Stock must be a valid number'
             })
 
         # Check if ingredient already exists
@@ -522,7 +748,6 @@ def api_create_ingredient(request):
         ingredient = Ingredient.objects.create(
             name=name,
             unit=unit,
-            cost_per_unit=cost_per_unit,
             current_stock=current_stock,
             min_stock=Decimal('0'),  # Default min stock
             variance_allowance=Decimal('10'),  # Default variance allowance
@@ -535,7 +760,6 @@ def api_create_ingredient(request):
                 'id': ingredient.id,
                 'name': ingredient.name,
                 'unit': ingredient.unit,
-                'cost_per_unit': float(ingredient.cost_per_unit),
                 'current_stock': float(ingredient.current_stock),
             },
             'message': f'Ingredient "{ingredient.name}" created successfully'
@@ -572,7 +796,7 @@ def api_search_ingredients(request):
             'id': ingredient.id,
             'name': ingredient.name,
             'unit': ingredient.unit,
-            'cost_per_unit': float(ingredient.cost_per_unit),
+            'cost_per_unit': 0,
             'current_stock': float(ingredient.current_stock),
             'display': f"{ingredient.name} ({ingredient.unit})"
         })
@@ -650,3 +874,80 @@ def api_search_categories(request):
 
     results = [{'name': cat} for cat in matching_categories]
     return JsonResponse({'results': results})
+
+
+@login_required
+@user_passes_test(is_admin)
+def api_search_archives(request):
+    """API endpoint for searching all archived items (products, users, orders)"""
+    from accounts.models import User
+    from orders.models import Order
+
+    query = request.GET.get('q', '').strip()
+    archive_type = request.GET.get('type', 'all').strip().lower()
+
+    results = {
+        'products': [],
+        'users': [],
+        'orders': [],
+        'query': query
+    }
+
+    if not query:
+        return JsonResponse(results)
+
+    # Search archived products
+    if archive_type in ['all', 'products']:
+        archived_products = Product.objects.filter(is_archived=True).filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__icontains=query)
+        ).order_by('name')[:10]
+
+        for product in archived_products:
+            results['products'].append({
+                'id': product.id,
+                'name': product.name,
+                'category': product.category or 'N/A',
+                'price': float(product.price),
+                'type': 'product'
+            })
+
+    # Search archived users/staff
+    if archive_type in ['all', 'users']:
+        archived_users = User.objects.filter(is_archived=True).filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        ).order_by('username')[:10]
+
+        for user in archived_users:
+            results['users'].append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'role': user.get_role_display(),
+                'type': 'user'
+            })
+
+    # Search archived orders
+    if archive_type in ['all', 'orders']:
+        archived_orders = Order.objects.filter(is_archived=True).filter(
+            Q(order_number__icontains=query) |
+            Q(customer_name__icontains=query)
+        ).order_by('-created_at')[:10]
+
+        for order in archived_orders:
+            results['orders'].append({
+                'id': order.id,
+                'order_number': order.order_number,
+                'customer_name': order.customer_name or 'N/A',
+                'status': order.get_status_display(),
+                'total_amount': float(order.total_amount),
+                'created_at': order.created_at.strftime("%Y-%m-%d %H:%M"),
+                'type': 'order'
+            })
+
+    return JsonResponse(results)

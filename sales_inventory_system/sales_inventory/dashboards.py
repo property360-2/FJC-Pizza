@@ -22,11 +22,16 @@ def admin_dashboard(request):
 
     # Get statistics
     total_products = Product.objects.filter(is_archived=False).count()
-    low_stock_products = Product.objects.filter(
-        is_archived=False,
-        stock__lt=F('threshold')
+
+    # Get low stock products using calculated_stock (accounts for BOM products)
+    all_active_products = Product.objects.filter(is_archived=False).select_related(
+        'recipe'
+    ).prefetch_related(
+        'recipe__ingredients__ingredient'
     )
-    low_stock_count = low_stock_products.count()
+    low_stock_products_list = [p for p in all_active_products if p.calculated_stock < p.threshold]
+    low_stock_count = len(low_stock_products_list)
+    low_stock_products = low_stock_products_list[:5]
 
     # Order statistics
     pending_orders = Order.objects.filter(status='PENDING').count()

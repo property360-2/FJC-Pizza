@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Ingredients Management - FJC Pizza{% endblock %}
+{% block title %}Ingredients Management - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -70,7 +70,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
             <div class="flex items-center gap-2">
-                <span class="text-2xl">✅</span>
+                <span class="text-2xl"><span class="material-icons">check_circle</span></span>
                 <div>
                     <p class="font-semibold text-green-900">Available</p>
                     <p class="text-sm text-green-700">Ingredient is in stock and can be used</p>
@@ -80,7 +80,7 @@
 
         <div class="bg-red-50 border border-red-200 rounded-lg p-4">
             <div class="flex items-center gap-2">
-                <span class="text-2xl">❌</span>
+                <span class="text-2xl"><span class="material-icons">close</span></span>
                 <div>
                     <p class="font-semibold text-red-900">Unavailable</p>
                     <p class="text-sm text-red-700">Products using this will be disabled</p>
@@ -90,7 +90,7 @@
 
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div class="flex items-center gap-2">
-                <span class="text-2xl">⚠️</span>
+                <span class="text-2xl"><span class="material-icons">warning</span></span>
                 <div>
                     <p class="font-semibold text-yellow-900">Low Stock</p>
                     <p class="text-sm text-yellow-700">Stock below minimum threshold</p>
@@ -180,11 +180,11 @@ function renderIngredients(ingredients) {
     let tableHTML = '';
     ingredients.forEach(ingredient => {
         const statusBadge = ingredient.is_available
-            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅ Available</span>'
-            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">❌ Unavailable</span>';
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><span class="material-icons">check_circle</span> Available</span>'
+            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><span class="material-icons">close</span> Unavailable</span>';
 
         const lowStockBadge = ingredient.is_low_stock
-            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ml-2">⚠️ Low</span>'
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ml-2"><span class="material-icons">warning</span> Low</span>'
             : '';
 
         const stockClass = ingredient.current_stock <= ingredient.min_stock ? 'text-red-600 font-semibold' : 'text-gray-900';
@@ -226,11 +226,11 @@ function renderIngredients(ingredients) {
     let mobileHTML = '';
     ingredients.forEach(ingredient => {
         const statusBadge = ingredient.is_available
-            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅ Available</span>'
-            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">❌ Unavailable</span>';
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><span class="material-icons">check_circle</span> Available</span>'
+            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><span class="material-icons">close</span> Unavailable</span>';
 
         const lowStockBadge = ingredient.is_low_stock
-            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ml-2">⚠️ Low</span>'
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 ml-2"><span class="material-icons">warning</span> Low</span>'
             : '';
 
         const stockClass = ingredient.current_stock <= ingredient.min_stock ? 'text-red-600 font-semibold' : 'text-gray-900';

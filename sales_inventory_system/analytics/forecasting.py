@@ -8,6 +8,7 @@ import numpy as np
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum
+from django.db.models.functions import TruncDate
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from sales_inventory_system.orders.models import Payment
 from decimal import Decimal

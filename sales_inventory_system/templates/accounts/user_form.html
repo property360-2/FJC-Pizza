@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ action }} User - FJC Pizza{% endblock %}
+{% block title %}{{ action }} User - FCJ Pizza{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center gap-4">
         <a href="{% url 'accounts:user_list' %}" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-semibold">
-            ← Back to Users
+            Back to Users
         </a>
         <h1 class="text-3xl font-bold text-gray-900">{{ action }} User</h1>
     </div>
@@ -95,7 +95,7 @@
                     </label>
                     <input type="password" id="password" name="password"
                            {% if not user %}required{% endif %}
-                           placeholder="••••••••"
+                           placeholder="********"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
                     <p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
                     <p id="password-strength" class="mt-1 text-sm text-gray-600 hidden"></p>
@@ -106,7 +106,7 @@
                     </label>
                     <input type="password" id="password_confirm" name="password_confirm"
                            {% if not user %}required{% endif %}
-                           placeholder="••••••••"
+                           placeholder="********"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fjc-blue-500">
                     <p id="password-confirm-error" class="mt-1 text-sm text-red-600 hidden"></p>
                 </div>
@@ -147,6 +147,8 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
 
 {% block extra_js %}
 <script>
@@ -356,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalText = submitBtnText.textContent;
 
             submitBtn.disabled = true;
-            submitBtnText.textContent = '⏳ Saving...';
+            submitBtnText.textContent = '<span class="material-icons">schedule</span> Saving...';
             submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
             // Auto-restore button after 30 seconds (fallback in case of slow response)

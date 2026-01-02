@@ -11,6 +11,9 @@ urlpatterns = [
     path('<int:pk>/', views.product_detail, name='detail'),
     path('<int:pk>/edit/', views.product_edit, name='edit'),
     path('<int:pk>/archive/', views.product_archive, name='archive'),
+    path('archives/', views.archived_products_list, name='archived_list'),
+    path('<int:pk>/unarchive/', views.product_unarchive, name='unarchive'),
+    path('unified-archives/', views.archived_products_list, name='unified_archives'),
 
     # Ingredient Management
     path('ingredients/', views.ingredient_list, name='ingredient_list'),
@@ -39,6 +42,7 @@ urlpatterns = [
     path('api/categories/', views.api_list_categories, name='api_list_categories'),
     path('api/categories/create/', views.api_create_category, name='api_create_category'),
     path('api/search-categories/', views.api_search_categories, name='api_search_categories'),
+    path('api/search-archives/', views.api_search_archives, name='api_search_archives'),
 
     # Cashier API routes
     path('api/cashier/ingredients/', cashier_views.api_get_ingredients, name='api_cashier_ingredients'),
