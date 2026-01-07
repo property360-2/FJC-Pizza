@@ -8,7 +8,7 @@ services:
       python sales_inventory_system/manage.py migrate
       python sales_inventory_system/manage.py collectstatic --no-input
     startCommand: |
-      gunicorn sales_inventory_system.sales_inventory.wsgi:application --bind 0.0.0.0:$PORT
+      gunicorn sales_inventory_system.sales_inventory.wsgi:application --config gunicorn.conf.py
     envVars:
       # Development/Production control
       - key: DEBUG
