@@ -205,7 +205,8 @@ def select_best_model(historical_data, seasonal_periods=7):
                 damped_trend=config.get('damped_trend', False),
                 initialization_method='estimated'
             )
-            fitted = model.fit(optimized=True, use_brute=True)
+            # Use optimized=True without use_brute for faster fitting (5-10x speedup)
+            fitted = model.fit(optimized=True, use_brute=False)
 
             # Forecast the test period
             forecast = fitted.forecast(steps=7)
@@ -281,8 +282,8 @@ def forecast_sales_holt_winters(historical_data, forecast_periods=7, seasonal_pe
             else:
                 model_type = 'Holt-Winters (Trend Only)'
 
-        # Fit the model with optimization (use_brute=True for better parameter search)
-        fitted_model = model.fit(optimized=True, use_brute=True)
+        # Fit the model with optimization (use_brute=False for faster fitting)
+        fitted_model = model.fit(optimized=True, use_brute=False)
 
         # Generate forecast with prediction intervals
         forecast_result = fitted_model.forecast(steps=forecast_periods)
