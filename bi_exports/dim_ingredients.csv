@@ -1,0 +1,7 @@
+ID,Name,Unit,Current_Stock,Min_Stock,Variance_Allowance,Is_Active
+1,Pizza Dough,pcs,150,20,5,True
+2,Tomato Sauce,ml,5000,1000,5,True
+3,Mozzarella Cheese,g,8000,2000,5,True
+4,Pepperoni Slices,g,3000,500,5,True
+5,Pineapple Tidbits,g,2000,500,5,True
+6,Ham,g,3000,500,5,True

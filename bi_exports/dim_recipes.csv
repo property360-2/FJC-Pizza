@@ -1,5 +1,13 @@
 Product_Name,Ingredient_Name,Quantity_Required
-Margherita Pizza,Dough,300
-Margherita Pizza,Cheese,150
-Pepperoni Pizza,Dough,300
-Pepperoni Pizza,Pepperoni,50
+Margherita Pizza,Pizza Dough,1
+Margherita Pizza,Tomato Sauce,100
+Margherita Pizza,Mozzarella Cheese,150
+Pepperoni Pizza,Pizza Dough,1
+Pepperoni Pizza,Tomato Sauce,100
+Pepperoni Pizza,Mozzarella Cheese,150
+Pepperoni Pizza,Pepperoni Slices,50
+Hawaiian Pizza,Pizza Dough,1
+Hawaiian Pizza,Tomato Sauce,100
+Hawaiian Pizza,Mozzarella Cheese,150
+Hawaiian Pizza,Pineapple Tidbits,60
+Hawaiian Pizza,Ham,60

@@ -1,0 +1,9 @@
+ID,Name,Category,Price,Stock,Threshold,Requires_BOM,Is_Archived
+1,Margherita Pizza,Pizzas,299.0,50,10,True,False
+2,Pepperoni Pizza,Pizzas,349.0,45,10,True,False
+3,Hawaiian Pizza,Pizzas,329.0,40,10,True,False
+4,Four Cheese Pizza,Pizzas,379.0,30,10,True,False
+5,Garlic Bread,Sides,89.0,100,20,False,False
+6,Chicken Wings (6pcs),Sides,199.0,60,15,False,False
+7,Coca-Cola (500ml),Drinks,49.0,200,50,False,False
+8,Iced Tea (500ml),Drinks,39.0,150,40,False,False
