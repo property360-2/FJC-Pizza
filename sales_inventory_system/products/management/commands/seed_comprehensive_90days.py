@@ -200,7 +200,6 @@ class Command(BaseCommand):
                 name=data['name'],
                 defaults={
                     'unit': data['unit'],
-                    'cost_per_unit': data['cost_per_unit'],
                     'current_stock': data['current_stock'],
                     'min_stock': Decimal('1000'),
                     'variance_allowance': Decimal('5'),
