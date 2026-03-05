@@ -126,19 +126,11 @@ if os.getenv("DATABASE_URL"):
         )
     }
 else:
+    # Default to SQLite for local development as requested
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("DB_NAME", "fcj_pizza"),
-            "USER": os.getenv("DB_USER", "fcj_pizza_user"),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", "localhost"),
-            "PORT": os.getenv("DB_PORT", "5432"),
-            # Connection pooling settings for better performance
-            "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "600")),
-            "OPTIONS": {
-                "connect_timeout": 10,
-            }
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 

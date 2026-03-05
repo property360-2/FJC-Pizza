@@ -85,13 +85,41 @@ with open(os.path.join(output_dir, 'fact_sales.csv'), 'w', newline='', encoding=
     writer.writerow(['Order_ID', 'Order_Number', 'Customer', 'Table', 'Status', 'Total_Amount', 'Order_Date', 'Processed_By_Username', 'Item_Product', 'Item_Category', 'Item_Quantity', 'Item_Price', 'Item_Subtotal'])
     
     start_date = datetime.now() - timedelta(days=90)
-    for i in range(1, 401): # 400 sales items
-        order_id = (i + 1) // 2
+    current_item_id = 1
+    for order_id in range(1, 201): # 200 Unique Orders
         order_date = start_date + timedelta(days=random.randint(0, 89), hours=random.randint(10, 21), minutes=random.randint(0, 59))
-        p_id, p_name, p_cat, p_price, _, _, _, _ = random.choice(product_list)
-        qty = random.randint(1, 2)
-        subtotal = p_price * qty
-        writer.writerow([order_id, f"ORD-{order_id:05d}", f"Customer {order_id}", f"T{random.randint(1, 10)}", 'FINISHED', subtotal, order_date.isoformat(), random.choice(['cashier_maria', 'cashier_jose']), p_name, p_cat, qty, p_price, subtotal])
+        table = f"T{random.randint(1, 10)}"
+        customer = f"Customer {order_id}"
+        cashier = random.choice(['cashier_maria', 'cashier_jose'])
+        
+        # Each order has 1-4 items
+        num_items = random.randint(1, 4)
+        order_items = []
+        total_order_amount = 0
+        
+        for _ in range(num_items):
+            p_id, p_name, p_cat, p_price, _, _, _, _ = random.choice(product_list)
+            qty = random.randint(1, 3)
+            subtotal = p_price * qty
+            total_order_amount += subtotal
+            order_items.append([p_name, p_cat, qty, p_price, subtotal])
+            
+        for item in order_items:
+            writer.writerow([
+                order_id, 
+                f"ORD-{order_id:05d}", 
+                customer, 
+                table, 
+                'FINISHED', 
+                total_order_amount, 
+                order_date.isoformat(), 
+                cashier, 
+                item[0], # p_name
+                item[1], # p_cat
+                item[2], # qty
+                item[3], # p_price
+                item[4]  # subtotal
+            ])
 
 # --- 6. Fact Stock Transactions ---
 with open(os.path.join(output_dir, 'fact_stock_transactions.csv'), 'w', newline='', encoding='utf-8') as f:

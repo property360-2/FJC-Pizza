@@ -31,16 +31,12 @@ def setup_django():
     try:
         # Add project directory to Python path
         project_root = Path(__file__).resolve().parent
-        project_dir = project_root / 'sales_inventory_system'
-
-        if not project_dir.exists():
-            print(f"❌ Project directory not found: {project_dir}")
-            return False
-
-        sys.path.insert(0, str(project_dir))
+        
+        if str(project_root) not in sys.path:
+            sys.path.insert(0, str(project_root))
 
         # Set Django settings module
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sales_inventory.settings')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sales_inventory_system.sales_inventory.settings')
         django.setup()
 
         print("✅ Django environment setup successful")
@@ -87,16 +83,16 @@ def validate_models():
     print("\n🔍 Validating models...")
 
     try:
-        from accounts.models import User
+        from sales_inventory_system.accounts.models import User
         print("  ✅ User model imported")
 
-        from products.models import Product
+        from sales_inventory_system.products.models import Product
         print("  ✅ Product model imported")
 
-        from orders.models import Order, OrderItem, Payment
+        from sales_inventory_system.orders.models import Order, OrderItem, Payment
         print("  ✅ Order, OrderItem, Payment models imported")
 
-        from system.models import AuditTrail, Archive
+        from sales_inventory_system.system.models import AuditTrail, Archive
         print("  ✅ AuditTrail, Archive models imported")
 
         print("✅ All models validated successfully")
@@ -134,7 +130,7 @@ def check_migrations():
 
 def seed_users():
     """Create demo users"""
-    from accounts.models import User
+    from sales_inventory_system.accounts.models import User
 
     print("\n👥 Seeding users...")
 
@@ -195,7 +191,7 @@ def seed_users():
 
 def seed_products():
     """Create demo products"""
-    from products.models import Product
+    from sales_inventory_system.products.models import Product
 
     print("\n🍕 Seeding products...")
 
@@ -257,9 +253,9 @@ def seed_products():
 def seed_orders():
     """Create sample orders"""
     from django.utils import timezone
-    from accounts.models import User
-    from products.models import Product
-    from orders.models import Order, OrderItem, Payment
+    from sales_inventory_system.accounts.models import User
+    from sales_inventory_system.products.models import Product
+    from sales_inventory_system.orders.models import Order, OrderItem, Payment
 
     print("\n📦 Seeding orders...")
 
@@ -367,9 +363,9 @@ def seed_orders():
 
 def print_summary():
     """Print summary of seeded data"""
-    from accounts.models import User
-    from products.models import Product
-    from orders.models import Order
+    from sales_inventory_system.accounts.models import User
+    from sales_inventory_system.products.models import Product
+    from sales_inventory_system.orders.models import Order
 
     print("\n" + "="*60)
     print("📊 DATABASE SUMMARY")

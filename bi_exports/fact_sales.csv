@@ -1,401 +1,528 @@
 Order_ID,Order_Number,Customer,Table,Status,Total_Amount,Order_Date,Processed_By_Username,Item_Product,Item_Category,Item_Quantity,Item_Price,Item_Subtotal
-1,ORD-00001,Customer 1,T10,FINISHED,98.0,2025-12-18T08:45:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-1,ORD-00001,Customer 1,T1,FINISHED,89.0,2026-01-06T01:58:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-2,ORD-00002,Customer 2,T6,FINISHED,98.0,2026-01-27T02:46:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-2,ORD-00002,Customer 2,T2,FINISHED,299.0,2025-11-16T02:21:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-3,ORD-00003,Customer 3,T2,FINISHED,398.0,2025-12-20T02:59:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-3,ORD-00003,Customer 3,T9,FINISHED,199.0,2026-01-14T06:06:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-4,ORD-00004,Customer 4,T1,FINISHED,299.0,2026-01-21T02:55:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-4,ORD-00004,Customer 4,T3,FINISHED,178.0,2025-11-25T02:31:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-5,ORD-00005,Customer 5,T10,FINISHED,329.0,2026-02-02T05:17:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-5,ORD-00005,Customer 5,T5,FINISHED,199.0,2026-01-27T09:28:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-6,ORD-00006,Customer 6,T3,FINISHED,89.0,2025-12-06T01:17:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-6,ORD-00006,Customer 6,T4,FINISHED,89.0,2026-01-20T09:27:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-7,ORD-00007,Customer 7,T5,FINISHED,658.0,2025-12-10T12:30:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-7,ORD-00007,Customer 7,T6,FINISHED,39.0,2025-11-16T03:57:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-8,ORD-00008,Customer 8,T5,FINISHED,329.0,2025-11-27T09:01:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-8,ORD-00008,Customer 8,T3,FINISHED,758.0,2026-02-11T05:33:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-9,ORD-00009,Customer 9,T2,FINISHED,758.0,2026-01-15T03:37:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-9,ORD-00009,Customer 9,T3,FINISHED,299.0,2025-12-19T05:06:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-10,ORD-00010,Customer 10,T3,FINISHED,658.0,2025-12-03T01:11:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-10,ORD-00010,Customer 10,T10,FINISHED,178.0,2025-11-17T05:30:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-11,ORD-00011,Customer 11,T7,FINISHED,349.0,2025-11-20T02:50:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-11,ORD-00011,Customer 11,T5,FINISHED,299.0,2025-11-15T09:02:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-12,ORD-00012,Customer 12,T6,FINISHED,658.0,2025-11-27T04:29:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-12,ORD-00012,Customer 12,T9,FINISHED,178.0,2026-01-09T03:05:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-13,ORD-00013,Customer 13,T8,FINISHED,49.0,2026-01-13T02:08:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-13,ORD-00013,Customer 13,T4,FINISHED,299.0,2026-01-26T07:49:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-14,ORD-00014,Customer 14,T10,FINISHED,698.0,2025-12-28T11:37:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-14,ORD-00014,Customer 14,T10,FINISHED,379.0,2025-11-15T01:53:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-15,ORD-00015,Customer 15,T3,FINISHED,49.0,2026-01-25T07:02:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-15,ORD-00015,Customer 15,T9,FINISHED,49.0,2025-12-21T12:26:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-16,ORD-00016,Customer 16,T6,FINISHED,49.0,2025-12-18T07:30:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-16,ORD-00016,Customer 16,T6,FINISHED,199.0,2025-12-13T04:15:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-17,ORD-00017,Customer 17,T1,FINISHED,349.0,2025-11-28T08:32:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-17,ORD-00017,Customer 17,T1,FINISHED,78.0,2026-02-05T12:40:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-18,ORD-00018,Customer 18,T10,FINISHED,299.0,2026-01-30T03:09:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-18,ORD-00018,Customer 18,T3,FINISHED,658.0,2025-12-02T07:23:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-19,ORD-00019,Customer 19,T10,FINISHED,349.0,2025-11-25T09:21:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-19,ORD-00019,Customer 19,T9,FINISHED,89.0,2025-11-18T07:37:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-20,ORD-00020,Customer 20,T10,FINISHED,758.0,2025-11-15T09:49:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-20,ORD-00020,Customer 20,T3,FINISHED,329.0,2025-12-29T06:38:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-21,ORD-00021,Customer 21,T7,FINISHED,329.0,2026-01-10T03:10:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-21,ORD-00021,Customer 21,T10,FINISHED,39.0,2025-12-25T04:40:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-22,ORD-00022,Customer 22,T10,FINISHED,398.0,2025-12-08T03:06:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-22,ORD-00022,Customer 22,T3,FINISHED,199.0,2026-01-13T10:32:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-23,ORD-00023,Customer 23,T10,FINISHED,299.0,2025-12-22T01:40:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-23,ORD-00023,Customer 23,T9,FINISHED,299.0,2025-12-02T09:05:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-24,ORD-00024,Customer 24,T9,FINISHED,39.0,2025-12-19T11:53:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-24,ORD-00024,Customer 24,T1,FINISHED,329.0,2026-02-06T02:12:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-25,ORD-00025,Customer 25,T5,FINISHED,349.0,2025-12-08T04:32:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-25,ORD-00025,Customer 25,T6,FINISHED,698.0,2026-01-31T04:12:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-26,ORD-00026,Customer 26,T10,FINISHED,758.0,2026-01-01T10:59:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-26,ORD-00026,Customer 26,T4,FINISHED,89.0,2025-12-07T09:55:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-27,ORD-00027,Customer 27,T8,FINISHED,758.0,2025-11-30T11:27:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-27,ORD-00027,Customer 27,T9,FINISHED,98.0,2025-12-04T12:22:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-28,ORD-00028,Customer 28,T9,FINISHED,299.0,2025-11-28T12:23:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-28,ORD-00028,Customer 28,T9,FINISHED,598.0,2026-01-06T10:44:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-29,ORD-00029,Customer 29,T10,FINISHED,758.0,2026-01-03T08:47:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-29,ORD-00029,Customer 29,T10,FINISHED,89.0,2025-11-27T07:38:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-30,ORD-00030,Customer 30,T3,FINISHED,349.0,2026-01-23T08:20:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-30,ORD-00030,Customer 30,T7,FINISHED,698.0,2025-12-15T11:12:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-31,ORD-00031,Customer 31,T7,FINISHED,349.0,2025-12-26T12:05:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-31,ORD-00031,Customer 31,T10,FINISHED,658.0,2025-12-18T02:35:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-32,ORD-00032,Customer 32,T7,FINISHED,199.0,2025-11-14T07:46:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-32,ORD-00032,Customer 32,T9,FINISHED,98.0,2025-11-25T08:50:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-33,ORD-00033,Customer 33,T2,FINISHED,199.0,2025-12-29T06:49:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-33,ORD-00033,Customer 33,T8,FINISHED,299.0,2026-01-21T01:52:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-34,ORD-00034,Customer 34,T5,FINISHED,199.0,2025-12-23T12:36:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-34,ORD-00034,Customer 34,T4,FINISHED,78.0,2026-01-11T04:20:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-35,ORD-00035,Customer 35,T1,FINISHED,299.0,2026-01-19T07:19:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-35,ORD-00035,Customer 35,T5,FINISHED,658.0,2026-01-19T11:10:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-36,ORD-00036,Customer 36,T8,FINISHED,199.0,2025-12-16T03:25:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-36,ORD-00036,Customer 36,T7,FINISHED,598.0,2026-02-08T02:10:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-37,ORD-00037,Customer 37,T9,FINISHED,89.0,2026-01-29T08:35:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-37,ORD-00037,Customer 37,T10,FINISHED,78.0,2025-11-16T03:17:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-38,ORD-00038,Customer 38,T6,FINISHED,379.0,2025-12-13T02:23:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-38,ORD-00038,Customer 38,T6,FINISHED,598.0,2026-01-23T12:12:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-39,ORD-00039,Customer 39,T7,FINISHED,49.0,2026-01-15T02:45:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-39,ORD-00039,Customer 39,T10,FINISHED,78.0,2025-11-19T09:53:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-40,ORD-00040,Customer 40,T6,FINISHED,89.0,2025-12-23T03:00:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-40,ORD-00040,Customer 40,T8,FINISHED,658.0,2026-02-05T11:48:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-41,ORD-00041,Customer 41,T9,FINISHED,98.0,2026-01-02T03:16:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-41,ORD-00041,Customer 41,T6,FINISHED,39.0,2026-01-19T08:09:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-42,ORD-00042,Customer 42,T9,FINISHED,329.0,2025-12-28T05:38:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-42,ORD-00042,Customer 42,T5,FINISHED,98.0,2025-12-03T06:44:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-43,ORD-00043,Customer 43,T8,FINISHED,329.0,2025-12-01T12:27:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-43,ORD-00043,Customer 43,T8,FINISHED,39.0,2025-12-24T05:40:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-44,ORD-00044,Customer 44,T5,FINISHED,178.0,2025-12-27T11:11:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-44,ORD-00044,Customer 44,T4,FINISHED,178.0,2025-12-25T02:01:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-45,ORD-00045,Customer 45,T5,FINISHED,398.0,2026-01-22T06:36:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-45,ORD-00045,Customer 45,T1,FINISHED,758.0,2025-11-24T09:04:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-46,ORD-00046,Customer 46,T2,FINISHED,758.0,2026-01-01T04:15:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-46,ORD-00046,Customer 46,T2,FINISHED,698.0,2025-12-25T08:07:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-47,ORD-00047,Customer 47,T4,FINISHED,178.0,2026-01-12T07:36:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-47,ORD-00047,Customer 47,T7,FINISHED,329.0,2025-12-06T04:04:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-48,ORD-00048,Customer 48,T4,FINISHED,329.0,2025-12-01T08:53:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-48,ORD-00048,Customer 48,T1,FINISHED,78.0,2025-11-21T04:12:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-49,ORD-00049,Customer 49,T3,FINISHED,299.0,2025-11-19T10:17:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-49,ORD-00049,Customer 49,T8,FINISHED,398.0,2026-01-29T01:17:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-50,ORD-00050,Customer 50,T7,FINISHED,98.0,2025-12-17T03:39:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-50,ORD-00050,Customer 50,T1,FINISHED,349.0,2025-12-07T05:01:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-51,ORD-00051,Customer 51,T6,FINISHED,78.0,2026-01-23T03:12:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-51,ORD-00051,Customer 51,T2,FINISHED,78.0,2026-02-10T04:16:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-52,ORD-00052,Customer 52,T2,FINISHED,758.0,2025-12-26T02:49:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-52,ORD-00052,Customer 52,T10,FINISHED,598.0,2025-12-28T11:04:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-53,ORD-00053,Customer 53,T10,FINISHED,329.0,2026-01-23T10:37:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-53,ORD-00053,Customer 53,T2,FINISHED,199.0,2026-02-01T11:49:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-54,ORD-00054,Customer 54,T10,FINISHED,349.0,2026-01-04T08:41:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-54,ORD-00054,Customer 54,T7,FINISHED,178.0,2025-12-24T09:47:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-55,ORD-00055,Customer 55,T8,FINISHED,199.0,2025-12-08T04:42:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-55,ORD-00055,Customer 55,T2,FINISHED,89.0,2026-01-27T04:10:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-56,ORD-00056,Customer 56,T2,FINISHED,329.0,2026-01-10T07:31:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-56,ORD-00056,Customer 56,T3,FINISHED,758.0,2025-12-13T07:42:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-57,ORD-00057,Customer 57,T7,FINISHED,329.0,2026-01-09T07:14:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-57,ORD-00057,Customer 57,T3,FINISHED,598.0,2025-12-19T07:29:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-58,ORD-00058,Customer 58,T9,FINISHED,349.0,2026-01-05T08:10:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-58,ORD-00058,Customer 58,T1,FINISHED,299.0,2025-12-06T03:52:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-59,ORD-00059,Customer 59,T9,FINISHED,349.0,2026-01-21T05:00:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-59,ORD-00059,Customer 59,T5,FINISHED,758.0,2025-12-18T06:27:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-60,ORD-00060,Customer 60,T2,FINISHED,299.0,2026-01-31T10:06:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-60,ORD-00060,Customer 60,T2,FINISHED,39.0,2026-01-10T05:15:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-61,ORD-00061,Customer 61,T5,FINISHED,199.0,2025-12-05T01:22:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-61,ORD-00061,Customer 61,T8,FINISHED,349.0,2025-12-14T02:20:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-62,ORD-00062,Customer 62,T1,FINISHED,178.0,2025-12-15T10:23:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-62,ORD-00062,Customer 62,T4,FINISHED,199.0,2025-11-25T08:48:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-63,ORD-00063,Customer 63,T8,FINISHED,98.0,2025-12-08T09:34:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-63,ORD-00063,Customer 63,T1,FINISHED,658.0,2025-12-28T10:52:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-64,ORD-00064,Customer 64,T4,FINISHED,758.0,2026-01-22T03:22:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-64,ORD-00064,Customer 64,T5,FINISHED,758.0,2026-01-18T11:58:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-65,ORD-00065,Customer 65,T5,FINISHED,349.0,2025-12-19T07:16:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-65,ORD-00065,Customer 65,T9,FINISHED,658.0,2025-11-30T05:46:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-66,ORD-00066,Customer 66,T3,FINISHED,78.0,2026-01-16T07:45:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-66,ORD-00066,Customer 66,T4,FINISHED,89.0,2026-01-09T10:57:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-67,ORD-00067,Customer 67,T1,FINISHED,199.0,2025-11-17T08:09:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-67,ORD-00067,Customer 67,T3,FINISHED,89.0,2026-01-15T07:30:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-68,ORD-00068,Customer 68,T6,FINISHED,49.0,2025-12-01T07:55:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-68,ORD-00068,Customer 68,T2,FINISHED,379.0,2026-02-06T04:46:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-69,ORD-00069,Customer 69,T6,FINISHED,398.0,2025-12-30T05:57:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-69,ORD-00069,Customer 69,T2,FINISHED,39.0,2025-11-27T06:30:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-70,ORD-00070,Customer 70,T7,FINISHED,178.0,2025-11-26T12:20:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-70,ORD-00070,Customer 70,T1,FINISHED,299.0,2025-12-11T07:25:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-71,ORD-00071,Customer 71,T10,FINISHED,658.0,2026-01-24T05:07:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-71,ORD-00071,Customer 71,T10,FINISHED,199.0,2026-02-11T09:31:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-72,ORD-00072,Customer 72,T5,FINISHED,349.0,2026-01-20T05:08:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-72,ORD-00072,Customer 72,T7,FINISHED,329.0,2025-11-15T03:00:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-73,ORD-00073,Customer 73,T8,FINISHED,329.0,2026-01-21T04:12:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-73,ORD-00073,Customer 73,T4,FINISHED,349.0,2026-01-04T04:36:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-74,ORD-00074,Customer 74,T1,FINISHED,98.0,2025-11-26T09:58:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-74,ORD-00074,Customer 74,T9,FINISHED,98.0,2026-01-19T12:01:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-75,ORD-00075,Customer 75,T6,FINISHED,698.0,2026-02-01T04:06:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-75,ORD-00075,Customer 75,T7,FINISHED,178.0,2026-01-12T10:37:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-76,ORD-00076,Customer 76,T9,FINISHED,329.0,2026-01-23T11:31:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-76,ORD-00076,Customer 76,T1,FINISHED,98.0,2026-01-08T06:12:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-77,ORD-00077,Customer 77,T6,FINISHED,598.0,2026-01-19T02:44:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-77,ORD-00077,Customer 77,T4,FINISHED,49.0,2026-02-11T09:38:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-78,ORD-00078,Customer 78,T1,FINISHED,398.0,2025-12-08T09:44:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-78,ORD-00078,Customer 78,T10,FINISHED,78.0,2026-01-18T12:27:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-79,ORD-00079,Customer 79,T1,FINISHED,349.0,2026-02-08T09:52:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-79,ORD-00079,Customer 79,T8,FINISHED,329.0,2026-02-02T11:59:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-80,ORD-00080,Customer 80,T1,FINISHED,178.0,2025-12-21T02:06:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-80,ORD-00080,Customer 80,T6,FINISHED,39.0,2025-12-14T07:41:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-81,ORD-00081,Customer 81,T2,FINISHED,78.0,2026-01-26T06:03:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-81,ORD-00081,Customer 81,T10,FINISHED,329.0,2025-12-04T09:39:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-82,ORD-00082,Customer 82,T5,FINISHED,89.0,2026-01-20T02:29:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-82,ORD-00082,Customer 82,T9,FINISHED,398.0,2025-12-06T03:05:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-83,ORD-00083,Customer 83,T3,FINISHED,49.0,2026-02-11T08:11:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-83,ORD-00083,Customer 83,T6,FINISHED,658.0,2025-12-13T11:07:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-84,ORD-00084,Customer 84,T2,FINISHED,698.0,2025-11-27T10:50:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-84,ORD-00084,Customer 84,T10,FINISHED,598.0,2026-01-10T02:23:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-85,ORD-00085,Customer 85,T1,FINISHED,78.0,2026-01-04T11:26:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-85,ORD-00085,Customer 85,T8,FINISHED,349.0,2025-12-07T03:16:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-86,ORD-00086,Customer 86,T5,FINISHED,39.0,2026-01-24T07:45:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-86,ORD-00086,Customer 86,T6,FINISHED,178.0,2026-02-04T01:45:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-87,ORD-00087,Customer 87,T8,FINISHED,398.0,2026-01-13T06:39:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-87,ORD-00087,Customer 87,T1,FINISHED,178.0,2025-12-18T07:37:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-88,ORD-00088,Customer 88,T2,FINISHED,349.0,2026-02-04T01:41:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-88,ORD-00088,Customer 88,T7,FINISHED,178.0,2026-02-03T07:14:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-89,ORD-00089,Customer 89,T3,FINISHED,199.0,2026-02-11T07:30:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-89,ORD-00089,Customer 89,T8,FINISHED,398.0,2025-12-28T08:36:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-90,ORD-00090,Customer 90,T10,FINISHED,379.0,2026-02-11T12:48:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-90,ORD-00090,Customer 90,T3,FINISHED,98.0,2025-11-15T03:31:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-91,ORD-00091,Customer 91,T6,FINISHED,758.0,2026-02-03T01:21:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-91,ORD-00091,Customer 91,T2,FINISHED,49.0,2026-01-28T09:18:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-92,ORD-00092,Customer 92,T2,FINISHED,658.0,2026-01-22T01:17:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-92,ORD-00092,Customer 92,T9,FINISHED,49.0,2025-11-25T11:02:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-93,ORD-00093,Customer 93,T7,FINISHED,39.0,2026-01-19T09:30:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-93,ORD-00093,Customer 93,T2,FINISHED,299.0,2026-02-04T04:36:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-94,ORD-00094,Customer 94,T5,FINISHED,658.0,2025-11-18T03:50:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-94,ORD-00094,Customer 94,T7,FINISHED,178.0,2026-01-21T12:23:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-95,ORD-00095,Customer 95,T7,FINISHED,49.0,2025-11-20T04:07:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-95,ORD-00095,Customer 95,T10,FINISHED,598.0,2025-12-23T01:48:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-96,ORD-00096,Customer 96,T3,FINISHED,39.0,2025-12-10T10:55:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-96,ORD-00096,Customer 96,T9,FINISHED,658.0,2026-02-05T09:18:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-97,ORD-00097,Customer 97,T8,FINISHED,49.0,2026-02-02T05:14:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-97,ORD-00097,Customer 97,T5,FINISHED,199.0,2026-02-01T12:55:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-98,ORD-00098,Customer 98,T3,FINISHED,199.0,2025-11-29T02:21:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-98,ORD-00098,Customer 98,T6,FINISHED,299.0,2025-12-17T09:27:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-99,ORD-00099,Customer 99,T4,FINISHED,199.0,2026-01-20T12:26:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-99,ORD-00099,Customer 99,T9,FINISHED,329.0,2025-12-15T04:46:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-100,ORD-00100,Customer 100,T1,FINISHED,398.0,2026-02-10T03:05:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-100,ORD-00100,Customer 100,T5,FINISHED,758.0,2026-02-04T06:39:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-101,ORD-00101,Customer 101,T8,FINISHED,598.0,2025-12-20T11:10:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-101,ORD-00101,Customer 101,T7,FINISHED,78.0,2025-11-15T03:34:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-102,ORD-00102,Customer 102,T5,FINISHED,349.0,2026-01-06T11:01:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-102,ORD-00102,Customer 102,T7,FINISHED,98.0,2025-12-01T09:17:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-103,ORD-00103,Customer 103,T7,FINISHED,98.0,2025-11-22T09:22:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-103,ORD-00103,Customer 103,T9,FINISHED,299.0,2025-11-30T01:33:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-104,ORD-00104,Customer 104,T1,FINISHED,698.0,2025-12-31T07:36:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-104,ORD-00104,Customer 104,T4,FINISHED,329.0,2025-12-01T01:20:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-105,ORD-00105,Customer 105,T5,FINISHED,299.0,2026-01-08T06:48:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-105,ORD-00105,Customer 105,T1,FINISHED,299.0,2025-12-15T05:40:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-106,ORD-00106,Customer 106,T10,FINISHED,39.0,2026-01-08T05:14:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-106,ORD-00106,Customer 106,T7,FINISHED,698.0,2025-12-29T12:08:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-107,ORD-00107,Customer 107,T4,FINISHED,98.0,2026-01-21T08:19:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-107,ORD-00107,Customer 107,T3,FINISHED,598.0,2026-02-05T07:41:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-108,ORD-00108,Customer 108,T8,FINISHED,49.0,2025-12-07T06:46:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-108,ORD-00108,Customer 108,T9,FINISHED,78.0,2026-01-27T12:33:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-109,ORD-00109,Customer 109,T2,FINISHED,329.0,2026-01-03T08:00:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-109,ORD-00109,Customer 109,T8,FINISHED,698.0,2026-01-20T10:28:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-110,ORD-00110,Customer 110,T7,FINISHED,379.0,2025-12-04T07:48:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-110,ORD-00110,Customer 110,T3,FINISHED,349.0,2025-12-18T07:01:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-111,ORD-00111,Customer 111,T5,FINISHED,398.0,2026-02-11T02:49:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-111,ORD-00111,Customer 111,T7,FINISHED,78.0,2025-12-05T09:12:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-112,ORD-00112,Customer 112,T5,FINISHED,598.0,2025-12-20T12:10:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-112,ORD-00112,Customer 112,T1,FINISHED,39.0,2025-12-20T07:37:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-113,ORD-00113,Customer 113,T3,FINISHED,658.0,2025-12-02T06:39:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-113,ORD-00113,Customer 113,T7,FINISHED,329.0,2026-01-05T08:01:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-114,ORD-00114,Customer 114,T9,FINISHED,89.0,2025-12-12T04:13:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-114,ORD-00114,Customer 114,T2,FINISHED,598.0,2025-11-28T07:57:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-115,ORD-00115,Customer 115,T9,FINISHED,199.0,2026-01-24T07:56:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-115,ORD-00115,Customer 115,T10,FINISHED,349.0,2025-12-20T01:59:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-116,ORD-00116,Customer 116,T7,FINISHED,98.0,2026-01-14T12:16:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-116,ORD-00116,Customer 116,T2,FINISHED,89.0,2026-01-12T06:24:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-117,ORD-00117,Customer 117,T4,FINISHED,598.0,2025-11-23T07:59:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-117,ORD-00117,Customer 117,T3,FINISHED,178.0,2025-12-30T05:55:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-118,ORD-00118,Customer 118,T9,FINISHED,379.0,2025-12-01T08:16:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-118,ORD-00118,Customer 118,T10,FINISHED,89.0,2026-01-30T04:03:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-119,ORD-00119,Customer 119,T10,FINISHED,49.0,2026-02-03T06:29:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-119,ORD-00119,Customer 119,T5,FINISHED,98.0,2025-12-23T08:02:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-120,ORD-00120,Customer 120,T7,FINISHED,398.0,2025-12-31T04:39:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-120,ORD-00120,Customer 120,T10,FINISHED,98.0,2026-01-28T04:50:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-121,ORD-00121,Customer 121,T10,FINISHED,329.0,2025-12-25T10:07:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-121,ORD-00121,Customer 121,T2,FINISHED,329.0,2025-11-30T10:02:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-122,ORD-00122,Customer 122,T9,FINISHED,89.0,2025-11-21T10:41:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-122,ORD-00122,Customer 122,T5,FINISHED,598.0,2026-01-21T01:51:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-123,ORD-00123,Customer 123,T10,FINISHED,178.0,2025-12-19T02:59:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-123,ORD-00123,Customer 123,T10,FINISHED,49.0,2026-02-08T03:49:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-124,ORD-00124,Customer 124,T8,FINISHED,698.0,2026-01-10T11:44:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-124,ORD-00124,Customer 124,T2,FINISHED,398.0,2025-11-26T10:50:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-125,ORD-00125,Customer 125,T1,FINISHED,598.0,2026-01-24T04:07:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-125,ORD-00125,Customer 125,T2,FINISHED,598.0,2026-01-26T02:27:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-126,ORD-00126,Customer 126,T4,FINISHED,329.0,2025-11-26T04:11:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-126,ORD-00126,Customer 126,T2,FINISHED,658.0,2025-12-12T02:52:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-127,ORD-00127,Customer 127,T1,FINISHED,39.0,2025-11-21T06:07:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-127,ORD-00127,Customer 127,T2,FINISHED,698.0,2025-12-23T13:05:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-128,ORD-00128,Customer 128,T8,FINISHED,299.0,2025-11-17T10:38:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-128,ORD-00128,Customer 128,T6,FINISHED,758.0,2026-01-03T04:22:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-129,ORD-00129,Customer 129,T4,FINISHED,758.0,2026-02-01T06:34:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-129,ORD-00129,Customer 129,T6,FINISHED,658.0,2025-11-17T09:46:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-130,ORD-00130,Customer 130,T2,FINISHED,598.0,2026-01-26T12:07:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-130,ORD-00130,Customer 130,T9,FINISHED,329.0,2025-11-29T04:33:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-131,ORD-00131,Customer 131,T6,FINISHED,329.0,2026-01-30T09:27:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-131,ORD-00131,Customer 131,T4,FINISHED,89.0,2026-01-11T07:11:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-132,ORD-00132,Customer 132,T7,FINISHED,379.0,2026-02-09T13:05:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-132,ORD-00132,Customer 132,T5,FINISHED,39.0,2025-12-09T07:32:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-133,ORD-00133,Customer 133,T1,FINISHED,78.0,2026-01-15T11:06:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-133,ORD-00133,Customer 133,T6,FINISHED,379.0,2025-12-15T03:27:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-134,ORD-00134,Customer 134,T5,FINISHED,758.0,2026-01-28T12:25:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-134,ORD-00134,Customer 134,T8,FINISHED,98.0,2026-01-11T08:42:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-135,ORD-00135,Customer 135,T4,FINISHED,178.0,2026-01-04T01:40:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-135,ORD-00135,Customer 135,T2,FINISHED,178.0,2025-11-16T05:55:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-136,ORD-00136,Customer 136,T6,FINISHED,299.0,2025-11-23T10:22:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-136,ORD-00136,Customer 136,T5,FINISHED,299.0,2025-11-23T12:14:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-137,ORD-00137,Customer 137,T3,FINISHED,698.0,2025-12-30T08:13:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-137,ORD-00137,Customer 137,T10,FINISHED,329.0,2025-11-15T11:06:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-138,ORD-00138,Customer 138,T5,FINISHED,658.0,2025-12-15T02:04:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-138,ORD-00138,Customer 138,T10,FINISHED,598.0,2026-02-05T07:12:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-139,ORD-00139,Customer 139,T6,FINISHED,398.0,2025-11-18T10:26:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-139,ORD-00139,Customer 139,T3,FINISHED,98.0,2026-01-28T11:35:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-140,ORD-00140,Customer 140,T3,FINISHED,598.0,2026-01-15T01:42:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-140,ORD-00140,Customer 140,T8,FINISHED,299.0,2026-01-13T12:59:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-141,ORD-00141,Customer 141,T7,FINISHED,329.0,2026-02-09T10:28:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-141,ORD-00141,Customer 141,T3,FINISHED,598.0,2025-12-10T06:23:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-142,ORD-00142,Customer 142,T2,FINISHED,49.0,2026-02-02T02:56:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-142,ORD-00142,Customer 142,T9,FINISHED,39.0,2025-11-14T03:25:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-143,ORD-00143,Customer 143,T9,FINISHED,199.0,2025-11-28T08:08:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-143,ORD-00143,Customer 143,T6,FINISHED,379.0,2025-11-29T08:07:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-144,ORD-00144,Customer 144,T2,FINISHED,758.0,2026-01-15T07:22:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-144,ORD-00144,Customer 144,T3,FINISHED,98.0,2026-01-08T06:22:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-145,ORD-00145,Customer 145,T6,FINISHED,299.0,2026-01-08T11:49:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-145,ORD-00145,Customer 145,T6,FINISHED,349.0,2026-01-11T10:38:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-146,ORD-00146,Customer 146,T10,FINISHED,39.0,2025-12-24T05:47:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-146,ORD-00146,Customer 146,T2,FINISHED,89.0,2026-01-06T07:21:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-147,ORD-00147,Customer 147,T10,FINISHED,658.0,2025-12-12T04:18:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-147,ORD-00147,Customer 147,T4,FINISHED,89.0,2026-01-12T10:03:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-148,ORD-00148,Customer 148,T5,FINISHED,98.0,2025-12-15T02:04:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-148,ORD-00148,Customer 148,T10,FINISHED,89.0,2025-12-16T06:42:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-149,ORD-00149,Customer 149,T6,FINISHED,758.0,2025-12-23T13:09:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-149,ORD-00149,Customer 149,T3,FINISHED,49.0,2025-11-26T11:58:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-150,ORD-00150,Customer 150,T6,FINISHED,89.0,2026-01-17T01:53:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-150,ORD-00150,Customer 150,T1,FINISHED,598.0,2025-12-07T10:45:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-151,ORD-00151,Customer 151,T3,FINISHED,78.0,2025-12-10T09:44:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-151,ORD-00151,Customer 151,T3,FINISHED,379.0,2025-11-19T07:15:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-152,ORD-00152,Customer 152,T7,FINISHED,299.0,2026-01-24T08:11:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-152,ORD-00152,Customer 152,T5,FINISHED,299.0,2025-12-17T09:07:36.932771,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
-153,ORD-00153,Customer 153,T1,FINISHED,178.0,2025-12-09T05:23:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-153,ORD-00153,Customer 153,T8,FINISHED,49.0,2025-11-22T12:26:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
-154,ORD-00154,Customer 154,T4,FINISHED,98.0,2026-02-05T04:00:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-154,ORD-00154,Customer 154,T8,FINISHED,598.0,2026-02-01T01:19:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-155,ORD-00155,Customer 155,T8,FINISHED,39.0,2025-12-08T01:14:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-155,ORD-00155,Customer 155,T3,FINISHED,89.0,2026-01-08T11:21:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-156,ORD-00156,Customer 156,T6,FINISHED,49.0,2025-12-20T09:01:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-156,ORD-00156,Customer 156,T1,FINISHED,78.0,2026-01-19T07:50:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-157,ORD-00157,Customer 157,T1,FINISHED,658.0,2026-02-10T08:45:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-157,ORD-00157,Customer 157,T2,FINISHED,39.0,2026-01-31T04:44:36.932771,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
-158,ORD-00158,Customer 158,T3,FINISHED,398.0,2026-01-11T05:49:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
-158,ORD-00158,Customer 158,T7,FINISHED,199.0,2025-11-23T05:11:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-159,ORD-00159,Customer 159,T9,FINISHED,698.0,2026-01-22T01:23:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-159,ORD-00159,Customer 159,T6,FINISHED,698.0,2026-01-05T09:25:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-160,ORD-00160,Customer 160,T10,FINISHED,178.0,2026-02-03T04:07:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-160,ORD-00160,Customer 160,T1,FINISHED,698.0,2026-01-24T11:36:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
-161,ORD-00161,Customer 161,T9,FINISHED,78.0,2026-01-02T03:52:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-161,ORD-00161,Customer 161,T8,FINISHED,349.0,2025-11-30T04:10:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-162,ORD-00162,Customer 162,T3,FINISHED,178.0,2025-11-21T04:29:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-162,ORD-00162,Customer 162,T4,FINISHED,49.0,2025-12-26T08:41:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-163,ORD-00163,Customer 163,T4,FINISHED,178.0,2025-11-15T11:24:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-163,ORD-00163,Customer 163,T9,FINISHED,178.0,2025-12-16T02:30:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-164,ORD-00164,Customer 164,T2,FINISHED,598.0,2026-02-10T07:16:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-164,ORD-00164,Customer 164,T5,FINISHED,199.0,2026-01-24T10:44:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-165,ORD-00165,Customer 165,T2,FINISHED,329.0,2026-01-02T09:42:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-165,ORD-00165,Customer 165,T9,FINISHED,78.0,2025-11-21T09:29:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-166,ORD-00166,Customer 166,T6,FINISHED,379.0,2025-11-15T11:51:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-166,ORD-00166,Customer 166,T1,FINISHED,329.0,2026-01-23T05:47:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-167,ORD-00167,Customer 167,T3,FINISHED,329.0,2025-12-03T09:31:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-167,ORD-00167,Customer 167,T7,FINISHED,398.0,2026-01-13T04:19:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
-168,ORD-00168,Customer 168,T10,FINISHED,199.0,2026-01-16T03:40:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-168,ORD-00168,Customer 168,T1,FINISHED,349.0,2025-12-12T06:17:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-169,ORD-00169,Customer 169,T9,FINISHED,39.0,2025-12-02T06:06:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-169,ORD-00169,Customer 169,T8,FINISHED,89.0,2026-01-24T08:13:36.932771,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
-170,ORD-00170,Customer 170,T4,FINISHED,758.0,2025-12-13T03:27:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-170,ORD-00170,Customer 170,T5,FINISHED,98.0,2026-01-05T11:16:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
-171,ORD-00171,Customer 171,T4,FINISHED,349.0,2025-11-29T02:37:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-171,ORD-00171,Customer 171,T4,FINISHED,658.0,2026-01-09T11:21:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-172,ORD-00172,Customer 172,T10,FINISHED,89.0,2026-01-31T08:08:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-172,ORD-00172,Customer 172,T8,FINISHED,299.0,2025-11-27T08:49:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-173,ORD-00173,Customer 173,T4,FINISHED,178.0,2025-12-02T07:10:36.932771,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
-173,ORD-00173,Customer 173,T5,FINISHED,758.0,2025-12-28T11:24:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
-174,ORD-00174,Customer 174,T7,FINISHED,658.0,2025-12-17T02:11:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-174,ORD-00174,Customer 174,T6,FINISHED,698.0,2026-01-01T08:21:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-175,ORD-00175,Customer 175,T8,FINISHED,49.0,2025-11-25T01:19:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-175,ORD-00175,Customer 175,T10,FINISHED,199.0,2025-11-24T02:28:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-176,ORD-00176,Customer 176,T3,FINISHED,78.0,2026-01-10T01:40:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-176,ORD-00176,Customer 176,T8,FINISHED,598.0,2026-01-11T12:55:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-177,ORD-00177,Customer 177,T5,FINISHED,758.0,2026-02-07T12:41:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-177,ORD-00177,Customer 177,T2,FINISHED,349.0,2025-11-24T08:04:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-178,ORD-00178,Customer 178,T10,FINISHED,98.0,2025-12-17T07:27:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-178,ORD-00178,Customer 178,T5,FINISHED,89.0,2026-01-20T05:14:36.932771,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
-179,ORD-00179,Customer 179,T9,FINISHED,379.0,2025-12-12T09:30:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-179,ORD-00179,Customer 179,T2,FINISHED,199.0,2025-11-25T05:37:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-180,ORD-00180,Customer 180,T10,FINISHED,178.0,2026-01-26T03:03:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-180,ORD-00180,Customer 180,T5,FINISHED,78.0,2025-12-03T02:54:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-181,ORD-00181,Customer 181,T1,FINISHED,658.0,2025-12-08T09:48:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
-181,ORD-00181,Customer 181,T10,FINISHED,39.0,2025-11-28T12:07:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-182,ORD-00182,Customer 182,T7,FINISHED,49.0,2026-01-16T01:30:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-182,ORD-00182,Customer 182,T4,FINISHED,598.0,2025-11-20T05:46:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-183,ORD-00183,Customer 183,T8,FINISHED,379.0,2025-11-23T10:42:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-183,ORD-00183,Customer 183,T5,FINISHED,39.0,2025-11-27T07:59:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-184,ORD-00184,Customer 184,T6,FINISHED,49.0,2026-01-03T04:26:36.932771,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
-184,ORD-00184,Customer 184,T8,FINISHED,39.0,2026-02-10T13:05:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-185,ORD-00185,Customer 185,T10,FINISHED,329.0,2026-02-11T05:40:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-185,ORD-00185,Customer 185,T5,FINISHED,98.0,2026-02-03T05:38:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-186,ORD-00186,Customer 186,T3,FINISHED,299.0,2026-02-10T06:45:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-186,ORD-00186,Customer 186,T3,FINISHED,658.0,2026-01-17T05:50:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-187,ORD-00187,Customer 187,T2,FINISHED,78.0,2026-01-13T04:54:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-187,ORD-00187,Customer 187,T4,FINISHED,78.0,2025-12-04T13:10:36.932771,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
-188,ORD-00188,Customer 188,T2,FINISHED,349.0,2025-12-24T11:16:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
-188,ORD-00188,Customer 188,T4,FINISHED,178.0,2026-02-06T08:34:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-189,ORD-00189,Customer 189,T9,FINISHED,349.0,2025-12-03T02:53:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
-189,ORD-00189,Customer 189,T4,FINISHED,329.0,2025-11-17T08:16:36.932771,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
-190,ORD-00190,Customer 190,T5,FINISHED,379.0,2026-01-11T04:11:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-190,ORD-00190,Customer 190,T9,FINISHED,329.0,2025-12-13T03:25:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-191,ORD-00191,Customer 191,T3,FINISHED,98.0,2026-01-01T12:42:36.932771,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
-191,ORD-00191,Customer 191,T7,FINISHED,199.0,2025-11-23T09:36:36.932771,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
-192,ORD-00192,Customer 192,T2,FINISHED,598.0,2025-12-18T08:58:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-192,ORD-00192,Customer 192,T10,FINISHED,299.0,2025-12-07T05:02:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-193,ORD-00193,Customer 193,T9,FINISHED,199.0,2025-12-25T12:21:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-193,ORD-00193,Customer 193,T4,FINISHED,78.0,2026-01-29T07:58:36.932771,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
-194,ORD-00194,Customer 194,T9,FINISHED,598.0,2026-01-03T09:27:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-194,ORD-00194,Customer 194,T1,FINISHED,299.0,2025-12-05T11:05:36.932771,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
-195,ORD-00195,Customer 195,T3,FINISHED,658.0,2026-01-09T05:22:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
-195,ORD-00195,Customer 195,T5,FINISHED,598.0,2025-11-30T07:57:36.932771,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
-196,ORD-00196,Customer 196,T3,FINISHED,178.0,2025-12-01T07:47:36.932771,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
-196,ORD-00196,Customer 196,T7,FINISHED,199.0,2026-01-17T11:02:36.932771,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
-197,ORD-00197,Customer 197,T2,FINISHED,598.0,2026-01-10T11:29:36.932771,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
-197,ORD-00197,Customer 197,T8,FINISHED,329.0,2025-12-13T06:41:36.932771,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
-198,ORD-00198,Customer 198,T10,FINISHED,39.0,2026-01-01T09:11:36.932771,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
-198,ORD-00198,Customer 198,T10,FINISHED,379.0,2025-11-14T02:22:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
-199,ORD-00199,Customer 199,T8,FINISHED,698.0,2026-01-01T02:02:36.932771,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
-199,ORD-00199,Customer 199,T6,FINISHED,379.0,2025-12-28T12:07:36.932771,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
-200,ORD-00200,Customer 200,T5,FINISHED,758.0,2026-01-17T02:49:36.932771,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
-200,ORD-00200,Customer 200,T1,FINISHED,698.0,2026-01-21T06:50:36.932771,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+1,ORD-00001,Customer 1,T6,FINISHED,2230.0,2025-12-31T07:36:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
+1,ORD-00001,Customer 1,T6,FINISHED,2230.0,2025-12-31T07:36:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+1,ORD-00001,Customer 1,T6,FINISHED,2230.0,2025-12-31T07:36:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+1,ORD-00001,Customer 1,T6,FINISHED,2230.0,2025-12-31T07:36:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+2,ORD-00002,Customer 2,T7,FINISHED,963.0,2025-11-23T14:31:58.663952,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
+2,ORD-00002,Customer 2,T7,FINISHED,963.0,2025-11-23T14:31:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+2,ORD-00002,Customer 2,T7,FINISHED,963.0,2025-11-23T14:31:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+3,ORD-00003,Customer 3,T7,FINISHED,1370.0,2025-12-12T03:39:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+3,ORD-00003,Customer 3,T7,FINISHED,1370.0,2025-12-12T03:39:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+3,ORD-00003,Customer 3,T7,FINISHED,1370.0,2025-12-12T03:39:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+3,ORD-00003,Customer 3,T7,FINISHED,1370.0,2025-12-12T03:39:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+4,ORD-00004,Customer 4,T6,FINISHED,398.0,2025-12-03T04:40:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+5,ORD-00005,Customer 5,T5,FINISHED,236.0,2025-12-28T10:39:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+5,ORD-00005,Customer 5,T5,FINISHED,236.0,2025-12-28T10:39:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+5,ORD-00005,Customer 5,T5,FINISHED,236.0,2025-12-28T10:39:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+6,ORD-00006,Customer 6,T5,FINISHED,665.0,2025-12-30T07:51:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+6,ORD-00006,Customer 6,T5,FINISHED,665.0,2025-12-30T07:51:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+7,ORD-00007,Customer 7,T10,FINISHED,49.0,2025-11-18T03:34:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+8,ORD-00008,Customer 8,T3,FINISHED,476.0,2025-12-09T13:51:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+8,ORD-00008,Customer 8,T3,FINISHED,476.0,2025-12-09T13:51:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+9,ORD-00009,Customer 9,T9,FINISHED,3241.0,2026-01-01T09:35:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+9,ORD-00009,Customer 9,T9,FINISHED,3241.0,2026-01-01T09:35:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+9,ORD-00009,Customer 9,T9,FINISHED,3241.0,2026-01-01T09:35:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+9,ORD-00009,Customer 9,T9,FINISHED,3241.0,2026-01-01T09:35:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+10,ORD-00010,Customer 10,T1,FINISHED,1087.0,2025-12-25T10:26:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+10,ORD-00010,Customer 10,T1,FINISHED,1087.0,2025-12-25T10:26:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+11,ORD-00011,Customer 11,T4,FINISHED,225.0,2026-01-12T07:34:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+11,ORD-00011,Customer 11,T4,FINISHED,225.0,2026-01-12T07:34:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+12,ORD-00012,Customer 12,T9,FINISHED,941.0,2026-01-30T14:19:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+12,ORD-00012,Customer 12,T9,FINISHED,941.0,2026-01-30T14:19:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+12,ORD-00012,Customer 12,T9,FINISHED,941.0,2026-01-30T14:19:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+12,ORD-00012,Customer 12,T9,FINISHED,941.0,2026-01-30T14:19:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+13,ORD-00013,Customer 13,T9,FINISHED,743.0,2026-01-11T09:53:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+13,ORD-00013,Customer 13,T9,FINISHED,743.0,2026-01-11T09:53:58.663952,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
+13,ORD-00013,Customer 13,T9,FINISHED,743.0,2026-01-11T09:53:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+13,ORD-00013,Customer 13,T9,FINISHED,743.0,2026-01-11T09:53:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+14,ORD-00014,Customer 14,T9,FINISHED,2152.0,2026-01-23T09:38:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+14,ORD-00014,Customer 14,T9,FINISHED,2152.0,2026-01-23T09:38:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+14,ORD-00014,Customer 14,T9,FINISHED,2152.0,2026-01-23T09:38:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+14,ORD-00014,Customer 14,T9,FINISHED,2152.0,2026-01-23T09:38:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+15,ORD-00015,Customer 15,T10,FINISHED,1405.0,2026-01-21T05:25:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+15,ORD-00015,Customer 15,T10,FINISHED,1405.0,2026-01-21T05:25:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+15,ORD-00015,Customer 15,T10,FINISHED,1405.0,2026-01-21T05:25:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+16,ORD-00016,Customer 16,T6,FINISHED,3160.0,2026-02-05T09:58:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+16,ORD-00016,Customer 16,T6,FINISHED,3160.0,2026-02-05T09:58:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+16,ORD-00016,Customer 16,T6,FINISHED,3160.0,2026-02-05T09:58:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+16,ORD-00016,Customer 16,T6,FINISHED,3160.0,2026-02-05T09:58:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+17,ORD-00017,Customer 17,T6,FINISHED,1136.0,2025-11-21T08:09:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+17,ORD-00017,Customer 17,T6,FINISHED,1136.0,2025-11-21T08:09:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+18,ORD-00018,Customer 18,T9,FINISHED,1116.0,2025-12-03T03:45:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+18,ORD-00018,Customer 18,T9,FINISHED,1116.0,2025-12-03T03:45:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+18,ORD-00018,Customer 18,T9,FINISHED,1116.0,2025-12-03T03:45:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+19,ORD-00019,Customer 19,T3,FINISHED,39.0,2025-12-09T08:58:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+20,ORD-00020,Customer 20,T6,FINISHED,1335.0,2025-11-17T06:20:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+20,ORD-00020,Customer 20,T6,FINISHED,1335.0,2025-11-17T06:20:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+20,ORD-00020,Customer 20,T6,FINISHED,1335.0,2025-11-17T06:20:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+21,ORD-00021,Customer 21,T4,FINISHED,774.0,2026-01-08T12:52:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+21,ORD-00021,Customer 21,T4,FINISHED,774.0,2026-01-08T12:52:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+21,ORD-00021,Customer 21,T4,FINISHED,774.0,2026-01-08T12:52:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+21,ORD-00021,Customer 21,T4,FINISHED,774.0,2026-01-08T12:52:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+22,ORD-00022,Customer 22,T5,FINISHED,1780.0,2025-12-12T07:43:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+22,ORD-00022,Customer 22,T5,FINISHED,1780.0,2025-12-12T07:43:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+22,ORD-00022,Customer 22,T5,FINISHED,1780.0,2025-12-12T07:43:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+22,ORD-00022,Customer 22,T5,FINISHED,1780.0,2025-12-12T07:43:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+23,ORD-00023,Customer 23,T10,FINISHED,1111.0,2026-01-08T12:54:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+23,ORD-00023,Customer 23,T10,FINISHED,1111.0,2026-01-08T12:54:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+23,ORD-00023,Customer 23,T10,FINISHED,1111.0,2026-01-08T12:54:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+23,ORD-00023,Customer 23,T10,FINISHED,1111.0,2026-01-08T12:54:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+24,ORD-00024,Customer 24,T8,FINISHED,1619.0,2026-01-23T04:42:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+24,ORD-00024,Customer 24,T8,FINISHED,1619.0,2026-01-23T04:42:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+24,ORD-00024,Customer 24,T8,FINISHED,1619.0,2026-01-23T04:42:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+24,ORD-00024,Customer 24,T8,FINISHED,1619.0,2026-01-23T04:42:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+25,ORD-00025,Customer 25,T4,FINISHED,787.0,2025-12-22T08:54:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+25,ORD-00025,Customer 25,T4,FINISHED,787.0,2025-12-22T08:54:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+26,ORD-00026,Customer 26,T9,FINISHED,1096.0,2026-02-07T13:56:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+26,ORD-00026,Customer 26,T9,FINISHED,1096.0,2026-02-07T13:56:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+26,ORD-00026,Customer 26,T9,FINISHED,1096.0,2026-02-07T13:56:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+27,ORD-00027,Customer 27,T3,FINISHED,2073.0,2025-11-29T10:26:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+27,ORD-00027,Customer 27,T3,FINISHED,2073.0,2025-11-29T10:26:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+27,ORD-00027,Customer 27,T3,FINISHED,2073.0,2025-11-29T10:26:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+28,ORD-00028,Customer 28,T9,FINISHED,1047.0,2026-01-22T10:41:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+29,ORD-00029,Customer 29,T8,FINISHED,715.0,2025-11-24T09:03:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+29,ORD-00029,Customer 29,T8,FINISHED,715.0,2025-11-24T09:03:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+29,ORD-00029,Customer 29,T8,FINISHED,715.0,2025-11-24T09:03:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+30,ORD-00030,Customer 30,T3,FINISHED,2011.0,2025-11-30T14:08:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+30,ORD-00030,Customer 30,T3,FINISHED,2011.0,2025-11-30T14:08:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+30,ORD-00030,Customer 30,T3,FINISHED,2011.0,2025-11-30T14:08:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+30,ORD-00030,Customer 30,T3,FINISHED,2011.0,2025-11-30T14:08:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+31,ORD-00031,Customer 31,T2,FINISHED,1822.0,2026-02-08T08:08:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+31,ORD-00031,Customer 31,T2,FINISHED,1822.0,2026-02-08T08:08:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+31,ORD-00031,Customer 31,T2,FINISHED,1822.0,2026-02-08T08:08:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+31,ORD-00031,Customer 31,T2,FINISHED,1822.0,2026-02-08T08:08:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+32,ORD-00032,Customer 32,T2,FINISHED,1244.0,2026-01-05T06:01:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+32,ORD-00032,Customer 32,T2,FINISHED,1244.0,2026-01-05T06:01:58.663952,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
+32,ORD-00032,Customer 32,T2,FINISHED,1244.0,2026-01-05T06:01:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+33,ORD-00033,Customer 33,T1,FINISHED,2691.0,2025-12-06T14:10:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+33,ORD-00033,Customer 33,T1,FINISHED,2691.0,2025-12-06T14:10:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+33,ORD-00033,Customer 33,T1,FINISHED,2691.0,2025-12-06T14:10:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+33,ORD-00033,Customer 33,T1,FINISHED,2691.0,2025-12-06T14:10:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+34,ORD-00034,Customer 34,T8,FINISHED,775.0,2025-12-14T13:58:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+34,ORD-00034,Customer 34,T8,FINISHED,775.0,2025-12-14T13:58:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+35,ORD-00035,Customer 35,T5,FINISHED,1454.0,2026-01-03T11:22:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+35,ORD-00035,Customer 35,T5,FINISHED,1454.0,2026-01-03T11:22:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+35,ORD-00035,Customer 35,T5,FINISHED,1454.0,2026-01-03T11:22:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+36,ORD-00036,Customer 36,T4,FINISHED,245.0,2025-12-02T10:22:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+36,ORD-00036,Customer 36,T4,FINISHED,245.0,2025-12-02T10:22:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+37,ORD-00037,Customer 37,T3,FINISHED,597.0,2025-12-27T11:30:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+38,ORD-00038,Customer 38,T7,FINISHED,1852.0,2025-12-15T06:12:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+38,ORD-00038,Customer 38,T7,FINISHED,1852.0,2025-12-15T06:12:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+38,ORD-00038,Customer 38,T7,FINISHED,1852.0,2025-12-15T06:12:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+38,ORD-00038,Customer 38,T7,FINISHED,1852.0,2025-12-15T06:12:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+39,ORD-00039,Customer 39,T8,FINISHED,698.0,2026-02-06T04:23:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+40,ORD-00040,Customer 40,T3,FINISHED,1073.0,2026-02-02T10:48:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+40,ORD-00040,Customer 40,T3,FINISHED,1073.0,2026-02-02T10:48:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+40,ORD-00040,Customer 40,T3,FINISHED,1073.0,2026-02-02T10:48:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+40,ORD-00040,Customer 40,T3,FINISHED,1073.0,2026-02-02T10:48:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+41,ORD-00041,Customer 41,T8,FINISHED,994.0,2025-11-29T08:22:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+41,ORD-00041,Customer 41,T8,FINISHED,994.0,2025-11-29T08:22:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+41,ORD-00041,Customer 41,T8,FINISHED,994.0,2025-11-29T08:22:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+41,ORD-00041,Customer 41,T8,FINISHED,994.0,2025-11-29T08:22:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+42,ORD-00042,Customer 42,T2,FINISHED,2563.0,2025-11-25T04:05:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+42,ORD-00042,Customer 42,T2,FINISHED,2563.0,2025-11-25T04:05:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+42,ORD-00042,Customer 42,T2,FINISHED,2563.0,2025-11-25T04:05:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+43,ORD-00043,Customer 43,T1,FINISHED,299.0,2025-12-04T10:11:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+44,ORD-00044,Customer 44,T1,FINISHED,78.0,2026-01-24T12:48:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+45,ORD-00045,Customer 45,T5,FINISHED,398.0,2026-01-15T14:00:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+46,ORD-00046,Customer 46,T1,FINISHED,1440.0,2025-12-06T13:56:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+46,ORD-00046,Customer 46,T1,FINISHED,1440.0,2025-12-06T13:56:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+46,ORD-00046,Customer 46,T1,FINISHED,1440.0,2025-12-06T13:56:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+46,ORD-00046,Customer 46,T1,FINISHED,1440.0,2025-12-06T13:56:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+47,ORD-00047,Customer 47,T10,FINISHED,897.0,2026-01-31T11:55:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+48,ORD-00048,Customer 48,T10,FINISHED,78.0,2026-01-03T05:46:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+49,ORD-00049,Customer 49,T6,FINISHED,1693.0,2026-01-31T08:20:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+49,ORD-00049,Customer 49,T6,FINISHED,1693.0,2026-01-31T08:20:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+49,ORD-00049,Customer 49,T6,FINISHED,1693.0,2026-01-31T08:20:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+49,ORD-00049,Customer 49,T6,FINISHED,1693.0,2026-01-31T08:20:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+50,ORD-00050,Customer 50,T9,FINISHED,2164.0,2025-12-17T07:34:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+50,ORD-00050,Customer 50,T9,FINISHED,2164.0,2025-12-17T07:34:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+50,ORD-00050,Customer 50,T9,FINISHED,2164.0,2025-12-17T07:34:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+51,ORD-00051,Customer 51,T2,FINISHED,199.0,2025-12-02T11:58:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+52,ORD-00052,Customer 52,T5,FINISHED,1563.0,2026-01-22T04:36:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+52,ORD-00052,Customer 52,T5,FINISHED,1563.0,2026-01-22T04:36:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+52,ORD-00052,Customer 52,T5,FINISHED,1563.0,2026-01-22T04:36:58.663952,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
+52,ORD-00052,Customer 52,T5,FINISHED,1563.0,2026-01-22T04:36:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+53,ORD-00053,Customer 53,T8,FINISHED,1047.0,2026-01-09T08:59:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+54,ORD-00054,Customer 54,T4,FINISHED,515.0,2025-11-14T03:30:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+54,ORD-00054,Customer 54,T4,FINISHED,515.0,2025-11-14T03:30:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+55,ORD-00055,Customer 55,T7,FINISHED,199.0,2025-12-02T08:41:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+56,ORD-00056,Customer 56,T8,FINISHED,1822.0,2026-02-10T05:32:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+56,ORD-00056,Customer 56,T8,FINISHED,1822.0,2026-02-10T05:32:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+56,ORD-00056,Customer 56,T8,FINISHED,1822.0,2026-02-10T05:32:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+57,ORD-00057,Customer 57,T3,FINISHED,925.0,2026-01-19T05:19:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+57,ORD-00057,Customer 57,T3,FINISHED,925.0,2026-01-19T05:19:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+57,ORD-00057,Customer 57,T3,FINISHED,925.0,2026-01-19T05:19:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+58,ORD-00058,Customer 58,T7,FINISHED,747.0,2025-11-21T08:03:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+58,ORD-00058,Customer 58,T7,FINISHED,747.0,2025-11-21T08:03:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+59,ORD-00059,Customer 59,T10,FINISHED,2790.0,2025-11-26T07:43:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+59,ORD-00059,Customer 59,T10,FINISHED,2790.0,2025-11-26T07:43:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+59,ORD-00059,Customer 59,T10,FINISHED,2790.0,2025-11-26T07:43:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+59,ORD-00059,Customer 59,T10,FINISHED,2790.0,2025-11-26T07:43:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+60,ORD-00060,Customer 60,T3,FINISHED,477.0,2026-02-05T04:10:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+60,ORD-00060,Customer 60,T3,FINISHED,477.0,2026-02-05T04:10:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+61,ORD-00061,Customer 61,T10,FINISHED,2920.0,2026-01-19T05:20:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+61,ORD-00061,Customer 61,T10,FINISHED,2920.0,2026-01-19T05:20:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+61,ORD-00061,Customer 61,T10,FINISHED,2920.0,2026-01-19T05:20:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+61,ORD-00061,Customer 61,T10,FINISHED,2920.0,2026-01-19T05:20:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+62,ORD-00062,Customer 62,T6,FINISHED,316.0,2025-11-26T05:19:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+62,ORD-00062,Customer 62,T6,FINISHED,316.0,2025-11-26T05:19:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+63,ORD-00063,Customer 63,T9,FINISHED,1373.0,2025-11-28T12:41:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+63,ORD-00063,Customer 63,T9,FINISHED,1373.0,2025-11-28T12:41:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+63,ORD-00063,Customer 63,T9,FINISHED,1373.0,2025-11-28T12:41:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+64,ORD-00064,Customer 64,T3,FINISHED,294.0,2025-12-12T12:17:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+64,ORD-00064,Customer 64,T3,FINISHED,294.0,2025-12-12T12:17:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+65,ORD-00065,Customer 65,T4,FINISHED,3029.0,2026-01-28T08:34:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+65,ORD-00065,Customer 65,T4,FINISHED,3029.0,2026-01-28T08:34:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+65,ORD-00065,Customer 65,T4,FINISHED,3029.0,2026-01-28T08:34:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+65,ORD-00065,Customer 65,T4,FINISHED,3029.0,2026-01-28T08:34:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+66,ORD-00066,Customer 66,T9,FINISHED,526.0,2026-02-08T08:05:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+66,ORD-00066,Customer 66,T9,FINISHED,526.0,2026-02-08T08:05:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
+67,ORD-00067,Customer 67,T7,FINISHED,1225.0,2025-11-22T09:01:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+67,ORD-00067,Customer 67,T7,FINISHED,1225.0,2025-11-22T09:01:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+67,ORD-00067,Customer 67,T7,FINISHED,1225.0,2025-11-22T09:01:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+67,ORD-00067,Customer 67,T7,FINISHED,1225.0,2025-11-22T09:01:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+68,ORD-00068,Customer 68,T6,FINISHED,418.0,2025-11-21T12:41:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+68,ORD-00068,Customer 68,T6,FINISHED,418.0,2025-11-21T12:41:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+69,ORD-00069,Customer 69,T10,FINISHED,325.0,2025-11-27T06:14:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+69,ORD-00069,Customer 69,T10,FINISHED,325.0,2025-11-27T06:14:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+70,ORD-00070,Customer 70,T2,FINISHED,349.0,2026-01-25T14:29:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+71,ORD-00071,Customer 71,T7,FINISHED,1346.0,2025-12-10T13:52:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+71,ORD-00071,Customer 71,T7,FINISHED,1346.0,2025-12-10T13:52:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+72,ORD-00072,Customer 72,T10,FINISHED,598.0,2026-01-23T07:37:58.663952,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
+73,ORD-00073,Customer 73,T9,FINISHED,1821.0,2025-12-21T09:42:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+73,ORD-00073,Customer 73,T9,FINISHED,1821.0,2025-12-21T09:42:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+73,ORD-00073,Customer 73,T9,FINISHED,1821.0,2025-12-21T09:42:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+73,ORD-00073,Customer 73,T9,FINISHED,1821.0,2025-12-21T09:42:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+74,ORD-00074,Customer 74,T9,FINISHED,1366.0,2025-12-24T10:09:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+74,ORD-00074,Customer 74,T9,FINISHED,1366.0,2025-12-24T10:09:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+75,ORD-00075,Customer 75,T7,FINISHED,1047.0,2026-02-02T07:47:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+76,ORD-00076,Customer 76,T2,FINISHED,897.0,2025-11-22T09:55:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+77,ORD-00077,Customer 77,T7,FINISHED,1186.0,2026-01-24T09:38:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+77,ORD-00077,Customer 77,T7,FINISHED,1186.0,2026-01-24T09:38:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+78,ORD-00078,Customer 78,T9,FINISHED,1535.0,2025-12-16T10:28:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+78,ORD-00078,Customer 78,T9,FINISHED,1535.0,2025-12-16T10:28:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+78,ORD-00078,Customer 78,T9,FINISHED,1535.0,2025-12-16T10:28:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+79,ORD-00079,Customer 79,T5,FINISHED,1474.0,2025-12-28T07:04:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+79,ORD-00079,Customer 79,T5,FINISHED,1474.0,2025-12-28T07:04:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+79,ORD-00079,Customer 79,T5,FINISHED,1474.0,2025-12-28T07:04:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+79,ORD-00079,Customer 79,T5,FINISHED,1474.0,2025-12-28T07:04:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+80,ORD-00080,Customer 80,T8,FINISHED,2083.0,2026-01-07T12:10:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+80,ORD-00080,Customer 80,T8,FINISHED,2083.0,2026-01-07T12:10:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+80,ORD-00080,Customer 80,T8,FINISHED,2083.0,2026-01-07T12:10:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+81,ORD-00081,Customer 81,T1,FINISHED,2732.0,2026-01-01T04:42:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+81,ORD-00081,Customer 81,T1,FINISHED,2732.0,2026-01-01T04:42:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+81,ORD-00081,Customer 81,T1,FINISHED,2732.0,2026-01-01T04:42:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+82,ORD-00082,Customer 82,T3,FINISHED,2224.0,2025-12-28T08:05:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+82,ORD-00082,Customer 82,T3,FINISHED,2224.0,2025-12-28T08:05:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+82,ORD-00082,Customer 82,T3,FINISHED,2224.0,2025-12-28T08:05:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+83,ORD-00083,Customer 83,T8,FINISHED,407.0,2025-11-27T09:19:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+83,ORD-00083,Customer 83,T8,FINISHED,407.0,2025-11-27T09:19:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+83,ORD-00083,Customer 83,T8,FINISHED,407.0,2025-11-27T09:19:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+84,ORD-00084,Customer 84,T10,FINISHED,3228.0,2025-12-12T13:49:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+84,ORD-00084,Customer 84,T10,FINISHED,3228.0,2025-12-12T13:49:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+84,ORD-00084,Customer 84,T10,FINISHED,3228.0,2025-12-12T13:49:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+84,ORD-00084,Customer 84,T10,FINISHED,3228.0,2025-12-12T13:49:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+85,ORD-00085,Customer 85,T10,FINISHED,3171.0,2026-01-26T05:43:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+85,ORD-00085,Customer 85,T10,FINISHED,3171.0,2026-01-26T05:43:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+85,ORD-00085,Customer 85,T10,FINISHED,3171.0,2026-01-26T05:43:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+86,ORD-00086,Customer 86,T9,FINISHED,297.0,2026-01-07T09:58:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+86,ORD-00086,Customer 86,T9,FINISHED,297.0,2026-01-07T09:58:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+87,ORD-00087,Customer 87,T9,FINISHED,1137.0,2025-12-25T04:54:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+88,ORD-00088,Customer 88,T7,FINISHED,698.0,2025-12-05T08:09:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+89,ORD-00089,Customer 89,T9,FINISHED,379.0,2025-12-10T06:40:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+90,ORD-00090,Customer 90,T7,FINISHED,2832.0,2026-01-23T06:46:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+90,ORD-00090,Customer 90,T7,FINISHED,2832.0,2026-01-23T06:46:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+90,ORD-00090,Customer 90,T7,FINISHED,2832.0,2026-01-23T06:46:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+90,ORD-00090,Customer 90,T7,FINISHED,2832.0,2026-01-23T06:46:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+91,ORD-00091,Customer 91,T1,FINISHED,2861.0,2026-01-23T05:17:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+91,ORD-00091,Customer 91,T1,FINISHED,2861.0,2026-01-23T05:17:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+91,ORD-00091,Customer 91,T1,FINISHED,2861.0,2026-01-23T05:17:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+91,ORD-00091,Customer 91,T1,FINISHED,2861.0,2026-01-23T05:17:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+92,ORD-00092,Customer 92,T2,FINISHED,398.0,2026-02-10T05:15:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+93,ORD-00093,Customer 93,T5,FINISHED,277.0,2025-12-05T12:18:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+93,ORD-00093,Customer 93,T5,FINISHED,277.0,2025-12-05T12:18:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+94,ORD-00094,Customer 94,T4,FINISHED,1543.0,2025-11-25T11:59:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+94,ORD-00094,Customer 94,T4,FINISHED,1543.0,2025-11-25T11:59:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+94,ORD-00094,Customer 94,T4,FINISHED,1543.0,2025-11-25T11:59:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+94,ORD-00094,Customer 94,T4,FINISHED,1543.0,2025-11-25T11:59:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+95,ORD-00095,Customer 95,T2,FINISHED,897.0,2025-11-23T08:43:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+96,ORD-00096,Customer 96,T10,FINISHED,772.0,2025-11-30T04:23:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+96,ORD-00096,Customer 96,T10,FINISHED,772.0,2025-11-30T04:23:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+96,ORD-00096,Customer 96,T10,FINISHED,772.0,2025-11-30T04:23:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+96,ORD-00096,Customer 96,T10,FINISHED,772.0,2025-11-30T04:23:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+97,ORD-00097,Customer 97,T4,FINISHED,1135.0,2026-01-28T06:34:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+97,ORD-00097,Customer 97,T4,FINISHED,1135.0,2026-01-28T06:34:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+97,ORD-00097,Customer 97,T4,FINISHED,1135.0,2026-01-28T06:34:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+98,ORD-00098,Customer 98,T9,FINISHED,267.0,2026-01-04T06:13:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+99,ORD-00099,Customer 99,T5,FINISHED,2213.0,2025-12-14T06:22:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+99,ORD-00099,Customer 99,T5,FINISHED,2213.0,2025-12-14T06:22:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+99,ORD-00099,Customer 99,T5,FINISHED,2213.0,2025-12-14T06:22:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+100,ORD-00100,Customer 100,T10,FINISHED,531.0,2026-01-19T05:11:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+100,ORD-00100,Customer 100,T10,FINISHED,531.0,2026-01-19T05:11:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+100,ORD-00100,Customer 100,T10,FINISHED,531.0,2026-01-19T05:11:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+100,ORD-00100,Customer 100,T10,FINISHED,531.0,2026-01-19T05:11:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+101,ORD-00101,Customer 101,T7,FINISHED,1892.0,2026-01-09T12:50:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+101,ORD-00101,Customer 101,T7,FINISHED,1892.0,2026-01-09T12:50:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+101,ORD-00101,Customer 101,T7,FINISHED,1892.0,2026-01-09T12:50:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+101,ORD-00101,Customer 101,T7,FINISHED,1892.0,2026-01-09T12:50:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+102,ORD-00102,Customer 102,T4,FINISHED,674.0,2026-01-09T10:08:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+102,ORD-00102,Customer 102,T4,FINISHED,674.0,2026-01-09T10:08:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+102,ORD-00102,Customer 102,T4,FINISHED,674.0,2026-01-09T10:08:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+103,ORD-00103,Customer 103,T5,FINISHED,1255.0,2025-11-29T14:21:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+103,ORD-00103,Customer 103,T5,FINISHED,1255.0,2025-11-29T14:21:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+104,ORD-00104,Customer 104,T6,FINISHED,1134.0,2026-02-11T14:20:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+104,ORD-00104,Customer 104,T6,FINISHED,1134.0,2026-02-11T14:20:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+105,ORD-00105,Customer 105,T9,FINISHED,1244.0,2026-01-10T12:38:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+105,ORD-00105,Customer 105,T9,FINISHED,1244.0,2026-01-10T12:38:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+105,ORD-00105,Customer 105,T9,FINISHED,1244.0,2026-01-10T12:38:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+106,ORD-00106,Customer 106,T7,FINISHED,1265.0,2025-11-28T07:43:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+106,ORD-00106,Customer 106,T7,FINISHED,1265.0,2025-11-28T07:43:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+106,ORD-00106,Customer 106,T7,FINISHED,1265.0,2025-11-28T07:43:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+106,ORD-00106,Customer 106,T7,FINISHED,1265.0,2025-11-28T07:43:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+107,ORD-00107,Customer 107,T2,FINISHED,1300.0,2025-11-20T13:56:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+107,ORD-00107,Customer 107,T2,FINISHED,1300.0,2025-11-20T13:56:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+107,ORD-00107,Customer 107,T2,FINISHED,1300.0,2025-11-20T13:56:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+107,ORD-00107,Customer 107,T2,FINISHED,1300.0,2025-11-20T13:56:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+108,ORD-00108,Customer 108,T5,FINISHED,199.0,2025-12-02T07:26:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+109,ORD-00109,Customer 109,T6,FINISHED,698.0,2025-11-19T14:14:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+110,ORD-00110,Customer 110,T10,FINISHED,1137.0,2026-01-20T05:59:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+111,ORD-00111,Customer 111,T10,FINISHED,398.0,2025-11-26T08:06:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+112,ORD-00112,Customer 112,T9,FINISHED,433.0,2025-12-03T09:03:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+112,ORD-00112,Customer 112,T9,FINISHED,433.0,2025-12-03T09:03:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+112,ORD-00112,Customer 112,T9,FINISHED,433.0,2025-12-03T09:03:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+113,ORD-00113,Customer 113,T1,FINISHED,117.0,2026-01-20T13:28:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+114,ORD-00114,Customer 114,T7,FINISHED,1394.0,2025-11-21T12:09:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+114,ORD-00114,Customer 114,T7,FINISHED,1394.0,2025-11-21T12:09:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+114,ORD-00114,Customer 114,T7,FINISHED,1394.0,2025-11-21T12:09:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+115,ORD-00115,Customer 115,T9,FINISHED,2122.0,2026-02-11T11:03:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+115,ORD-00115,Customer 115,T9,FINISHED,2122.0,2026-02-11T11:03:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+115,ORD-00115,Customer 115,T9,FINISHED,2122.0,2026-02-11T11:03:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+115,ORD-00115,Customer 115,T9,FINISHED,2122.0,2026-02-11T11:03:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+116,ORD-00116,Customer 116,T8,FINISHED,1027.0,2025-12-12T07:20:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+116,ORD-00116,Customer 116,T8,FINISHED,1027.0,2025-12-12T07:20:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+117,ORD-00117,Customer 117,T3,FINISHED,1833.0,2025-12-24T06:27:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+117,ORD-00117,Customer 117,T3,FINISHED,1833.0,2025-12-24T06:27:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+117,ORD-00117,Customer 117,T3,FINISHED,1833.0,2025-12-24T06:27:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+117,ORD-00117,Customer 117,T3,FINISHED,1833.0,2025-12-24T06:27:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+118,ORD-00118,Customer 118,T10,FINISHED,563.0,2025-11-16T07:49:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+118,ORD-00118,Customer 118,T10,FINISHED,563.0,2025-11-16T07:49:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+118,ORD-00118,Customer 118,T10,FINISHED,563.0,2025-11-16T07:49:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+118,ORD-00118,Customer 118,T10,FINISHED,563.0,2025-11-16T07:49:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+119,ORD-00119,Customer 119,T7,FINISHED,1701.0,2026-01-08T06:23:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+119,ORD-00119,Customer 119,T7,FINISHED,1701.0,2026-01-08T06:23:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+119,ORD-00119,Customer 119,T7,FINISHED,1701.0,2026-01-08T06:23:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+120,ORD-00120,Customer 120,T8,FINISHED,927.0,2025-12-21T06:30:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+120,ORD-00120,Customer 120,T8,FINISHED,927.0,2025-12-21T06:30:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+121,ORD-00121,Customer 121,T2,FINISHED,805.0,2026-01-26T07:08:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+121,ORD-00121,Customer 121,T2,FINISHED,805.0,2026-01-26T07:08:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+122,ORD-00122,Customer 122,T5,FINISHED,492.0,2026-01-21T04:23:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+122,ORD-00122,Customer 122,T5,FINISHED,492.0,2026-01-21T04:23:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+122,ORD-00122,Customer 122,T5,FINISHED,492.0,2026-01-21T04:23:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+123,ORD-00123,Customer 123,T4,FINISHED,2381.0,2026-01-22T11:33:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+123,ORD-00123,Customer 123,T4,FINISHED,2381.0,2026-01-22T11:33:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+123,ORD-00123,Customer 123,T4,FINISHED,2381.0,2026-01-22T11:33:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+123,ORD-00123,Customer 123,T4,FINISHED,2381.0,2026-01-22T11:33:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+124,ORD-00124,Customer 124,T4,FINISHED,2372.0,2025-12-22T06:03:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+124,ORD-00124,Customer 124,T4,FINISHED,2372.0,2025-12-22T06:03:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+124,ORD-00124,Customer 124,T4,FINISHED,2372.0,2025-12-22T06:03:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+124,ORD-00124,Customer 124,T4,FINISHED,2372.0,2025-12-22T06:03:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+125,ORD-00125,Customer 125,T6,FINISHED,329.0,2026-01-30T03:46:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+126,ORD-00126,Customer 126,T3,FINISHED,2213.0,2025-12-05T09:00:58.663952,cashier_maria,Garlic Bread,Sides,1,89.0,89.0
+126,ORD-00126,Customer 126,T3,FINISHED,2213.0,2025-12-05T09:00:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+126,ORD-00126,Customer 126,T3,FINISHED,2213.0,2025-12-05T09:00:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+127,ORD-00127,Customer 127,T7,FINISHED,2452.0,2026-01-20T05:35:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+127,ORD-00127,Customer 127,T7,FINISHED,2452.0,2026-01-20T05:35:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+127,ORD-00127,Customer 127,T7,FINISHED,2452.0,2026-01-20T05:35:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+127,ORD-00127,Customer 127,T7,FINISHED,2452.0,2026-01-20T05:35:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+128,ORD-00128,Customer 128,T7,FINISHED,476.0,2026-01-31T03:24:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+128,ORD-00128,Customer 128,T7,FINISHED,476.0,2026-01-31T03:24:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+129,ORD-00129,Customer 129,T1,FINISHED,388.0,2026-01-29T05:43:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+129,ORD-00129,Customer 129,T1,FINISHED,388.0,2026-01-29T05:43:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+130,ORD-00130,Customer 130,T7,FINISHED,697.0,2026-01-06T12:06:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+130,ORD-00130,Customer 130,T7,FINISHED,697.0,2026-01-06T12:06:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+131,ORD-00131,Customer 131,T10,FINISHED,1316.0,2026-02-10T06:27:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+131,ORD-00131,Customer 131,T10,FINISHED,1316.0,2026-02-10T06:27:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+132,ORD-00132,Customer 132,T4,FINISHED,1524.0,2025-12-13T14:15:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+132,ORD-00132,Customer 132,T4,FINISHED,1524.0,2025-12-13T14:15:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+132,ORD-00132,Customer 132,T4,FINISHED,1524.0,2025-12-13T14:15:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+132,ORD-00132,Customer 132,T4,FINISHED,1524.0,2025-12-13T14:15:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+133,ORD-00133,Customer 133,T5,FINISHED,117.0,2025-12-27T04:09:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+134,ORD-00134,Customer 134,T10,FINISHED,535.0,2025-11-30T08:07:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+134,ORD-00134,Customer 134,T10,FINISHED,535.0,2025-11-30T08:07:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+134,ORD-00134,Customer 134,T10,FINISHED,535.0,2025-11-30T08:07:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+135,ORD-00135,Customer 135,T4,FINISHED,477.0,2025-12-27T07:52:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+135,ORD-00135,Customer 135,T4,FINISHED,477.0,2025-12-27T07:52:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+136,ORD-00136,Customer 136,T10,FINISHED,2171.0,2025-12-27T04:55:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+136,ORD-00136,Customer 136,T10,FINISHED,2171.0,2025-12-27T04:55:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+136,ORD-00136,Customer 136,T10,FINISHED,2171.0,2025-12-27T04:55:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+136,ORD-00136,Customer 136,T10,FINISHED,2171.0,2025-12-27T04:55:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+137,ORD-00137,Customer 137,T5,FINISHED,349.0,2026-02-04T04:46:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+138,ORD-00138,Customer 138,T5,FINISHED,597.0,2026-01-15T05:34:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+139,ORD-00139,Customer 139,T9,FINISHED,1392.0,2025-12-13T04:01:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+139,ORD-00139,Customer 139,T9,FINISHED,1392.0,2025-12-13T04:01:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+139,ORD-00139,Customer 139,T9,FINISHED,1392.0,2025-12-13T04:01:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+139,ORD-00139,Customer 139,T9,FINISHED,1392.0,2025-12-13T04:01:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+140,ORD-00140,Customer 140,T6,FINISHED,377.0,2026-01-05T03:53:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+140,ORD-00140,Customer 140,T6,FINISHED,377.0,2026-01-05T03:53:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+141,ORD-00141,Customer 141,T1,FINISHED,1026.0,2025-11-15T12:24:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+141,ORD-00141,Customer 141,T1,FINISHED,1026.0,2025-11-15T12:24:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+142,ORD-00142,Customer 142,T7,FINISHED,1134.0,2025-11-21T13:48:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+142,ORD-00142,Customer 142,T7,FINISHED,1134.0,2025-11-21T13:48:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+143,ORD-00143,Customer 143,T9,FINISHED,734.0,2026-01-27T07:51:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+143,ORD-00143,Customer 143,T9,FINISHED,734.0,2026-01-27T07:51:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+143,ORD-00143,Customer 143,T9,FINISHED,734.0,2026-01-27T07:51:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+143,ORD-00143,Customer 143,T9,FINISHED,734.0,2026-01-27T07:51:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+144,ORD-00144,Customer 144,T2,FINISHED,2233.0,2026-01-11T07:43:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+144,ORD-00144,Customer 144,T2,FINISHED,2233.0,2026-01-11T07:43:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+144,ORD-00144,Customer 144,T2,FINISHED,2233.0,2026-01-11T07:43:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+145,ORD-00145,Customer 145,T5,FINISHED,178.0,2025-11-18T09:31:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+146,ORD-00146,Customer 146,T4,FINISHED,147.0,2025-12-09T13:01:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+147,ORD-00147,Customer 147,T8,FINISHED,1503.0,2026-02-03T06:57:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+147,ORD-00147,Customer 147,T8,FINISHED,1503.0,2026-02-03T06:57:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+147,ORD-00147,Customer 147,T8,FINISHED,1503.0,2026-02-03T06:57:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+148,ORD-00148,Customer 148,T6,FINISHED,2770.0,2025-12-22T13:43:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+148,ORD-00148,Customer 148,T6,FINISHED,2770.0,2025-12-22T13:43:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+148,ORD-00148,Customer 148,T6,FINISHED,2770.0,2025-12-22T13:43:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+148,ORD-00148,Customer 148,T6,FINISHED,2770.0,2025-12-22T13:43:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+149,ORD-00149,Customer 149,T5,FINISHED,773.0,2026-01-01T13:56:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+149,ORD-00149,Customer 149,T5,FINISHED,773.0,2026-01-01T13:56:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+149,ORD-00149,Customer 149,T5,FINISHED,773.0,2026-01-01T13:56:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+149,ORD-00149,Customer 149,T5,FINISHED,773.0,2026-01-01T13:56:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+150,ORD-00150,Customer 150,T9,FINISHED,2533.0,2025-12-18T09:55:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+150,ORD-00150,Customer 150,T9,FINISHED,2533.0,2025-12-18T09:55:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+150,ORD-00150,Customer 150,T9,FINISHED,2533.0,2025-12-18T09:55:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+151,ORD-00151,Customer 151,T4,FINISHED,1765.0,2025-12-18T04:34:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,2,379.0,758.0
+151,ORD-00151,Customer 151,T4,FINISHED,1765.0,2025-12-18T04:34:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+151,ORD-00151,Customer 151,T4,FINISHED,1765.0,2025-12-18T04:34:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+152,ORD-00152,Customer 152,T9,FINISHED,1047.0,2026-02-04T11:05:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+153,ORD-00153,Customer 153,T1,FINISHED,1595.0,2025-12-09T13:44:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+153,ORD-00153,Customer 153,T1,FINISHED,1595.0,2025-12-09T13:44:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+154,ORD-00154,Customer 154,T6,FINISHED,515.0,2026-01-24T09:45:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+154,ORD-00154,Customer 154,T6,FINISHED,515.0,2026-01-24T09:45:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+155,ORD-00155,Customer 155,T7,FINISHED,1113.0,2025-12-07T06:08:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+155,ORD-00155,Customer 155,T7,FINISHED,1113.0,2025-12-07T06:08:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+155,ORD-00155,Customer 155,T7,FINISHED,1113.0,2025-12-07T06:08:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+155,ORD-00155,Customer 155,T7,FINISHED,1113.0,2025-12-07T06:08:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+156,ORD-00156,Customer 156,T3,FINISHED,903.0,2026-01-27T05:16:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+156,ORD-00156,Customer 156,T3,FINISHED,903.0,2026-01-27T05:16:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+156,ORD-00156,Customer 156,T3,FINISHED,903.0,2026-01-27T05:16:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+157,ORD-00157,Customer 157,T1,FINISHED,1493.0,2025-11-18T12:32:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+157,ORD-00157,Customer 157,T1,FINISHED,1493.0,2025-11-18T12:32:58.663952,cashier_jose,Margherita Pizza,Pizzas,2,299.0,598.0
+157,ORD-00157,Customer 157,T1,FINISHED,1493.0,2025-11-18T12:32:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+157,ORD-00157,Customer 157,T1,FINISHED,1493.0,2025-11-18T12:32:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+158,ORD-00158,Customer 158,T6,FINISHED,117.0,2026-01-07T14:52:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+159,ORD-00159,Customer 159,T4,FINISHED,987.0,2026-01-14T04:36:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+160,ORD-00160,Customer 160,T4,FINISHED,525.0,2025-12-24T11:35:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+160,ORD-00160,Customer 160,T4,FINISHED,525.0,2025-12-24T11:35:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+160,ORD-00160,Customer 160,T4,FINISHED,525.0,2025-12-24T11:35:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+161,ORD-00161,Customer 161,T1,FINISHED,896.0,2026-02-11T09:13:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+161,ORD-00161,Customer 161,T1,FINISHED,896.0,2026-02-11T09:13:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+162,ORD-00162,Customer 162,T4,FINISHED,2099.0,2025-12-08T14:06:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+162,ORD-00162,Customer 162,T4,FINISHED,2099.0,2025-12-08T14:06:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+162,ORD-00162,Customer 162,T4,FINISHED,2099.0,2025-12-08T14:06:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,3,49.0,147.0
+162,ORD-00162,Customer 162,T4,FINISHED,2099.0,2025-12-08T14:06:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+163,ORD-00163,Customer 163,T9,FINISHED,78.0,2026-01-02T09:15:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+164,ORD-00164,Customer 164,T2,FINISHED,3829.0,2025-11-21T03:54:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+164,ORD-00164,Customer 164,T2,FINISHED,3829.0,2025-11-21T03:54:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+164,ORD-00164,Customer 164,T2,FINISHED,3829.0,2025-11-21T03:54:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+164,ORD-00164,Customer 164,T2,FINISHED,3829.0,2025-11-21T03:54:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,2,329.0,658.0
+165,ORD-00165,Customer 165,T10,FINISHED,89.0,2025-11-25T03:39:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+166,ORD-00166,Customer 166,T2,FINISHED,1942.0,2025-11-18T09:02:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,2,199.0,398.0
+166,ORD-00166,Customer 166,T2,FINISHED,1942.0,2025-11-18T09:02:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,1,379.0,379.0
+166,ORD-00166,Customer 166,T2,FINISHED,1942.0,2025-11-18T09:02:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+166,ORD-00166,Customer 166,T2,FINISHED,1942.0,2025-11-18T09:02:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,3,329.0,987.0
+167,ORD-00167,Customer 167,T10,FINISHED,78.0,2025-12-12T13:56:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+168,ORD-00168,Customer 168,T10,FINISHED,117.0,2025-11-28T14:40:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+169,ORD-00169,Customer 169,T4,FINISHED,1047.0,2026-01-20T12:27:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+170,ORD-00170,Customer 170,T3,FINISHED,1047.0,2025-11-27T11:16:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+171,ORD-00171,Customer 171,T6,FINISHED,346.0,2025-11-14T07:59:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+171,ORD-00171,Customer 171,T6,FINISHED,346.0,2025-11-14T07:59:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+171,ORD-00171,Customer 171,T6,FINISHED,346.0,2025-11-14T07:59:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+172,ORD-00172,Customer 172,T10,FINISHED,1222.0,2025-11-22T03:48:58.663952,cashier_maria,Iced Tea (500ml),Drinks,2,39.0,78.0
+172,ORD-00172,Customer 172,T10,FINISHED,1222.0,2025-11-22T03:48:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+172,ORD-00172,Customer 172,T10,FINISHED,1222.0,2025-11-22T03:48:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+172,ORD-00172,Customer 172,T10,FINISHED,1222.0,2025-11-22T03:48:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+173,ORD-00173,Customer 173,T2,FINISHED,1822.0,2026-02-01T10:54:58.663952,cashier_jose,Iced Tea (500ml),Drinks,3,39.0,117.0
+173,ORD-00173,Customer 173,T2,FINISHED,1822.0,2026-02-01T10:54:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+173,ORD-00173,Customer 173,T2,FINISHED,1822.0,2026-02-01T10:54:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+174,ORD-00174,Customer 174,T8,FINISHED,1047.0,2026-02-01T11:30:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+174,ORD-00174,Customer 174,T8,FINISHED,1047.0,2026-02-01T11:30:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,2,349.0,698.0
+175,ORD-00175,Customer 175,T3,FINISHED,1402.0,2025-12-05T10:50:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+175,ORD-00175,Customer 175,T3,FINISHED,1402.0,2025-12-05T10:50:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+175,ORD-00175,Customer 175,T3,FINISHED,1402.0,2025-12-05T10:50:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,1,349.0,349.0
+175,ORD-00175,Customer 175,T3,FINISHED,1402.0,2025-12-05T10:50:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+176,ORD-00176,Customer 176,T4,FINISHED,1560.0,2025-11-27T05:14:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+176,ORD-00176,Customer 176,T4,FINISHED,1560.0,2025-11-27T05:14:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+176,ORD-00176,Customer 176,T4,FINISHED,1560.0,2025-11-27T05:14:58.663952,cashier_maria,Garlic Bread,Sides,3,89.0,267.0
+176,ORD-00176,Customer 176,T4,FINISHED,1560.0,2025-11-27T05:14:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+177,ORD-00177,Customer 177,T5,FINISHED,1603.0,2026-01-11T14:45:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+177,ORD-00177,Customer 177,T5,FINISHED,1603.0,2026-01-11T14:45:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+177,ORD-00177,Customer 177,T5,FINISHED,1603.0,2026-01-11T14:45:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+177,ORD-00177,Customer 177,T5,FINISHED,1603.0,2026-01-11T14:45:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+178,ORD-00178,Customer 178,T8,FINISHED,1725.0,2025-12-18T12:38:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+178,ORD-00178,Customer 178,T8,FINISHED,1725.0,2025-12-18T12:38:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+178,ORD-00178,Customer 178,T8,FINISHED,1725.0,2025-12-18T12:38:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+179,ORD-00179,Customer 179,T1,FINISHED,616.0,2026-01-02T03:13:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+179,ORD-00179,Customer 179,T1,FINISHED,616.0,2026-01-02T03:13:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+179,ORD-00179,Customer 179,T1,FINISHED,616.0,2026-01-02T03:13:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+179,ORD-00179,Customer 179,T1,FINISHED,616.0,2026-01-02T03:13:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+180,ORD-00180,Customer 180,T2,FINISHED,945.0,2025-12-19T13:09:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+180,ORD-00180,Customer 180,T2,FINISHED,945.0,2025-12-19T13:09:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
+180,ORD-00180,Customer 180,T2,FINISHED,945.0,2025-12-19T13:09:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+180,ORD-00180,Customer 180,T2,FINISHED,945.0,2025-12-19T13:09:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+181,ORD-00181,Customer 181,T5,FINISHED,2311.0,2025-11-17T09:14:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+181,ORD-00181,Customer 181,T5,FINISHED,2311.0,2025-11-17T09:14:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,1,199.0,199.0
+181,ORD-00181,Customer 181,T5,FINISHED,2311.0,2025-11-17T09:14:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+181,ORD-00181,Customer 181,T5,FINISHED,2311.0,2025-11-17T09:14:58.663952,cashier_jose,Iced Tea (500ml),Drinks,2,39.0,78.0
+182,ORD-00182,Customer 182,T8,FINISHED,597.0,2026-01-13T12:16:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,3,199.0,597.0
+183,ORD-00183,Customer 183,T9,FINISHED,1126.0,2026-01-14T04:00:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+183,ORD-00183,Customer 183,T9,FINISHED,1126.0,2026-01-14T04:00:58.663952,cashier_maria,Hawaiian Pizza,Pizzas,1,329.0,329.0
+183,ORD-00183,Customer 183,T9,FINISHED,1126.0,2026-01-14T04:00:58.663952,cashier_maria,Margherita Pizza,Pizzas,2,299.0,598.0
+184,ORD-00184,Customer 184,T8,FINISHED,1462.0,2026-01-25T05:32:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+184,ORD-00184,Customer 184,T8,FINISHED,1462.0,2026-01-25T05:32:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+184,ORD-00184,Customer 184,T8,FINISHED,1462.0,2026-01-25T05:32:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+184,ORD-00184,Customer 184,T8,FINISHED,1462.0,2026-01-25T05:32:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+185,ORD-00185,Customer 185,T4,FINISHED,645.0,2026-01-26T14:58:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,1,49.0,49.0
+185,ORD-00185,Customer 185,T4,FINISHED,645.0,2026-01-26T14:58:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,1,329.0,329.0
+185,ORD-00185,Customer 185,T4,FINISHED,645.0,2026-01-26T14:58:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+186,ORD-00186,Customer 186,T9,FINISHED,388.0,2025-12-21T12:16:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,1,349.0,349.0
+186,ORD-00186,Customer 186,T9,FINISHED,388.0,2025-12-21T12:16:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+187,ORD-00187,Customer 187,T7,FINISHED,1170.0,2026-01-19T07:05:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+187,ORD-00187,Customer 187,T7,FINISHED,1170.0,2026-01-19T07:05:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+187,ORD-00187,Customer 187,T7,FINISHED,1170.0,2026-01-19T07:05:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+187,ORD-00187,Customer 187,T7,FINISHED,1170.0,2026-01-19T07:05:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,3,49.0,147.0
+188,ORD-00188,Customer 188,T3,FINISHED,1623.0,2026-01-23T03:07:58.663952,cashier_jose,Garlic Bread,Sides,3,89.0,267.0
+188,ORD-00188,Customer 188,T3,FINISHED,1623.0,2026-01-23T03:07:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+188,ORD-00188,Customer 188,T3,FINISHED,1623.0,2026-01-23T03:07:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+188,ORD-00188,Customer 188,T3,FINISHED,1623.0,2026-01-23T03:07:58.663952,cashier_jose,Margherita Pizza,Pizzas,1,299.0,299.0
+189,ORD-00189,Customer 189,T6,FINISHED,1176.0,2026-01-20T10:24:58.663952,cashier_maria,Four Cheese Pizza,Pizzas,3,379.0,1137.0
+189,ORD-00189,Customer 189,T6,FINISHED,1176.0,2026-01-20T10:24:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+190,ORD-00190,Customer 190,T5,FINISHED,1014.0,2026-01-28T07:05:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+190,ORD-00190,Customer 190,T5,FINISHED,1014.0,2026-01-28T07:05:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+190,ORD-00190,Customer 190,T5,FINISHED,1014.0,2026-01-28T07:05:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0
+191,ORD-00191,Customer 191,T6,FINISHED,1235.0,2025-12-05T09:32:58.663952,cashier_maria,Iced Tea (500ml),Drinks,1,39.0,39.0
+191,ORD-00191,Customer 191,T6,FINISHED,1235.0,2025-12-05T09:32:58.663952,cashier_maria,Margherita Pizza,Pizzas,1,299.0,299.0
+191,ORD-00191,Customer 191,T6,FINISHED,1235.0,2025-12-05T09:32:58.663952,cashier_maria,Margherita Pizza,Pizzas,3,299.0,897.0
+192,ORD-00192,Customer 192,T5,FINISHED,98.0,2025-12-25T04:47:58.663952,cashier_jose,Coca-Cola (500ml),Drinks,2,49.0,98.0
+193,ORD-00193,Customer 193,T1,FINISHED,1334.0,2026-01-13T10:57:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,2,199.0,398.0
+193,ORD-00193,Customer 193,T1,FINISHED,1334.0,2026-01-13T10:57:58.663952,cashier_jose,Iced Tea (500ml),Drinks,1,39.0,39.0
+193,ORD-00193,Customer 193,T1,FINISHED,1334.0,2026-01-13T10:57:58.663952,cashier_jose,Margherita Pizza,Pizzas,3,299.0,897.0
+194,ORD-00194,Customer 194,T7,FINISHED,166.0,2026-02-07T10:43:58.663952,cashier_maria,Iced Tea (500ml),Drinks,3,39.0,117.0
+194,ORD-00194,Customer 194,T7,FINISHED,166.0,2026-02-07T10:43:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+195,ORD-00195,Customer 195,T7,FINISHED,1723.0,2025-12-05T10:28:58.663952,cashier_jose,Chicken Wings (6pcs),Sides,3,199.0,597.0
+195,ORD-00195,Customer 195,T7,FINISHED,1723.0,2025-12-05T10:28:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,1,379.0,379.0
+195,ORD-00195,Customer 195,T7,FINISHED,1723.0,2025-12-05T10:28:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+195,ORD-00195,Customer 195,T7,FINISHED,1723.0,2025-12-05T10:28:58.663952,cashier_jose,Garlic Bread,Sides,1,89.0,89.0
+196,ORD-00196,Customer 196,T8,FINISHED,1923.0,2026-01-21T09:58:58.663952,cashier_maria,Garlic Bread,Sides,2,89.0,178.0
+196,ORD-00196,Customer 196,T8,FINISHED,1923.0,2026-01-21T09:58:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+196,ORD-00196,Customer 196,T8,FINISHED,1923.0,2026-01-21T09:58:58.663952,cashier_maria,Pepperoni Pizza,Pizzas,2,349.0,698.0
+197,ORD-00197,Customer 197,T1,FINISHED,3450.0,2026-01-10T12:39:58.663952,cashier_jose,Four Cheese Pizza,Pizzas,2,379.0,758.0
+197,ORD-00197,Customer 197,T1,FINISHED,3450.0,2026-01-10T12:39:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,3,329.0,987.0
+197,ORD-00197,Customer 197,T1,FINISHED,3450.0,2026-01-10T12:39:58.663952,cashier_jose,Hawaiian Pizza,Pizzas,2,329.0,658.0
+197,ORD-00197,Customer 197,T1,FINISHED,3450.0,2026-01-10T12:39:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+198,ORD-00198,Customer 198,T4,FINISHED,346.0,2026-01-04T12:25:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,2,49.0,98.0
+198,ORD-00198,Customer 198,T4,FINISHED,346.0,2026-01-04T12:25:58.663952,cashier_maria,Chicken Wings (6pcs),Sides,1,199.0,199.0
+198,ORD-00198,Customer 198,T4,FINISHED,346.0,2026-01-04T12:25:58.663952,cashier_maria,Coca-Cola (500ml),Drinks,1,49.0,49.0
+199,ORD-00199,Customer 199,T7,FINISHED,1047.0,2026-02-08T11:37:58.663952,cashier_jose,Pepperoni Pizza,Pizzas,3,349.0,1047.0
+200,ORD-00200,Customer 200,T2,FINISHED,178.0,2025-11-19T10:18:58.663952,cashier_jose,Garlic Bread,Sides,2,89.0,178.0

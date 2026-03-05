@@ -1,41 +1,41 @@
 ID,Ingredient_Name,Type,Quantity,Reason,Date,Reported_By
-1,Pineapple Tidbits,SPOILAGE,0.7,Damaged/Expired,2026-01-16T15:11:36.952138,admin
-2,Mozzarella Cheese,SPOILAGE,1.8,Damaged/Expired,2025-12-15T15:11:36.952179,admin
-3,Tomato Sauce,SPOILAGE,1.28,Damaged/Expired,2025-12-09T15:11:36.952203,admin
-4,Ham,SPOILAGE,0.14,Damaged/Expired,2026-01-29T15:11:36.952275,admin
-5,Pineapple Tidbits,SPOILAGE,1.75,Damaged/Expired,2026-01-07T15:11:36.952294,admin
-6,Tomato Sauce,SPOILAGE,1.82,Damaged/Expired,2025-12-20T15:11:36.952312,admin
-7,Tomato Sauce,WASTE,1.95,Damaged/Expired,2026-01-30T15:11:36.952328,admin
-8,Ham,SPOILAGE,0.52,Damaged/Expired,2026-01-05T15:11:36.952345,admin
-9,Tomato Sauce,WASTE,0.18,Damaged/Expired,2026-02-08T15:11:36.952361,admin
-10,Ham,SPOILAGE,0.61,Damaged/Expired,2025-12-05T15:11:36.952377,admin
-11,Pizza Dough,WASTE,0.57,Damaged/Expired,2026-02-02T15:11:36.952394,admin
-12,Ham,WASTE,1.52,Damaged/Expired,2026-01-09T15:11:36.952414,admin
-13,Mozzarella Cheese,SPOILAGE,0.16,Damaged/Expired,2025-12-26T15:11:36.952431,admin
-14,Pepperoni Slices,WASTE,0.73,Damaged/Expired,2025-12-25T15:11:36.952448,admin
-15,Mozzarella Cheese,SPOILAGE,1.78,Damaged/Expired,2025-12-30T15:11:36.952464,admin
-16,Pizza Dough,SPOILAGE,1.02,Damaged/Expired,2026-01-28T15:11:36.952480,admin
-17,Pepperoni Slices,WASTE,0.34,Damaged/Expired,2026-01-18T15:11:36.952495,admin
-18,Tomato Sauce,SPOILAGE,1.63,Damaged/Expired,2025-12-25T15:11:36.952509,admin
-19,Pepperoni Slices,SPOILAGE,0.56,Damaged/Expired,2025-12-31T15:11:36.952525,admin
-20,Pepperoni Slices,WASTE,1.76,Damaged/Expired,2026-01-07T15:11:36.952542,admin
-21,Mozzarella Cheese,WASTE,0.24,Damaged/Expired,2026-02-09T15:11:36.952557,admin
-22,Tomato Sauce,WASTE,1.38,Damaged/Expired,2025-12-15T15:11:36.952575,admin
-23,Ham,SPOILAGE,1.64,Damaged/Expired,2026-01-12T15:11:36.952591,admin
-24,Pineapple Tidbits,SPOILAGE,1.83,Damaged/Expired,2025-12-21T15:11:36.952607,admin
-25,Tomato Sauce,WASTE,0.47,Damaged/Expired,2026-01-29T15:11:36.952624,admin
-26,Pepperoni Slices,WASTE,0.85,Damaged/Expired,2025-12-10T15:11:36.952641,admin
-27,Pepperoni Slices,WASTE,0.13,Damaged/Expired,2025-12-14T15:11:36.952659,admin
-28,Tomato Sauce,WASTE,0.8,Damaged/Expired,2025-12-31T15:11:36.952675,admin
-29,Tomato Sauce,WASTE,0.45,Damaged/Expired,2025-12-05T15:11:36.952691,admin
-30,Ham,SPOILAGE,1.78,Damaged/Expired,2025-12-22T15:11:36.952706,admin
-31,Tomato Sauce,SPOILAGE,1.36,Damaged/Expired,2026-01-10T15:11:36.952721,admin
-32,Pizza Dough,WASTE,1.11,Damaged/Expired,2026-01-09T15:11:36.952735,admin
-33,Tomato Sauce,WASTE,1.96,Damaged/Expired,2026-02-06T15:11:36.952752,admin
-34,Pizza Dough,SPOILAGE,0.32,Damaged/Expired,2025-12-15T15:11:36.952767,admin
-35,Ham,SPOILAGE,0.85,Damaged/Expired,2025-12-21T15:11:36.952784,admin
-36,Tomato Sauce,WASTE,1.48,Damaged/Expired,2025-12-06T15:11:36.952800,admin
-37,Pepperoni Slices,WASTE,0.58,Damaged/Expired,2025-12-20T15:11:36.952815,admin
-38,Pizza Dough,WASTE,0.16,Damaged/Expired,2025-11-15T15:11:36.952830,admin
-39,Mozzarella Cheese,WASTE,0.47,Damaged/Expired,2026-02-08T15:11:36.952839,admin
-40,Pepperoni Slices,WASTE,0.56,Damaged/Expired,2025-12-24T15:11:36.952847,admin
+1,Tomato Sauce,SPOILAGE,0.97,Damaged/Expired,2025-12-22T16:59:58.678772,admin
+2,Ham,SPOILAGE,1.3,Damaged/Expired,2025-12-22T16:59:58.678804,admin
+3,Tomato Sauce,SPOILAGE,0.5,Damaged/Expired,2025-12-11T16:59:58.678823,admin
+4,Tomato Sauce,WASTE,0.87,Damaged/Expired,2026-01-31T16:59:58.678839,admin
+5,Ham,WASTE,0.26,Damaged/Expired,2025-12-07T16:59:58.678855,admin
+6,Mozzarella Cheese,SPOILAGE,0.75,Damaged/Expired,2025-11-28T16:59:58.678869,admin
+7,Pineapple Tidbits,SPOILAGE,1.68,Damaged/Expired,2026-01-20T16:59:58.678885,admin
+8,Pepperoni Slices,WASTE,0.83,Damaged/Expired,2025-12-11T16:59:58.678901,admin
+9,Pepperoni Slices,SPOILAGE,1.29,Damaged/Expired,2025-12-09T16:59:58.678916,admin
+10,Pepperoni Slices,SPOILAGE,0.98,Damaged/Expired,2026-01-08T16:59:58.678930,admin
+11,Ham,WASTE,1.7,Damaged/Expired,2025-12-09T16:59:58.678944,admin
+12,Pineapple Tidbits,WASTE,0.26,Damaged/Expired,2026-01-27T16:59:58.678959,admin
+13,Ham,WASTE,0.71,Damaged/Expired,2025-12-29T16:59:58.678974,admin
+14,Pizza Dough,WASTE,0.33,Damaged/Expired,2025-12-20T16:59:58.678996,admin
+15,Pineapple Tidbits,WASTE,0.39,Damaged/Expired,2025-12-29T16:59:58.679012,admin
+16,Pizza Dough,SPOILAGE,0.21,Damaged/Expired,2025-12-25T16:59:58.679027,admin
+17,Tomato Sauce,WASTE,1.46,Damaged/Expired,2025-12-22T16:59:58.679042,admin
+18,Pizza Dough,WASTE,0.55,Damaged/Expired,2025-11-14T16:59:58.679063,admin
+19,Tomato Sauce,WASTE,1.29,Damaged/Expired,2025-12-09T16:59:58.679075,admin
+20,Pineapple Tidbits,WASTE,1.94,Damaged/Expired,2025-12-04T16:59:58.679090,admin
+21,Pineapple Tidbits,WASTE,0.26,Damaged/Expired,2026-01-06T16:59:58.679100,admin
+22,Pepperoni Slices,SPOILAGE,0.82,Damaged/Expired,2026-02-02T16:59:58.679110,admin
+23,Ham,SPOILAGE,1.24,Damaged/Expired,2025-11-19T16:59:58.679118,admin
+24,Tomato Sauce,SPOILAGE,0.21,Damaged/Expired,2026-02-09T16:59:58.679127,admin
+25,Mozzarella Cheese,SPOILAGE,0.22,Damaged/Expired,2026-01-31T16:59:58.679136,admin
+26,Pepperoni Slices,SPOILAGE,1.13,Damaged/Expired,2025-12-27T16:59:58.679144,admin
+27,Pepperoni Slices,SPOILAGE,1.91,Damaged/Expired,2025-12-21T16:59:58.679153,admin
+28,Ham,SPOILAGE,1.0,Damaged/Expired,2025-12-12T16:59:58.679161,admin
+29,Pineapple Tidbits,WASTE,0.39,Damaged/Expired,2025-12-20T16:59:58.679169,admin
+30,Pineapple Tidbits,WASTE,0.78,Damaged/Expired,2025-12-10T16:59:58.679178,admin
+31,Tomato Sauce,SPOILAGE,0.75,Damaged/Expired,2025-12-30T16:59:58.679186,admin
+32,Pineapple Tidbits,SPOILAGE,1.02,Damaged/Expired,2025-11-13T16:59:58.679196,admin
+33,Ham,SPOILAGE,0.82,Damaged/Expired,2026-01-11T16:59:58.679205,admin
+34,Mozzarella Cheese,SPOILAGE,1.99,Damaged/Expired,2025-12-30T16:59:58.679213,admin
+35,Pizza Dough,WASTE,0.1,Damaged/Expired,2025-12-24T16:59:58.679222,admin
+36,Pepperoni Slices,SPOILAGE,0.2,Damaged/Expired,2025-12-06T16:59:58.679230,admin
+37,Ham,WASTE,1.04,Damaged/Expired,2025-12-03T16:59:58.679239,admin
+38,Pineapple Tidbits,SPOILAGE,1.19,Damaged/Expired,2025-12-07T16:59:58.679247,admin
+39,Mozzarella Cheese,WASTE,1.1,Damaged/Expired,2026-01-10T16:59:58.679256,admin
+40,Pepperoni Slices,SPOILAGE,0.35,Damaged/Expired,2025-12-23T16:59:58.679265,admin
