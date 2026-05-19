@@ -1,3 +1,14 @@
+# ==============================================================================
+# FJC-PIZZA SALES & INVENTORY MANAGEMENT SYSTEM
+# File: accounts/urls.py
+# Purpose: URL Routing patterns for the accounts management app.
+# Contains:
+#   - Login & Logout endpoints
+#   - Staff administration routes (list, create, edit, archive, unarchive, audit)
+# How it fits: Defines accessible route endpoints mapping directly to accounts views, 
+# exposing staff administration dashboards and login screens to the web router.
+# ==============================================================================
+
 from django.urls import path
 from . import views
 

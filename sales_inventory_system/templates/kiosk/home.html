@@ -1,3 +1,9 @@
+{% comment %}
+  FCJ Pizza Kiosk Home Template
+  Purpose: Provides the main interactive customer-facing kiosk frontend interface, allowing customers
+           to browse products/categories, customize items, manage a dynamic session cart, checkout,
+           specify table numbers/kitchen instructions, and place cash/card orders.
+{% endcomment %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="h-full">
@@ -356,10 +362,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-fjc-blue-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">FJC</span>
-                    </div>
-                    <div class="ml-3">
+                    <div>
                         <h1 class="text-2xl font-bold text-gray-900">FCJ Pizza</h1>
                         <p class="text-xs text-gray-500">Fresh. Delicious. Fast.</p>
                     </div>
@@ -395,9 +398,8 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <!-- Main Product Area -->
-            <div class="lg:col-span-3">
+        <!-- Main Product Area (w-full to occupy full screen layout) -->
+        <div class="w-full">
                 <!-- Welcome Banner -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-8 text-center">
                     <div class="flex items-center justify-center mb-4">
@@ -522,50 +524,8 @@
                 <p class="text-gray-600">Please check back later</p>
             </div>
         {% endif %}
-            </div>
-            <!-- End Main Product Area -->
-
-            <!-- Cart Summary Sidebar (Desktop Only) -->
-            <div class="hidden lg:block lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 sticky top-[70px] space-y-4">
-                    <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <span class="material-icons">shopping_cart</span> Order Summary
-                    </h3>
-
-                    <div id="sidebar-cart-items" class="space-y-3 max-h-96 overflow-y-auto">
-                        <div class="text-center text-gray-500 py-4">
-                            <p>Your cart is empty</p>
-                        </div>
-                    </div>
-
-                    <div class="border-t border-gray-200 pt-4 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-700">Subtotal:</span>
-                            <span id="sidebar-subtotal" class="text-sm font-semibold text-gray-900">₱0.00</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium text-gray-700">Total Items:</span>
-                            <span id="sidebar-item-count" class="text-sm font-semibold text-gray-900">0</span>
-                        </div>
-                        <div class="bg-gradient-to-r from-fjc-yellow-50 to-fjc-blue-50 p-3 rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-gray-900">Total:</span>
-                                <span id="sidebar-total" class="text-xl font-bold text-fjc-blue-600">₱0.00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button id="sidebar-checkout-btn" class="w-full bg-fjc-yellow-500 hover:bg-fjc-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        Proceed to Checkout
-                    </button>
-
-                    <button id="sidebar-view-order-btn" class="w-full bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                        <span class="material-icons">inventory_2</span> View Order Status
-                    </button>
-                </div>
-            </div>
-            <!-- End Cart Summary Sidebar -->
         </div>
+        <!-- End Main Product Area -->
     </div>
 
     <!-- Footer -->
@@ -644,6 +604,16 @@
                     </button>
                 </div>
                 <div id="order-result-container" class="mt-6"></div>
+
+                <!-- Local Order History Section -->
+                <div class="mt-6 border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-fjc-yellow-500">history</span> Your Order History
+                    </h3>
+                    <div id="order-history-list" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                        <p class="text-sm text-gray-500 text-center py-4">No recent orders found on this kiosk.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -745,9 +715,10 @@
             updateSidebarCart();
         }
 
-        // Update sidebar cart summary (desktop only)
+        // Update sidebar cart summary (desktop only - safely returns if sidebar is removed from UI)
         function updateSidebarCart() {
             const sidebarItems = document.getElementById('sidebar-cart-items');
+            if (!sidebarItems) return;
             const sidebarTotal = document.getElementById('sidebar-total');
             const sidebarSubtotal = document.getElementById('sidebar-subtotal');
             const sidebarItemCount = document.getElementById('sidebar-item-count');
@@ -1134,6 +1105,7 @@
         viewOrderBtn.addEventListener('click', () => {
             viewOrderModalOverlay.classList.add('active');
             orderNumberInput.focus();
+            loadOrderHistory();
         });
 
         // Close view order modal
@@ -1167,6 +1139,7 @@
             sidebarViewOrderBtn.addEventListener('click', () => {
                 viewOrderModalOverlay.classList.add('active');
                 orderNumberInput.focus();
+                loadOrderHistory();
             });
         }
 
@@ -1235,6 +1208,11 @@
                                     <span>₱${order.total_amount}</span>
                                 </div>
                             </div>
+                            <div class="border-t border-gray-200 pt-3 flex gap-2">
+                                <a href="/kiosk/order/${order.order_number}/" class="flex-1 bg-fjc-blue-500 hover:bg-fjc-blue-600 text-white text-center font-bold py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-1">
+                                    <span class="material-icons text-sm">visibility</span> Track Order Status
+                                </a>
+                            </div>
                         </div>
                     `;
                     Toast.success('Order found!');
@@ -1250,6 +1228,121 @@
             } catch (error) {
                 Loading.hide();
                 Toast.error('Error searching order');
+            }
+        }
+
+        /**
+         * Loads the user's localized order history from localStorage,
+         * queries the backend in a single batch request to get their real-time statuses,
+         * and renders the history list dynamically.
+         */
+        async function loadOrderHistory() {
+            const historyContainer = document.getElementById('order-history-list');
+            if (!historyContainer) return;
+
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('fjc_order_history') || '[]');
+            } catch (e) {
+                history = [];
+            }
+
+            if (!Array.isArray(history) || history.length === 0) {
+                historyContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No recent orders found on this kiosk.</p>';
+                return;
+            }
+
+            // Show loading spinner
+            historyContainer.innerHTML = `
+                <div class="flex items-center justify-center py-6">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-fjc-blue-500"></div>
+                    <span class="ml-2 text-sm text-gray-500">Loading history...</span>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/kiosk/search-order/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ order_numbers: history })
+                });
+
+                const data = await response.json();
+                if (data.success && data.orders && data.orders.length > 0) {
+                    const statusColors = {
+                        'PENDING': { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500' },
+                        'IN_PROGRESS': { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
+                        'FINISHED': { bg: 'bg-emerald-100', text: 'text-emerald-800', dot: 'bg-emerald-500' },
+                        'CANCELLED': { bg: 'bg-rose-100', text: 'text-rose-800', dot: 'bg-rose-500' }
+                    };
+
+                    let html = '';
+                    data.orders.forEach(order => {
+                        const colors = statusColors[order.status] || { bg: 'bg-gray-100', text: 'text-gray-800', dot: 'bg-gray-500' };
+                        
+                        html += `
+                            <div class="p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl cursor-pointer transition-all duration-200 flex justify-between items-center group shadow-sm hover:shadow"
+                                 onclick="selectHistoryOrder('${order.order_number}')">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-gray-900 group-hover:text-fjc-blue-600 transition-colors">${order.order_number}</span>
+                                        <span class="${colors.bg} ${colors.text} text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full ${colors.dot}"></span>
+                                            ${order.status}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        ${order.customer_name} • Table ${order.table_number}
+                                    </p>
+                                </div>
+                                <div class="text-right flex items-center gap-2">
+                                    <div>
+                                        <span class="font-bold text-fjc-blue-600 block text-sm">₱${order.total_amount.toFixed(2)}</span>
+                                        <span class="text-[10px] text-gray-400">${formatOrderDate(order.created_at)}</span>
+                                    </div>
+                                    <span class="material-icons text-gray-400 group-hover:translate-x-1 transition-transform text-lg">chevron_right</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    historyContainer.innerHTML = html;
+                } else {
+                    historyContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No recent orders found on this kiosk.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading order history:', error);
+                historyContainer.innerHTML = '<p class="text-sm text-rose-500 text-center py-4 flex items-center justify-center gap-1"><span class="material-icons text-sm">error</span> Failed to load history</p>';
+            }
+        }
+
+        /**
+         * Formats a raw timestamp string from the backend into a friendly format.
+         */
+        function formatOrderDate(dateStr) {
+            try {
+                // Parse "YYYY-MM-DD HH:MM:SS"
+                const parts = dateStr.split(' ');
+                const dateParts = parts[0].split('-');
+                const timeParts = parts[1].split(':');
+                const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
+                
+                return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        /**
+         * Populates the order status search box and triggers the search.
+         */
+        function selectHistoryOrder(orderNumber) {
+            const input = document.getElementById('order-number-input');
+            if (input) {
+                input.value = orderNumber;
+                searchOrder();
             }
         }
 

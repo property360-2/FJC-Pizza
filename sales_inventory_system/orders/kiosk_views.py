@@ -1,3 +1,10 @@
+# ==============================================================================
+# FCJ Pizza Kiosk Views Configuration
+# Purpose: Handles business logic for customer-facing kiosk frontend actions,
+#          such as rendering the kiosk menu home page, managing the session-based cart,
+#          finalizing orders (checkout), tracking order status, and sending emailed receipts.
+# ==============================================================================
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
@@ -6,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 import json
 from decimal import Decimal
 from sales_inventory_system.products.models import Product
-from sales_inventory_system.products.inventory_service import BOMService
+from sales_inventory_system.products.inventory_service import BOMService, IngredientDeductionError
 from .models import Order, OrderItem, Payment
 
 
@@ -120,6 +127,9 @@ def checkout(request):
 
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', 'Guest')
+        customer_email = request.POST.get('customer_email', '').strip()
+        if not customer_email:
+            customer_email = None
         table_number = request.POST.get('table_number', '')
         payment_method = request.POST.get('payment_method', 'CASH')
         notes = request.POST.get('notes', '')
@@ -145,6 +155,7 @@ def checkout(request):
                 # Create order
                 order = Order.objects.create(
                     customer_name=customer_name,
+                    customer_email=customer_email,
                     table_number=table_number,
                     notes=notes,
                     status='PENDING'
@@ -155,7 +166,7 @@ def checkout(request):
                     product = products_dict.get(int(product_id))
                     if product:
                         # Check stock availability
-                        if product.stock < quantity:
+                        if product.calculated_stock < quantity:
                             raise ValueError(f'Insufficient stock for {product.name}')
 
                         OrderItem.objects.create(
@@ -184,11 +195,22 @@ def checkout(request):
                     order.status = 'IN_PROGRESS'
                     order.save()
 
-                    # Deduct stock
-                    for item in order.items.all():
-                        product = item.product
-                        product.stock -= item.quantity
-                        product.save()
+                    # Deduct ingredients/stock using upgraded BOMService
+                    try:
+                        BOMService.deduct_ingredients_for_order(order)
+                    except Exception as e:
+                        # Fallback to simple stock deduction in case of service errors
+                        for item in order.items.all():
+                            product = item.product
+                            product.stock -= item.quantity
+                            product.save()
+
+                    # Send online receipt if customer provided email
+                    try:
+                        from sales_inventory_system.system.automation import send_online_receipt
+                        send_online_receipt(order)
+                    except Exception:
+                        pass
 
                 # Clear cart
                 request.session['cart'] = {}
@@ -206,7 +228,7 @@ def checkout(request):
                 messages.success(request, f'Order {order.order_number} placed successfully!')
                 return redirect('kiosk:order_status', order_number=order.order_number)
 
-        except ValueError as e:
+        except (ValueError, IngredientDeductionError) as e:
             # Check if AJAX request
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -215,6 +237,10 @@ def checkout(request):
                 })
             messages.error(request, str(e))
         except Exception as e:
+            import traceback
+            print("=== CHECKOUT EXCEPTION DETAIL ===")
+            traceback.print_exc()
+            print("=================================")
             # Check if AJAX request
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
@@ -252,7 +278,7 @@ def add_to_cart(request, product_id):
         try:
             product = get_object_or_404(Product, id=product_id, is_archived=False)
 
-            if product.stock <= 0:
+            if product.calculated_stock <= 0:
                 return JsonResponse({
                     'success': False,
                     'message': 'Product is out of stock'
@@ -268,10 +294,10 @@ def add_to_cart(request, product_id):
             new_quantity = current_quantity + quantity
 
             # Check stock availability
-            if new_quantity > product.stock:
+            if new_quantity > product.calculated_stock:
                 return JsonResponse({
                     'success': False,
-                    'message': f'Only {product.stock} items available in stock'
+                    'message': f'Only {product.calculated_stock} items available in stock'
                 })
 
             # Check ingredient availability
@@ -355,10 +381,10 @@ def update_cart_quantity(request, product_id):
                     'message': 'Quantity must be at least 1'
                 })
 
-            if quantity > product.stock:
+            if quantity > product.calculated_stock:
                 return JsonResponse({
                     'success': False,
-                    'message': f'Only {product.stock} items available'
+                    'message': f'Only {product.calculated_stock} items available'
                 })
 
             cart = get_cart(request)
@@ -407,7 +433,7 @@ def get_cart_details(request):
                     'name': product.name,
                     'price': float(product.price),
                     'image': product.image.url if product.image else None,
-                    'stock': product.stock
+                    'stock': product.calculated_stock
                 }
 
             return JsonResponse({
@@ -424,12 +450,71 @@ def get_cart_details(request):
 
 
 def search_order(request):
-    """Search for order by order number"""
+    """
+    Search for orders by order number or list of order numbers.
+    This view supports two distinct lookup modes:
+    1. Single Order Mode: Pass a single 'order_number' string to get detailed information about that specific order.
+    2. Batch Order Mode: Pass an 'order_numbers' list of strings to retrieve concise details for all requested orders,
+       which is used to populate the customer's local order history list.
+
+    Args:
+        request (HttpRequest): Django HTTP request object containing a JSON body with:
+            - 'order_number' (str, optional): A single order identifier to look up.
+            - 'order_numbers' (list of str, optional): A list of order identifiers to look up in batch.
+
+    Returns:
+        JsonResponse: A JSON response containing:
+            - If looking up a single order:
+                - 'success' (bool): True if found, False otherwise.
+                - 'order' (dict): Comprehensive order details including items, quantities, pricing, and status.
+            - If looking up batch orders:
+                - 'success' (bool): True if completed.
+                - 'orders' (list of dict): List of order details for each found order.
+            - If an error occurs:
+                - 'success' (bool): False.
+                - 'message' (str): User-friendly error message.
+    """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             order_number = data.get('order_number', '').strip()
+            order_numbers = data.get('order_numbers', [])
 
+            # Batch Lookup Mode
+            if order_numbers:
+                # Sanitize input: convert all to strings and strip whitespace
+                order_numbers_cleaned = [str(num).strip() for num in order_numbers if num]
+                
+                # Fetch all matching orders
+                orders = Order.objects.filter(order_number__in=order_numbers_cleaned).order_by('-created_at')
+                results = []
+                
+                for order in orders:
+                    items = []
+                    for order_item in order.items.all():
+                        items.append({
+                            'quantity': order_item.quantity,
+                            'product_name': order_item.product_name,
+                            'product_price': float(order_item.product_price),
+                            'subtotal': float(order_item.quantity * order_item.product_price)
+                        })
+                    
+                    results.append({
+                        'order_number': order.order_number,
+                        'customer_name': order.customer_name,
+                        'table_number': order.table_number,
+                        'status': order.status,
+                        'total_amount': float(order.total_amount),
+                        'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                        'items': items
+                    })
+                
+                return JsonResponse({
+                    'success': True,
+                    'orders': results
+                })
+
+            # Single Lookup Mode
             if not order_number:
                 return JsonResponse({
                     'success': False,
@@ -471,3 +556,56 @@ def search_order(request):
             })
 
     return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+@require_http_methods(["POST"])
+def request_receipt_ajax(request, order_number):
+    """
+    Sends an online receipt to the specified email address for a given kiosk order.
+    
+    Accepts:
+        - request: The HTTP POST request, containing JSON payload with:
+            - email: String containing the valid recipient email address.
+        - order_number: String representing the unique order number identifier (e.g., 'ORD-XXXXXX').
+        
+    Returns:
+        - JsonResponse: A JSON response dictionary stating success or failure:
+            - success: Boolean indicating if the receipt was sent successfully.
+            - message: Descriptive status message.
+    """
+    try:
+        # Retrieve the corresponding order
+        order = Order.objects.get(order_number=order_number)
+        
+        # Parse and validate request input (JSON)
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON request payload.'}, status=400)
+            
+        email = data.get('email', '').strip()
+        
+        # Sanitize and validate the email address
+        if not email or '@' not in email or '.' not in email:
+            return JsonResponse({'success': False, 'message': 'Please provide a valid email address.'}, status=400)
+            
+        # Update the order's customer email
+        order.customer_email = email
+        order.save()
+        
+        # Dispatch the online receipt
+        from sales_inventory_system.system.automation import send_online_receipt
+        send_online_receipt(order)
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Receipt successfully requested and emailed to {email}!'
+        })
+        
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Order not found.'}, status=404)
+    except Exception as err:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in request_receipt_ajax for {order_number}: {err}", exc_info=True)
+        return JsonResponse({'success': False, 'message': 'An internal error occurred while processing your receipt request.'}, status=500)

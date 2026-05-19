@@ -52,58 +52,78 @@ class BOMService:
                     product = order_item.product
                     quantity = order_item.quantity
 
-                    # STRICT: Product MUST have a recipe
-                    try:
-                        recipe = product.recipe
-                    except RecipeItem.DoesNotExist:
-                        raise IngredientDeductionError(
-                            f"Product '{product.name}' does not have a recipe defined. "
-                            "All products must have recipes before orders can be placed."
-                        )
-
-                    # STRICT: Check all ingredients are sufficient BEFORE any deductions
-                    for recipe_ingredient in recipe.ingredients.all():
-                        ingredient = recipe_ingredient.ingredient
-                        total_needed = recipe_ingredient.quantity * quantity
-
-                        if ingredient.current_stock < total_needed:
+                    if product.requires_bom:
+                        # STRICT: Product MUST have a recipe if it requires BOM
+                        if not hasattr(product, 'recipe'):
                             raise IngredientDeductionError(
-                                f"Insufficient '{ingredient.name}' for {product.name}. "
-                                f"Need {total_needed} {ingredient.unit}, but only {ingredient.current_stock} available."
+                                f"Product '{product.name}' requires a BOM but does not have a recipe defined."
+                            )
+                        recipe = product.recipe
+
+                        # STRICT: Check all ingredients are sufficient BEFORE any deductions
+                        for recipe_ingredient in recipe.ingredients.all():
+                            ingredient = recipe_ingredient.ingredient
+                            total_needed = recipe_ingredient.quantity * quantity
+
+                            if ingredient.current_stock < total_needed:
+                                raise IngredientDeductionError(
+                                    f"Insufficient '{ingredient.name}' for {product.name}. "
+                                    f"Need {total_needed} {ingredient.unit}, but only {ingredient.current_stock} available."
+                                )
+                    else:
+                        # Simple stock item, just check product stock
+                        if product.stock < quantity:
+                            raise IngredientDeductionError(
+                                f"Insufficient stock for '{product.name}'. "
+                                f"Need {quantity} pcs, but only {product.stock} available."
                             )
 
                 # SECOND PASS: Perform actual deductions (only if all validations passed)
                 for order_item in order.items.all():
                     product = order_item.product
                     quantity = order_item.quantity
-                    recipe = product.recipe  # Already validated to exist
+                    
+                    if product.requires_bom:
+                        recipe = product.recipe  # Already validated to exist
 
-                    for recipe_ingredient in recipe.ingredients.all():
-                        ingredient = recipe_ingredient.ingredient
-                        total_needed = recipe_ingredient.quantity * quantity
+                        for recipe_ingredient in recipe.ingredients.all():
+                            ingredient = recipe_ingredient.ingredient
+                            total_needed = recipe_ingredient.quantity * quantity
 
-                        # Deduct from ingredient stock
-                        ingredient.current_stock -= total_needed
-                        ingredient.save()
+                            # Deduct from ingredient stock
+                            ingredient.current_stock -= total_needed
+                            ingredient.save()
 
-                        # Create stock transaction
-                        StockTransaction.objects.create(
-                            ingredient=ingredient,
-                            transaction_type='DEDUCTION',
-                            quantity=total_needed,
-                            unit_cost=0,
-                            reference_type='order',
-                            reference_id=order.id,
-                            notes=f"Deduction for {product.name} (Order: {order.order_number})",
-                            recorded_by=user
-                        )
+                            # Create stock transaction
+                            StockTransaction.objects.create(
+                                ingredient=ingredient,
+                                transaction_type='DEDUCTION',
+                                quantity=total_needed,
+                                unit_cost=0,
+                                reference_type='order',
+                                reference_id=order.id,
+                                notes=f"Deduction for {product.name} (Order: {order.order_number})",
+                                recorded_by=user
+                            )
 
+                            deductions.append({
+                                'ingredient': ingredient.name,
+                                'quantity_deducted': total_needed,
+                                'unit': ingredient.unit,
+                                'cost': 0,
+                                'remaining_stock': ingredient.current_stock
+                            })
+                    else:
+                        # Simple stock item deduction
+                        product.stock -= quantity
+                        product.save()
+                        
                         deductions.append({
-                            'ingredient': ingredient.name,
-                            'quantity_deducted': total_needed,
-                            'unit': ingredient.unit,
+                            'ingredient': product.name,
+                            'quantity_deducted': quantity,
+                            'unit': 'pcs',
                             'cost': 0,
-                            'remaining_stock': ingredient.current_stock
+                            'remaining_stock': product.stock
                         })
 
                 return {
@@ -131,25 +151,48 @@ class BOMService:
         Returns:
             dict: Availability status with shortage details
         """
+        from .models import Product
+        
         try:
-            recipe = RecipeItem.objects.prefetch_related(
-                'ingredients__ingredient'
-            ).get(product_id=product_id)
-        except RecipeItem.DoesNotExist:
-            # STRICT: Product MUST have a recipe
-            from .models import Product
-            try:
-                product = Product.objects.get(id=product_id)
-                product_name = product.name
-            except Product.DoesNotExist:
-                product_name = f"Product #{product_id}"
-
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
             return {
                 'available': False,
                 'has_recipe': False,
-                'error': f"Product '{product_name}' does not have a recipe defined. All products must have recipes.",
+                'error': f"Product #{product_id} does not exist.",
                 'shortages': []
             }
+            
+        if not product.requires_bom:
+            if product.stock < quantity:
+                return {
+                    'available': False,
+                    'has_recipe': False,
+                    'shortages': [{
+                        'ingredient': product.name,
+                        'needed': quantity,
+                        'available': product.stock,
+                        'shortage': quantity - product.stock,
+                        'unit': 'pcs',
+                        'reason': 'Insufficient product stock'
+                    }],
+                    'total_shortages': 1
+                }
+            return {
+                'available': True,
+                'has_recipe': False,
+                'shortages': [],
+                'total_shortages': 0
+            }
+
+        if not hasattr(product, 'recipe'):
+            return {
+                'available': False,
+                'has_recipe': False,
+                'error': f"Product '{product.name}' requires a BOM but has no recipe defined.",
+                'shortages': []
+            }
+        recipe = product.recipe
 
         shortages = []
 

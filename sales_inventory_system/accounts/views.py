@@ -1,8 +1,20 @@
+# ==============================================================================
+# FJC-PIZZA SALES & INVENTORY MANAGEMENT SYSTEM
+# File: accounts/views.py
+# Purpose: Handles authentication, session management, and staff (User) administration.
+# Contains:
+#   - Authentication Views: login_view, logout_view
+#   - Staff Administration Views: user_list, user_create, user_edit, user_archive, user_unarchive
+#   - Security & Logging: is_admin, user_audit_trail
+# How it fits: This file serves as the gatekeeper for user authentication and role-based
+# access controls, providing secure views for staff registration, updates, audits, and
+# status toggle operations, feeding logs into the central system's AuditTrail.
+# ==============================================================================
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.urls import reverse
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -10,7 +22,17 @@ from .models import User
 from sales_inventory_system.system.models import AuditTrail
 
 def login_view(request):
-    """Handle user login"""
+    """
+    Handle user login and session establishment.
+    
+    Accepts:
+        request (HttpRequest): Contains POST parameters 'username' and 'password'.
+        
+    Returns/Renders:
+        HttpResponse: Renders 'accounts/login.html' template or redirects to the
+        appropriate dashboard based on user role (Admin -> admin_dashboard,
+        Cashier -> cashier_pos, other -> home).
+    """
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -42,21 +64,50 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
-    """Handle user logout"""
+    """
+    Handle user logout and clear current session.
+    
+    Accepts:
+        request (HttpRequest): Current active user request session.
+        
+    Returns/Renders:
+        HttpResponseRedirect: Redirects back to the login page.
+    """
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
     return redirect('accounts:login')
 
 
 def is_admin(user):
-    """Check if user is admin"""
+    """
+    Check if the authenticated user has Admin permissions.
+    
+    Accepts:
+        user (User): The user model instance to validate.
+        
+    Returns:
+        bool: True if user is authenticated and possesses the ADMIN role, False otherwise.
+    """
     return user.is_authenticated and user.is_admin
 
 
 @login_required
 @user_passes_test(is_admin)
 def user_list(request):
-    """List all users (admin only) with async filtering support"""
+    """
+    List all system users with search, role filters, and pagination.
+    Supports asynchronous AJAX filtering requests for enhanced UI responsiveness.
+    
+    Accepts:
+        request (HttpRequest): Contains GET parameters:
+            - 'role': Filtering criterion for roles (e.g. 'ADMIN', 'CASHIER').
+            - 'search': Search query matched against name/username/email.
+            - 'page': Active page number for pagination.
+            
+    Returns/Renders:
+        HttpResponse/JsonResponse: Renders 'accounts/user_list.html' or returns a 
+        JSON payload containing filtered paginated users if requested via AJAX.
+    """
     # Get filter parameters
     role_filter = request.GET.get('role', '')
     search_query = request.GET.get('search', '')
@@ -139,7 +190,17 @@ def user_list(request):
 @login_required
 @user_passes_test(is_admin)
 def user_create(request):
-    """Create a new user (admin only)"""
+    """
+    Create a new system user with staff role permissions (admin only).
+    
+    Accepts:
+        request (HttpRequest): Contains POST parameter details including username,
+        email, passwords, role, first name, last name, and phone.
+        
+    Returns/Renders:
+        HttpResponse: Renders the user form ('accounts/user_form.html') or redirects
+        to 'accounts:user_list' upon successful user registration.
+    """
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -178,7 +239,17 @@ def user_create(request):
 @login_required
 @user_passes_test(is_admin)
 def user_edit(request, pk):
-    """Edit existing user (admin only)"""
+    """
+    Edit profile details and roles for an existing staff member (admin only).
+    
+    Accepts:
+        request (HttpRequest): Contains POST updates for profile data and passwords.
+        pk (int): Primary key of the staff user to edit.
+        
+    Returns/Renders:
+        HttpResponse: Renders filled 'accounts/user_form.html' or redirects to
+        'accounts:user_list' upon successful profile saving.
+    """
     user = get_object_or_404(User, pk=pk)
 
     # Prevent editing superuser
@@ -214,54 +285,22 @@ def user_edit(request, pk):
 @login_required
 @user_passes_test(is_admin)
 def user_archive(request, pk):
-    """Archive or unarchive user (admin only)"""
+    """
+    Archive a staff user to block login access, creating an audit log (admin only).
+    
+    Accepts:
+        request (HttpRequest): Active session context.
+        pk (int): Primary key of the staff user to archive.
+        
+    Returns/Renders:
+        HttpResponseRedirect: Redirects back to the staff user list page.
+    """
     user = get_object_or_404(User, pk=pk)
 
     # Prevent archiving superuser
     if user.is_superuser:
         messages.error(request, 'Cannot archive superuser account.')
         return redirect('accounts:user_list')
-
-    # Prevent archiving self
-    if user == request.user:
-        messages.error(request, 'Cannot archive your own account.')
-        return redirect('accounts:user_list')
-
-    user.is_archived = not user.is_archived
-    user.save()
-
-    action = 'archived' if user.is_archived else 'restored'
-    messages.success(request, f'User {user.username} {action} successfully!')
-    return redirect('accounts:user_list')
-
-
-@login_required
-@user_passes_test(is_admin)
-def user_audit_trail(request, pk):
-    """View audit trail for a specific user (admin only)"""
-    user = get_object_or_404(User, pk=pk)
-
-    # Get audit logs for this user
-    audit_logs = AuditTrail.objects.filter(user=user).select_related('user').order_by('-created_at')
-
-    # Pagination
-    paginator = Paginator(audit_logs, 50)  # 50 logs per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'user': user,
-        'audit_logs': page_obj,
-        'total_actions': paginator.count,
-    }
-    return render(request, 'accounts/user_audit_trail.html', context)
-
-
-@login_required
-@user_passes_test(is_admin)
-def user_archive(request, pk):
-    """Archive a user/staff member"""
-    user = get_object_or_404(User, pk=pk)
 
     # Prevent archiving yourself
     if user.id == request.user.id:
@@ -288,7 +327,16 @@ def user_archive(request, pk):
 @login_required
 @user_passes_test(is_admin)
 def user_unarchive(request, pk):
-    """Restore an archived user/staff member"""
+    """
+    Restore an archived staff user, restoring login capabilities and creating an audit log (admin only).
+    
+    Accepts:
+        request (HttpRequest): Active session context.
+        pk (int): Primary key of the archived staff user to restore.
+        
+    Returns/Renders:
+        HttpResponseRedirect: Redirects back to the staff user list page.
+    """
     user = get_object_or_404(User, pk=pk, is_archived=True)
 
     user.is_archived = False
@@ -305,4 +353,36 @@ def user_unarchive(request, pk):
     )
 
     messages.success(request, f'User "{user.username}" restored successfully!')
-    return redirect('accounts:archived_list')
+    return redirect('accounts:user_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def user_audit_trail(request, pk):
+    """
+    View paginated history logs (AuditTrail) for a specific user (admin only).
+    
+    Accepts:
+        request (HttpRequest): Standard paginated request.
+        pk (int): Primary key of the user whose logs are fetched.
+        
+    Returns/Renders:
+        HttpResponse: Renders 'accounts/user_audit_trail.html' showing log list.
+    """
+    user = get_object_or_404(User, pk=pk)
+
+    # Get audit logs for this user
+    audit_logs = AuditTrail.objects.filter(user=user).select_related('user').order_by('-created_at')
+
+    # Pagination
+    paginator = Paginator(audit_logs, 50)  # 50 logs per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'user': user,
+        'audit_logs': page_obj,
+        'total_actions': paginator.count,
+    }
+    return render(request, 'accounts/user_audit_trail.html', context)
+

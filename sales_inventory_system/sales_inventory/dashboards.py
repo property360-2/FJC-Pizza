@@ -1,24 +1,67 @@
-"""
-Dashboard views for different user roles
-"""
+# ==============================================================================
+# FJC-PIZZA SALES & INVENTORY MANAGEMENT SYSTEM
+# File: sales_inventory/dashboards.py
+# Purpose: Dashboard views for different user roles (Admin & Cashier).
+# Contains:
+#   - User verification helpers: is_admin, is_cashier
+#   - Admin Dashboard View: admin_dashboard
+#   - Cashier Point of Sale (POS) View: cashier_pos
+# How it fits: This file bridges system data models (Products, Orders, Payments) 
+# and user interfaces by aggregating key statistics, active/pending metrics, and 
+# status counts into digestible dashboard and POS contexts for role-restricted templates.
+# ==============================================================================
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import F, Sum, Count, Q
+from django.db.models import Sum
 from django.utils import timezone
 from sales_inventory_system.products.models import Product
 from sales_inventory_system.orders.models import Order, Payment
 from decimal import Decimal
 
 def is_admin(user):
+    """
+    Verify whether the provided user is authenticated and carries the Admin role.
+    
+    Accepts:
+        user (User): The user model instance to inspect.
+        
+    Returns:
+        bool: True if the user is authenticated and is an admin; otherwise, False.
+    """
     return user.is_authenticated and user.is_admin
 
+
 def is_cashier(user):
+    """
+    Verify whether the provided user is authenticated and carries the Cashier role.
+    
+    Accepts:
+        user (User): The user model instance to inspect.
+        
+    Returns:
+        bool: True if the user is authenticated and is a cashier; otherwise, False.
+    """
     return user.is_authenticated and user.is_cashier
+
 
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
-    """Admin dashboard with overview statistics"""
+    """
+    Aggregate system-wide statistics to compile and render the Admin Dashboard interface.
+    The view calculates product counts, identifies low stock levels (accounting for 
+    BOM dependencies via Product.calculated_stock), collects active order statuses 
+    (pending, in progress), and aggregates revenue (today vs lifetime) from successfully 
+    processed payments.
+    
+    Accepts:
+        request (HttpRequest): Current active HTTP request session.
+        
+    Returns/Renders:
+        HttpResponse: Renders the 'dashboards/admin.html' template with a populated 
+        context containing product and order counts, recent logs, and revenue metrics.
+    """
 
     # Get statistics
     total_products = Product.objects.filter(is_archived=False).count()
@@ -71,7 +114,19 @@ def admin_dashboard(request):
 @login_required
 @user_passes_test(is_cashier)
 def cashier_pos(request):
-    """Cashier POS interface"""
+    """
+    Manage, format, and render the Cashier POS (Point of Sale) operator panel.
+    Retrieves and displays lists of orders grouped by status (pending, in_progress, 
+    finished) and computes real-time daily metrics such as completed order count, 
+    total processed orders, and cumulative success-state revenue.
+    
+    Accepts:
+        request (HttpRequest): Current active HTTP request session.
+        
+    Returns/Renders:
+        HttpResponse: Renders the 'dashboards/pos.html' template with complete order lists
+        and POS operational metrics.
+    """
 
     # Get orders by status with prefetch for efficiency
     pending_orders = Order.objects.filter(status='PENDING').select_related('payment').prefetch_related('items__product').order_by('-created_at')
@@ -95,3 +150,4 @@ def cashier_pos(request):
     }
 
     return render(request, 'dashboards/pos.html', context)
+

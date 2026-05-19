@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -112,27 +111,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "sales_inventory.wsgi.application"
 
 
-# Database
+# Database Configuration
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-
-# Database configuration - Use DATABASE_URL if available (Render), otherwise use individual settings (local development)
-if os.getenv("DATABASE_URL"):
-    DATABASES = {
-        "default": dj_database_url.config(
-            default=os.getenv("DATABASE_URL"),
-            conn_max_age=int(os.getenv("DB_CONN_MAX_AGE", "600")),
-            conn_health_checks=True,
-        )
+#
+# SQLite is used exclusively for now to simplify local school development and testing.
+# This ensures that no PostgreSQL external database drivers or environment variables
+# are required to run the core sales and inventory management application.
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:
-    # Default to SQLite for local development as requested
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # Password validation
@@ -257,3 +247,19 @@ if not DEBUG:
             "django.template.loaders.app_directories.Loader",
         ]),
     ]
+
+# Email Configuration & SMTP Setup with Smart Console Fallback
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    # If no credentials exist, fallback to console printer so local order checkout never crashes
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "FCJ Pizza <receipts@fcjpizza.com>")
+

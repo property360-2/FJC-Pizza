@@ -129,9 +129,9 @@ class DataIntegrityTests(QATest):
         ingredient_count = Ingredient.objects.count()
         self.test("Ingredients exist", ingredient_count > 0, f"Found {ingredient_count} ingredients")
 
-        invalid_cost = Ingredient.objects.filter(cost_per_unit__lte=0)
-        self.test("All ingredients have valid cost", invalid_cost.count() == 0,
-                 f"Found {invalid_cost.count()} ingredients with invalid cost")
+        invalid_variance = Ingredient.objects.filter(variance_allowance__lt=0)
+        self.test("All ingredients have valid variance allowance", invalid_variance.count() == 0,
+                 f"Found {invalid_variance.count()} ingredients with negative variance")
 
         negative_stock = Ingredient.objects.filter(current_stock__lt=0)
         self.test("All ingredients have non-negative stock", negative_stock.count() == 0,

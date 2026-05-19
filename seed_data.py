@@ -251,13 +251,32 @@ def seed_products():
 
 
 def seed_orders():
-    """Create sample orders"""
+    """
+    Generate sample orders and successful payments for the last 60 days.
+    This creates realistic daily sales volume across a multi-week historical horizon,
+    which is essential for the Holt-Winters Exponential Smoothing forecasting engine
+    in the Analytics module to detect weekly seasonal patterns and generate high-fidelity
+    predictive models.
+
+    The method performs the following:
+    1. Fetches cashiers and administrators to assign as processing employees.
+    2. Fetches all registered products in the system.
+    3. Loops backwards day-by-day for the last 60 days.
+    4. For each day, seeds a random number of orders (between 1 and 4 orders per day)
+       with randomized customer names, table assignments, and time-stamps.
+    5. Calculates totals and marks payments as SUCCESS for all completed orders.
+    6. Retains a few PENDING or IN_PROGRESS orders for the current day to preserve live system testing.
+
+    Returns:
+        int: Total number of orders successfully created.
+    """
+    import random
     from django.utils import timezone
     from sales_inventory_system.accounts.models import User
     from sales_inventory_system.products.models import Product
     from sales_inventory_system.orders.models import Order, OrderItem, Payment
 
-    print("\n📦 Seeding orders...")
+    print("\n📦 Seeding historical orders across the last 60 days (for Analytics Forecast)...")
 
     try:
         # Get admin and cashier users
@@ -280,78 +299,93 @@ def seed_orders():
             print("  ⏭️  Skipping order creation")
             return 0
 
-        # Sample customer data
+        # Sample customer names
         customers = [
-            ('Alice Johnson', 'T01'),
-            ('Bob Smith', 'T02'),
-            ('Carol Williams', 'T03'),
-            ('David Brown', 'T04'),
-            ('Emma Davis', 'T05'),
-            ('Frank Miller', 'T06'),
-            ('Grace Lee', 'T07'),
-            ('Henry Wilson', 'T08'),
+            'Alice Johnson', 'Bob Smith', 'Carol Williams', 'David Brown',
+            'Emma Davis', 'Frank Miller', 'Grace Lee', 'Henry Wilson',
+            'Isabella Garcia', 'Jack Martinez', 'Karen Rodriguez', 'Liam Wilson',
+            'Mia Anderson', 'Noah Thomas', 'Olivia Taylor', 'Peter Thomas'
         ]
 
         created_count = 0
         existing_count = Order.objects.count()
 
-        # Create 10 varied orders
-        for i in range(10):
-            customer_name, table = customers[i % len(customers)]
+        # Generate orders daily for the last 60 days to build a rich historical record
+        for days_ago in range(60, -1, -1):
+            base_date = timezone.now() - timedelta(days=days_ago)
+            
+            # Skip seeding a day occasionally to make data realistic, but keep most days populated
+            if days_ago > 0 and random.random() < 0.05:
+                continue
 
-            # Vary the order status
-            if i < 2:
-                status = 'PENDING'
-                payment_status = 'PENDING'
-                payment_method = 'CASH'
-                processed_by = None
-            elif i < 5:
-                status = 'IN_PROGRESS'
-                payment_status = 'SUCCESS'
-                payment_method = 'CASH' if i % 2 == 0 else 'ONLINE'
-                processed_by = cashier or admin
-            else:
-                status = 'FINISHED'
-                payment_status = 'SUCCESS'
-                payment_method = 'ONLINE' if i % 3 == 0 else 'CASH'
-                processed_by = cashier or admin
+            # Generate 1 to 4 orders per day
+            num_orders = random.randint(1, 4)
+            for i in range(num_orders):
+                customer_name = random.choice(customers)
+                table = f"T{random.randint(1, 12):02d}"
 
-            # Create order
-            order = Order.objects.create(
-                customer_name=customer_name,
-                table_number=table,
-                status=status,
-                notes='Extra napkins' if i % 3 == 0 else '',
-                processed_by=processed_by,
-                created_at=timezone.now() - timedelta(hours=i)
-            )
+                # Assign order times between 11 AM and 9 PM
+                order_hour = random.randint(11, 21)
+                order_minute = random.randint(0, 59)
+                order_second = random.randint(0, 59)
+                
+                created_at = base_date.replace(hour=order_hour, minute=order_minute, second=order_second)
 
-            # Add 2-4 random items
-            num_items = 2 + (i % 3)
-            for j in range(num_items):
-                product_index = (i * 3 + j) % len(products)
-                OrderItem.objects.create(
-                    order=order,
-                    product=products[product_index],
-                    quantity=1 + (j % 2)
+                # Determine status and payment status:
+                # Almost all past orders are FINISHED and successful.
+                # Today's orders (days_ago == 0) can have live PENDING/IN_PROGRESS statuses.
+                if days_ago == 0 and i == 0:
+                    status = 'PENDING'
+                    payment_status = 'PENDING'
+                    payment_method = 'CASH'
+                    processed_by = None
+                elif days_ago == 0 and i == 1:
+                    status = 'IN_PROGRESS'
+                    payment_status = 'SUCCESS'
+                    payment_method = 'ONLINE'
+                    processed_by = cashier or admin
+                else:
+                    status = 'FINISHED'
+                    payment_status = 'SUCCESS'
+                    payment_method = 'ONLINE' if random.random() < 0.4 else 'CASH'
+                    processed_by = cashier or admin
+
+                # Create the order
+                order = Order.objects.create(
+                    customer_name=customer_name,
+                    table_number=table,
+                    status=status,
+                    notes='Extra sauce' if random.random() < 0.15 else '',
+                    processed_by=processed_by,
+                    created_at=created_at
                 )
 
-            # Calculate total
-            order.calculate_total()
+                # Add 1 to 4 random products as items
+                num_items = random.randint(1, 4)
+                selected_products = random.sample(products, num_items)
+                for product in selected_products:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        quantity=random.randint(1, 3)
+                    )
 
-            # Create payment
-            Payment.objects.create(
-                order=order,
-                method=payment_method,
-                status=payment_status,
-                amount=order.total_amount,
-                processed_by=processed_by
-            )
+                # Calculate total
+                order.calculate_total()
 
-            print(f"  ✅ Created: {order.order_number} ({status}, {payment_method})")
-            created_count += 1
+                # Create payment
+                Payment.objects.create(
+                    order=order,
+                    method=payment_method,
+                    status=payment_status,
+                    amount=order.total_amount,
+                    processed_by=processed_by,
+                    created_at=created_at
+                )
 
-        print(f"\n📊 Orders: {created_count} created, {existing_count} already existed")
+                created_count += 1
+
+        print(f"\n📊 Orders: {created_count} historical orders created, {existing_count} already existed")
         return created_count
 
     except Exception as e:

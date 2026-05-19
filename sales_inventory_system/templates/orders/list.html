@@ -1,5 +1,28 @@
 {% extends 'base.html' %}
 
+{% comment %}
+================================================================================
+Order Listing and Management Dashboard
+================================================================================
+Purpose:
+  This template renders the primary order management list for cashiers and admin
+  staff of FCJ Pizza. It displays a comprehensive overview of active, completed,
+  and pending orders.
+
+Features:
+  - Real-time search and multi-filtering (status choices, relative time ranges)
+  - Seamless AJAX-based content loading and live re-rendering of lists
+  - Dual responsive design (Sleek Tailwind table on desktop, touch-friendly card list on mobile)
+  - Quick actions including cash cashier payment processing, status updates ("Done"), and order archiving
+  - Accessible interaction models with global confirmation modals and premium notification toasts
+
+Integration:
+  - Extends 'base.html' to inherit design theme and core navigation blocks.
+  - Leverages global components/confirm_modal.html for action confirmations.
+  - Integrates global components/toast.html for notifications and request lifecycle management.
+================================================================================
+{% endcomment %}
+
 {% block title %}Orders - FCJ Pizza{% endblock %}
 
 {% block content %}
@@ -199,10 +222,24 @@
                             <span class="text-gray-500">Date:</span>
                             <span class="text-gray-900">{{ order.created_at|date:"M d, Y g:i A" }}</span>
                         </div>
+                    <div class="flex gap-2">
+                        {% if order.status == 'PENDING' %}
+                            <button onclick="openPaymentModal({{ order.pk }}, {{ order.total_amount }})" class="flex-1 bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-1">
+                                <span class="material-icons text-sm">money</span> Pay
+                            </button>
+                        {% elif order.status == 'IN_PROGRESS' %}
+                            <button onclick="markOrderCompleted({{ order.pk }})" class="flex-1 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
+                                <span class="material-icons text-sm">check_circle</span> Done
+                            </button>
+                        {% elif order.status == 'FINISHED' %}
+                            <button onclick="archiveOrder({{ order.pk }})" class="flex-1 bg-gray-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-1">
+                                <span class="material-icons text-sm">archive</span> Archive
+                            </button>
+                        {% endif %}
+                        <a href="{% url 'orders:detail' order.pk %}" class="{% if order.status == 'PENDING' or order.status == 'IN_PROGRESS' or order.status == 'FINISHED' %}flex-1{% else %}w-full{% endif %} text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-1">
+                            <span class="material-icons text-sm">visibility</span> View Details
+                        </a>
                     </div>
-                    <a href="{% url 'orders:detail' order.pk %}" class="block w-full text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                        View Details
-                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -310,29 +347,7 @@
     </div>
 </div>
 
-<!-- Modern Confirmation Modal -->
-<div id="confirmation-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform transition-all">
-        <!-- Icon -->
-        <div class="flex justify-center mb-4">
-            <div id="confirmation-icon" class="text-5xl">❓</div>
-        </div>
-
-        <!-- Title and Message -->
-        <h2 id="confirmation-title" class="text-2xl font-bold text-gray-900 text-center mb-2">Confirm Action</h2>
-        <p id="confirmation-message" class="text-gray-600 text-center mb-6">Are you sure you want to proceed?</p>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-3">
-            <button onclick="closeConfirmationModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg transition">
-                Cancel
-            </button>
-            <button id="confirmation-btn" class="flex-1 bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition">
-                Confirm
-            </button>
-        </div>
-    </div>
-</div>
+<!-- NOTE: Removed duplicate #confirmation-modal in favor of global ConfirmModal from confirm_modal.html -->
 
 <script>
 // Debounce function
@@ -453,21 +468,45 @@ function renderOrders(orders, pagination) {
                 break;
         }
 
+        let actionsHtml = '';
+        if (order.status === 'PENDING') {
+            actionsHtml = `
+                <button onclick="openPaymentModal(${order.id}, ${order.total_amount})" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition flex items-center gap-1">
+                    <span class="material-icons text-sm">money</span> Pay
+                </button>
+            `;
+        } else if (order.status === 'IN_PROGRESS') {
+            actionsHtml = `
+                <button onclick="markOrderCompleted(${order.id})" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition flex items-center gap-1">
+                    <span class="material-icons text-sm">check_circle</span> Done
+                </button>
+            `;
+        } else if (order.status === 'FINISHED') {
+            actionsHtml = `
+                <button onclick="archiveOrder(${order.id})" class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition flex items-center gap-1">
+                    <span class="material-icons text-sm">archive</span> Archive
+                </button>
+            `;
+        }
+
         html += `
             <tr class="hover:bg-gray-50 transition">
                 <td class="px-6 py-4">
                     <span class="font-semibold text-gray-900">${order.order_number}</span>
                 </td>
                 <td class="px-6 py-4 text-gray-600">${order.customer_name}</td>
-                <td class="px-6 py-4 text-gray-600">${order.table_number}</td>
+                <td class="px-6 py-4 text-gray-600">${order.table_number || '-'}</td>
                 <td class="px-6 py-4 text-sm text-gray-600">${order.items_summary}</td>
                 <td class="px-6 py-4 font-medium text-fjc-blue-600">₱${order.total_amount}</td>
                 <td class="px-6 py-4 text-sm text-gray-600">${order.created_at}</td>
                 <td class="px-6 py-4">${badgeHtml}</td>
                 <td class="px-6 py-4">
-                    <a href="/orders/${order.id}/" class="text-fjc-blue-600 hover:text-fjc-blue-700 font-medium text-sm">
-                        View
-                    </a>
+                    <div class="space-x-2 flex">
+                        ${actionsHtml}
+                        <a href="/orders/${order.id}/" class="bg-fjc-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-fjc-blue-700 transition flex items-center gap-1">
+                            <span class="material-icons text-sm">visibility</span> View
+                        </a>
+                    </div>
                 </td>
             </tr>
         `;
@@ -500,6 +539,27 @@ function renderOrders(orders, pagination) {
                 break;
         }
 
+        let mobileActionsHtml = '';
+        if (order.status === 'PENDING') {
+            mobileActionsHtml = `
+                <button onclick="openPaymentModal(${order.id}, ${order.total_amount})" class="flex-1 bg-green-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-1">
+                    <span class="material-icons text-sm">money</span> Pay
+                </button>
+            `;
+        } else if (order.status === 'IN_PROGRESS') {
+            mobileActionsHtml = `
+                <button onclick="markOrderCompleted(${order.id})" class="flex-1 bg-blue-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-1">
+                    <span class="material-icons text-sm">check_circle</span> Done
+                </button>
+            `;
+        } else if (order.status === 'FINISHED') {
+            mobileActionsHtml = `
+                <button onclick="archiveOrder(${order.id})" class="flex-1 bg-gray-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-1">
+                    <span class="material-icons text-sm">archive</span> Archive
+                </button>
+            `;
+        }
+
         html += `
             <div class="p-4 hover:bg-gray-50 transition">
                 <div class="flex justify-between items-start mb-3">
@@ -512,7 +572,7 @@ function renderOrders(orders, pagination) {
                 <div class="space-y-2 mb-3">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Table:</span>
-                        <span class="text-gray-900">${order.table_number}</span>
+                        <span class="text-gray-900">${order.table_number || '-'}</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Items:</span>
@@ -527,9 +587,12 @@ function renderOrders(orders, pagination) {
                         <span class="text-gray-900">${order.created_at}</span>
                     </div>
                 </div>
-                <a href="/orders/${order.id}/" class="block w-full text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                    View Details
-                </a>
+                <div class="flex gap-2">
+                    ${mobileActionsHtml}
+                    <a href="/orders/${order.id}/" class="${mobileActionsHtml ? 'flex-1' : 'w-full'} text-center bg-fjc-blue-600 hover:bg-fjc-blue-700 text-white font-medium py-2 px-4 rounded-lg transition flex items-center justify-center gap-1">
+                        <span class="material-icons text-sm">visibility</span> View Details
+                    </a>
+                </div>
             </div>
         `;
     });
@@ -637,50 +700,47 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold shadow-lg ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-// Open confirmation modal
-function openConfirmationModal(title, message, icon, onConfirm) {
-    const modal = document.getElementById('confirmation-modal');
-    document.getElementById('confirmation-title').textContent = title;
-    document.getElementById('confirmation-message').textContent = message;
-    document.getElementById('confirmation-icon').textContent = icon;
-
-    // Set the confirmation button action
-    const confirmBtn = document.getElementById('confirmation-btn');
-    confirmBtn.onclick = () => {
-        closeConfirmationModal();
-        onConfirm();
-    };
-
-    // Close on backdrop click
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            closeConfirmationModal();
+/**
+ * Retrieves the value of a specific cookie by its name. This is standard utility
+ * function used primarily to extract the CSRF token ('csrftoken') required by
+ * Django to authenticate state-changing POST requests.
+ *
+ * @param {string} name - The name of the cookie to retrieve.
+ * @returns {string|null} The decoded value of the cookie if found, or null if it does not exist.
+ */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
-    };
-
-    modal.classList.remove('hidden');
+    }
+    return cookieValue;
 }
 
-// Close confirmation modal
-function closeConfirmationModal() {
-    document.getElementById('confirmation-modal').classList.add('hidden');
-}
-
-// Mark order as completed
+/**
+ * Initiates an order completion request. Prompts the user using the global ConfirmModal
+ * dialog. If confirmed by the user, makes an asynchronous fetch POST request to update
+ * the order's status to 'FINISHED'. Displays dynamic, styled feedback toasts upon success
+ * or failure and reloads the order list without triggering a full page refresh.
+ *
+ * @param {number} orderId - The unique integer identifier of the Order database record.
+ * @returns {void}
+ */
 function markOrderCompleted(orderId) {
-    openConfirmationModal(
-        '<span class="material-icons">check_circle</span> Mark as Completed?',
-        'This will mark the order as finished and completed.',
-        '<span class="material-icons">check_circle</span>',
-        () => {
+    ConfirmModal.show({
+        title: 'Complete Order',
+        message: 'Are you sure you want to mark this order as completed? This will update the order status to finished.',
+        confirmText: 'Done',
+        cancelText: 'Cancel',
+        type: 'info',
+        onConfirm: () => {
+            // NOTE: CSRF token is mandatory for state-changing POST requests
             fetch(`/orders/${orderId}/update-status/`, {
                 method: 'POST',
                 headers: {
@@ -689,51 +749,72 @@ function markOrderCompleted(orderId) {
                 },
                 body: JSON.stringify({ status: 'FINISHED' })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    showToast('Order completed!');
-                    // Reload orders without page reload
+                    Toast.success('Order completed successfully!');
                     loadOrders(1);
                 } else {
-                    showToast(data.message || 'Error updating order', 'error');
+                    Toast.error(data.message || 'Error updating order status');
                 }
             })
             .catch(error => {
-                showToast('Error: ' + error.message, 'error');
+                // FIXME: Avoid exposing raw stack traces, log to console and show a clean message
+                console.error('Error completing order:', error);
+                Toast.error('An error occurred while marking the order as completed.');
             });
         }
-    );
+    });
 }
 
-// Archive order
+/**
+ * Initiates an order archiving request. Prompts the user using the global ConfirmModal
+ * dialog. If confirmed, sends an asynchronous POST request to archive the order.
+ * Displays styled feedback toasts and dynamically reloads the list without page refresh.
+ *
+ * @param {number} orderId - The unique database ID of the order to archive.
+ * @returns {void}
+ */
 function archiveOrder(orderId) {
-    openConfirmationModal(
-        ' Archive Order?',
-        'This order will be moved to archives and hidden from the main list.',
-        '📦',
-        () => {
+    ConfirmModal.show({
+        title: 'Archive Order',
+        message: 'This order will be moved to the archives and hidden from the main orders list. Proceed?',
+        confirmText: 'Archive',
+        cancelText: 'Cancel',
+        type: 'warning',
+        onConfirm: () => {
             fetch(`/orders/${orderId}/archive/`, {
                 method: 'POST',
                 headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRFToken': getCookie('csrftoken')
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    showToast('Order archived!');
-                    // Reload orders without page reload
+                    Toast.success('Order archived successfully!');
                     loadOrders(1);
                 } else {
-                    showToast(data.message || 'Error archiving order', 'error');
+                    Toast.error(data.message || 'Error archiving order');
                 }
             })
             .catch(error => {
-                showToast('Error: ' + error.message, 'error');
+                console.error('Error archiving order:', error);
+                Toast.error('An error occurred while archiving the order.');
             });
         }
-    );
+    });
 }
 
 // Open payment modal
@@ -799,22 +880,29 @@ function updateChangeDisplay() {
 }
 
 // Process quick payment
+/**
+ * Processes quick payment for an order by posting the cashier-collected cash amount
+ * to the backend database. Displays standard dynamic toast notifications for feedback
+ * and updates the page state asynchronously.
+ *
+ * @returns {void}
+ */
 function processQuickPayment() {
     const orderId = document.getElementById('payment-order-id').value;
     const cashAmount = parseFloat(document.getElementById('cash-amount-input').value);
     const orderAmount = parseFloat(document.getElementById('order-amount-display').textContent.replace('₱', ''));
 
     if (!cashAmount || cashAmount <= 0) {
-        showToast('Invalid amount', 'error');
+        Toast.error('Invalid cash amount.');
         return;
     }
 
     if (cashAmount < orderAmount) {
-        showToast('Insufficient cash amount', 'error');
+        Toast.error('Insufficient cash amount.');
         return;
     }
 
-    // Show loading state
+    // Show loading state and disable navigation buttons to prevent double submission
     const loadingDiv = document.getElementById('payment-loading');
     const confirmBtn = document.getElementById('confirm-payment-btn');
     const cancelBtn = document.getElementById('cancel-payment-btn');
@@ -833,11 +921,16 @@ function processQuickPayment() {
         },
         body: JSON.stringify({ cash_amount: cashAmount })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             closePaymentModal();
-            showToast('Payment processed!');
+            Toast.success('Payment successfully processed!');
             // Reload orders without page reload
             loadOrders(1);
         } else {
@@ -926,13 +1019,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             const paymentModal = document.getElementById('payment-modal');
-            const confirmationModal = document.getElementById('confirmation-modal');
 
             if (paymentModal && !paymentModal.classList.contains('hidden')) {
                 closePaymentModal();
-            }
-            if (confirmationModal && !confirmationModal.classList.contains('hidden')) {
-                closeConfirmationModal();
             }
         }
     });

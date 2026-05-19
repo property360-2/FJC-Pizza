@@ -61,10 +61,10 @@ class Product(models.Model):
         if not self.requires_bom:
             return self.stock
 
-        try:
-            recipe = self.recipe
-        except RecipeItem.DoesNotExist:
+        if not hasattr(self, 'recipe'):
             return self.stock
+
+        recipe = self.recipe
 
         # Get all ingredients in the recipe
         recipe_ingredients = recipe.ingredients.all()

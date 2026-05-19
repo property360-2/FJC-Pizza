@@ -1,3 +1,9 @@
+# ==============================================================================
+# FCJ Pizza Kiosk URLs Configuration
+# Purpose: Defines the URL routing patterns for the customer-facing kiosk frontend,
+#          including menu browsing, cart management, checking out, and requesting receipts.
+# ==============================================================================
+
 from django.urls import path
 from . import kiosk_views
 
@@ -6,6 +12,7 @@ urlpatterns = [
     path('cart/', kiosk_views.cart_view, name='cart'),
     path('checkout/', kiosk_views.checkout, name='checkout'),
     path('order/<str:order_number>/', kiosk_views.order_status, name='order_status'),
+    path('order/<str:order_number>/request-receipt/', kiosk_views.request_receipt_ajax, name='request_receipt'),
     path('add-to-cart/<int:product_id>/', kiosk_views.add_to_cart, name='add_to_cart'),
     path('remove-from-cart/<int:product_id>/', kiosk_views.remove_from_cart, name='remove_from_cart'),
     path('update-cart-quantity/<int:product_id>/', kiosk_views.update_cart_quantity, name='update_cart_quantity'),

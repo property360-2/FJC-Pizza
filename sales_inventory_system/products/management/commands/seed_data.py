@@ -230,7 +230,6 @@ class Command(BaseCommand):
                 defaults={
                     'description': f'Ingredient: {data["name"]}',
                     'unit': data['unit'],
-                    'cost_per_unit': data['cost_per_unit'],
                     'current_stock': data['current_stock'],
                     'min_stock': data['min_stock'],
                     'variance_allowance': data['variance_allowance'],
@@ -434,16 +433,33 @@ class Command(BaseCommand):
         return recipes
 
     def create_stock_transactions(self, ingredients, user):
-        """Create stock transaction history"""
+        """Create stock transaction history using fallback base unit costs"""
         transaction_count = 0
         base_date = timezone.now() - timedelta(days=30)
+
+        # Unified lookup mapping for base costs for transaction records
+        fallback_costs = {
+            'Pizza Flour': Decimal('0.0025'),
+            'Mozzarella Cheese': Decimal('0.008'),
+            'Tomato Sauce': Decimal('0.0035'),
+            'Pepperoni': Decimal('0.012'),
+            'Fresh Basil': Decimal('0.05'),
+            'Olive Oil': Decimal('0.015'),
+            'Mushrooms': Decimal('0.004'),
+            'Bell Peppers': Decimal('0.0035'),
+            'Onions': Decimal('0.0015'),
+            'Yeast': Decimal('0.20'),
+            'Salt': Decimal('0.0005'),
+            'Water': Decimal('0.0002'),
+        }
 
         for ingredient in ingredients.values():
             num_transactions = random.randint(3, 5)
             for i in range(num_transactions):
                 transaction_type = random.choice(['PURCHASE', 'ADJUSTMENT', 'WASTE', 'PREP'])
                 quantity = Decimal(str(round(random.uniform(1, 10), 3)))
-                unit_cost = ingredient.cost_per_unit if transaction_type == 'PURCHASE' else None
+                base_cost = fallback_costs.get(ingredient.name, Decimal('0.50'))
+                unit_cost = base_cost if transaction_type == 'PURCHASE' else None
 
                 StockTransaction.objects.create(
                     ingredient=ingredient,

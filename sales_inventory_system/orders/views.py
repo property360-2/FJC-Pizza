@@ -233,6 +233,10 @@ def process_payment(request, pk):
                 except IngredientDeductionError as e:
                     raise ValueError(f'Ingredient deduction failed: {str(e)}')
 
+                # Send online receipt if customer provided email
+                from sales_inventory_system.system.automation import send_online_receipt
+                send_online_receipt(order)
+
                 # Create audit log for payment
                 AuditTrail.objects.create(
                     user=request.user,
@@ -326,6 +330,10 @@ def quick_payment(request, pk):
                 deduction_result = BOMService.deduct_ingredients_for_order(order, request.user)
             except IngredientDeductionError as e:
                 raise ValueError(f'Ingredient deduction failed: {str(e)}')
+
+            # Send online receipt if customer provided email
+            from sales_inventory_system.system.automation import send_online_receipt
+            send_online_receipt(order)
 
             # Create audit log for payment
             change = cash_amount - float(order.total_amount)
@@ -581,6 +589,9 @@ def pos_checkout(request):
             from sales_inventory_system.products.inventory_service import BOMService, IngredientDeductionError
 
             customer_name = request.POST.get('customer_name', 'Walk-in Customer').strip()
+            customer_email = request.POST.get('customer_email', '').strip()
+            if not customer_email:
+                customer_email = None
             table_number = request.POST.get('table_number', '').strip()
             notes = request.POST.get('notes', '').strip()
             payment_method = request.POST.get('payment_method', 'CASH')
@@ -617,6 +628,7 @@ def pos_checkout(request):
                 # Create order with calculated total
                 order = Order.objects.create(
                     customer_name=customer_name,
+                    customer_email=customer_email,
                     table_number=table_number,
                     notes=notes,
                     status='IN_PROGRESS',
@@ -655,6 +667,10 @@ def pos_checkout(request):
                     status='SUCCESS',
                     processed_by=request.user
                 )
+
+                # Send online receipt if customer provided email
+                from sales_inventory_system.system.automation import send_online_receipt
+                send_online_receipt(order)
 
                 # Create audit log
                 AuditTrail.objects.create(
@@ -868,14 +884,27 @@ def pos_create_order(request):
 
 @login_required
 def order_archive(request, pk):
-    """Archive an order (admin only)"""
-    from django.contrib.auth.decorators import user_passes_test
+    """
+    Archives a specific order by setting its `is_archived` status flag to True.
+    This action is restricted to administrators only. It creates a corresponding
+    audit log entry to capture the action. Supports both AJAX (XMLHttpRequest) and
+    traditional standard browser requests, returning appropriate JSON or HTML redirects.
 
-    def is_admin(user):
-        return user.is_authenticated and user.is_admin
+    Parameters:
+        request (HttpRequest): The Django request object containing user session context.
+        pk (int): The primary key identifier of the Order instance to be archived.
 
-    # Check permissions
+    Returns:
+        JsonResponse: If the request is AJAX, returns JSON with success status and message.
+        HttpResponseRedirect: If traditional request, redirects to the order list view.
+    """
+    # Check permissions - restrict archiving to admin users only
     if not request.user.is_authenticated or not request.user.is_admin:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'You do not have permission to archive orders!'
+            })
         messages.error(request, 'You do not have permission to archive orders!')
         return redirect('orders:list')
 
@@ -883,7 +912,7 @@ def order_archive(request, pk):
     order.is_archived = True
     order.save()
 
-    # Create audit log
+    # Create audit log to track archiving of this order record
     from sales_inventory_system.system.models import AuditTrail
     AuditTrail.objects.create(
         user=request.user,
@@ -891,8 +920,18 @@ def order_archive(request, pk):
         model_name='Order',
         record_id=order.id,
         description=f'Archived order: {order.order_number}',
-        data_snapshot={'order_number': order.order_number, 'customer_name': order.customer_name, 'status': order.get_status_display()}
+        data_snapshot={
+            'order_number': order.order_number,
+            'customer_name': order.customer_name,
+            'status': order.get_status_display()
+        }
     )
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': True,
+            'message': f'Order "{order.order_number}" archived successfully!'
+        })
 
     messages.success(request, f'Order "{order.order_number}" archived successfully!')
     return redirect('orders:list')

@@ -19,6 +19,7 @@ class Order(models.Model):
 
     order_number = models.CharField(max_length=20, unique=True, editable=False)
     customer_name = models.CharField(max_length=200, blank=True)
+    customer_email = models.EmailField(max_length=254, blank=True, null=True)
     table_number = models.CharField(max_length=20, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     notes = models.TextField(blank=True)
