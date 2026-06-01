@@ -1,85 +1,59 @@
 # 🍕 FJC Pizza Sales & Inventory Management System
 
-> **IMPORTANT NOTICE**
-> This system is proudly made by **Jun Alvior**.
-> ⚠️ **Ownership & Permissions**: This software and its related documentation are the intellectual property of Jun Alvior. It **cannot be used, modified, or distributed** by others without explicit written permission from the owner.
+> **💡 OPEN SOURCE PROJECT**
+> This system is an open-source Sales & Inventory Management System designed to streamline restaurant operations, from order processing to real-time inventory tracking and intelligent forecasting. Contributions are welcome!
 
 ---
 
-## 🚀 Overview
+## 🚀 Key Features
 
-FJC Pizza is a high-performance Sales & Inventory Management System designed to streamline restaurant operations, from order processing to real-time inventory tracking and business intelligence.
+* **POS & Order Management**: Seamless order processing for cashiers and customers.
+* **Real-time Inventory**: Automatic stock deduction and low-stock alerts.
+* **Audit Trail**: Complete log of all system activities for accountability.
+* **Secure Authentication**: Role-based access control for Admins, Managers, and Cashiers.
 
-### Key Features
-- **POS & Order Management**: Seamless order processing for cashiers and customers.
-- **Real-time Inventory**: Automatic stock deduction and low-stock alerts.
-- **Advanced Analytics**: Sales forecasting and business intelligence reports.
-- **Audit Trail**: Complete log of all system activities for accountability.
-- **Secure Authentication**: Role-based access control for Admins, Managers, and Cashiers.
+### 🤖 Intelligent Features & Automation (In Development)
+* **ML Sales Forecasting**: Machine Learning integration to predict future sales trends and demand.
+* **Automated Low-Stock Emailing**: Instant email notifications sent to suppliers or managers when ingredients run low.
+* **E-Receipts**: Automated digital receipts sent straight to customers' emails upon purchase.
+* **Midnight Reports**: Automated daily sales and inventory summary generated and emailed every midnight.
 
 ---
 
 ## 💻 Local Setup Guide
 
-This system is optimized for local development using **SQLite**.
+This system is optimized for local development using **SQLite** (default) or **PostgreSQL**.
 
 ### 1. Prerequisites
-- Python 3.10+
-- Virtual Environment (Recommended)
+* Python 3.10+
+* Virtual Environment (Recommended)
 
 ### 2. Environment Configuration
-Create a `.env` file in the root directory (or use the provided `.env.example`).
-For local development, ensure the PostgreSQL settings are commented out to use SQLite defaults.
+Create a `.env` file in the root directory (or copy from `.env.example`).
 
 ```bash
 DEBUG=True
 SECRET_KEY=your-secret-key-here
-# DATABASE_URL= (Leave empty for SQLite)
+# DATABASE_URL= (Leave empty for SQLite, or provide PostgreSQL URL)
+
 ```
-
-### 3. Installation & Database Setup
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run migrations
-cd sales_inventory_system
-python manage.py migrate
-
-# Seed demo data (Users, Products, Orders)
-cd ..
-python seed_data.py
-```
-
-### 4. Running the Application
-```bash
-cd sales_inventory_system
-python manage.py runserver
-```
-Access the system at: `http://127.0.0.1:8000`
 
 ---
 
-## 🔑 Demo Credentials
+## 🤝 Contributing
 
-Use these accounts to explore the system after running the seeder:
+We welcome contributions from the community! To contribute:
 
-| Role | Username | Password |
-| :--- | :--- | :--- |
-| **Administrator** | `admin` | `admin123` |
-| **Manager** | `manager` | `manager123` |
-| **Cashier** | `cashier` | `cashier123` |
-
----
-
-## 📚 Documentation
-
-For detailed guides, please refer to the [Documentation Directory](./Documentation/):
-- [Business Overview](./Documentation/01-BUSINESS-OVERVIEW.md)
-- [System Architecture](./Documentation/02-SYSTEM-ARCHITECTURE.md)
-- [User Workflows](./Documentation/03-USER-ROLES-WORKFLOWS.md)
-- [Full Feature List](./Documentation/04-FEATURES-FUNCTIONALITY.md)
+1. **Fork** the repository.
+2. **Create a new branch** (`git checkout -b feature/AmazingFeature`).
+3. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`).
+4. **Push to the branch** (`git push origin feature/AmazingFeature`).
+5. Open a **Pull Request**.
 
 ---
 
-Developed with ❤️ by **Jun Alvior**
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details. Free to use, modify, and distribute!
+
+```
